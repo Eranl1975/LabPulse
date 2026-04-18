@@ -340,7 +340,7 @@ export default function ReportsPage() {
                   color: 'var(--color-slate-600)',
                 }}>
                   Run completed — {String(result.run_date ?? '')} · {String(result.persistence_mode ?? '')} mode
-                  {result.dry_run ? ' · dry run' : ''}
+                  {result.dry_run === true ? ' · dry run' : ''}
                 </span>
               </div>
 
@@ -484,7 +484,7 @@ export default function ReportsPage() {
               )}
 
               {/* Formatted report */}
-              {result.formatted_report && (
+              {!!result.formatted_report && (
                 <details style={{
                   background: 'var(--color-navy-950, #05101e)',
                   borderRadius: '12px',

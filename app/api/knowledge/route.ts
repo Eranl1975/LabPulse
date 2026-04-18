@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     technique: body.technique,
     instrument_family: body.instrument_family ?? 'generic',
     model: body.model ?? null,
-    issue_category: body.issue_category ?? null,
+    issue_category: body.issue_category ?? '',
     symptom: body.symptom,
     likely_causes: body.likely_causes ?? [],
     diagnostics: body.diagnostics ?? [],

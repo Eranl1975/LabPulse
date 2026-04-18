@@ -93,7 +93,6 @@ export default function ComboInput({
             right: '0.5rem',
             top: '50%',
             transform: `translateY(-50%) rotate(${open ? 180 : 0}deg)`,
-            transition: 'transform .2s ease',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
