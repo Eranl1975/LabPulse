@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────────────────────────── */
+@theme inline {
+  /* Navy scale — trust, depth, authority */
+  --color-navy-950: #040d1e;
+  --color-navy-900: #0a1628;
+  --color-navy-800: #0f2040;
+  --color-navy-700: #1a2d50;
+  --color-navy-600: #1e3a5f;
+  --color-navy-500: #2a4f80;
+
+  /* Teal scale — scientific innovation, precision */
+  --color-teal-700: #0d7d71;
+  --color-teal-600: #0f9188;
+  --color-teal-500: #14b8a6;
+  --color-teal-400: #2dd4bf;
+  --color-teal-300: #5eead4;
+  --color-teal-100: #ccfbf1;
+  --color-teal-50:  #f0fdfa;
+
+  /* Cyan — highlight accent */
+  --color-cyan-400: #22d3ee;
+
+  /* Status colours */
+  --color-amber-600: #d97706;
+  --color-amber-500: #f59e0b;
+  --color-amber-400: #fbbf24;
+  --color-amber-100: #fef3c7;
+  --color-amber-50:  #fffbeb;
+  --color-red-700:   #b91c1c;
+  --color-red-500:   #ef4444;
+  --color-red-100:   #fee2e2;
+  --color-red-50:    #fff1f2;
+  --color-green-600: #16a34a;
+  --color-green-500: #22c55e;
+  --color-green-100: #dcfce7;
+  --color-green-50:  #f0fdf4;
+
+  /* Slate neutrals */
+  --color-slate-50:  #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Fonts — CSS variables set by next/font in layout.tsx */
+  --font-display: var(--font-syne), 'Segoe UI', system-ui, sans-serif;
+  --font-sans:    var(--font-dm-sans), 'Segoe UI', system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains), 'Menlo', 'Consolas', monospace;
+
+  /* Radii */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 24px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BASE
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  /*
+   * Smooth gradient background on <html> so it covers the
+   * full page height regardless of content length.
+   * Very subtle: pale off-white → faint teal-blue tint.
+   */
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100%;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(20,184,166,.055) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 90% 100%, rgba(15,145,136,.04) 0%, transparent 55%),
+      linear-gradient(160deg, #f8fbfc 0%, #f0f8f7 100%);
+  }
+
+  body {
+    background: transparent;   /* html carries the gradient */
+    color: var(--color-slate-900);
+    font-family: var(--font-sans);
+    font-size: 1rem;            /* explicit 16 px base */
+    line-height: 1.65;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    line-height: 1.2;
+    color: var(--color-navy-900);
+    margin: 0;
+  }
+
+  ::selection { background-color: var(--color-teal-100); color: var(--color-navy-900); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   COMPONENTS
+   ───────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Layout container ─────────────────────────────────────── */
+  .lab-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 640px)  { .lab-container { padding-inline: 1.75rem; } }
+  @media (min-width: 1024px) { .lab-container { padding-inline: 2.25rem; } }
+
+  /* ── Cards ───────────────────────────────────────────────── */
+  .lab-card {
+    background: #fff;
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 4px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  }
+  .lab-card-hover {
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .lab-card-hover:hover {
+    box-shadow: 0 8px 28px rgba(15,23,42,.10), 0 2px 8px rgba(15,23,42,.06);
+    transform: translateY(-2px);
+  }
+
+  /* ── Form fields ─────────────────────────────────────────── */
+  .lab-label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: .875rem;           /* ↑ was .8125rem */
+    font-weight: 700;
+    color: var(--color-slate-600);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: .4rem;
+  }
+  .lab-input {
+    width: 100%;
+    padding: .6875rem .9375rem;   /* ↑ more vertical padding */
+    font-size: .9375rem;          /* ↑ was .875rem */
+    font-family: var(--font-sans);
+    color: var(--color-slate-900);
+    background: var(--color-slate-50);
+    border: 1.5px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    -webkit-appearance: none;
+    line-height: 1.4;
+  }
+  .lab-input::placeholder { color: var(--color-slate-400); }
+  .lab-input:hover  { border-color: var(--color-slate-300); }
+  .lab-input:focus  {
+    border-color: var(--color-teal-500);
+    box-shadow: 0 0 0 3px rgba(20,184,166,.15);
+    background: #fff;
+  }
+  .lab-textarea { resize: vertical; min-height: 5rem; }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .lab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    font-family: var(--font-sans);
+    font-size: .9375rem;          /* ↑ was .875rem */
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    padding: .6875rem 1.375rem;   /* ↑ slightly more padding */
+  }
+  .lab-btn-primary {
+    background: var(--color-teal-600);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(15,145,136,.28);
+  }
+  .lab-btn-primary:hover:not(:disabled) {
+    background: var(--color-teal-700);
+    box-shadow: 0 4px 14px rgba(15,145,136,.35);
+    transform: translateY(-1px);
+  }
+  .lab-btn-primary:disabled {
+    background: var(--color-teal-300);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  .lab-btn-secondary {
+    background: #fff;
+    color: var(--color-navy-800);
+    border: 1.5px solid var(--color-slate-200);
+  }
+  .lab-btn-secondary:hover {
+    border-color: var(--color-teal-400);
+    color: var(--color-teal-600);
+    background: var(--color-teal-50);
+  }
+  .lab-btn-ghost {
+    background: transparent;
+    color: var(--color-slate-600);
+  }
+  .lab-btn-ghost:hover { background: var(--color-slate-100); color: var(--color-slate-900); }
+  .lab-btn-lg  { padding: .8125rem 1.875rem; font-size: 1rem; }  /* ↑ was .75/.9375 */
+  .lab-btn-sm  { padding: .4375rem .9375rem; font-size: .875rem; }  /* ↑ was .375/.8125 */
+  .lab-btn-navy {
+    background: var(--color-navy-900);
+    color: #fff;
+  }
+  .lab-btn-navy:hover {
+    background: var(--color-navy-800);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(10,22,40,.4);
+  }
+
+  /* ── Section eyebrow ─────────────────────────────────────── */
+  .lab-eyebrow {
+    font-family: var(--font-display);
+    font-size: .75rem;            /* ↑ was .6875rem */
+    font-weight: 700;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+    color: var(--color-teal-600);
+  }
+
+  /* ── Answer section panels ───────────────────────────────── */
+  .ans-section {
+    padding: 1.125rem 1.25rem;    /* ↑ slightly more */
+    border-radius: var(--radius-md);
+    border-left: 3px solid transparent;
+  }
+  .ans-teal   { border-left-color: var(--color-teal-500);  background: var(--color-teal-50); }
+  .ans-blue   { border-left-color: #60a5fa;                 background: #eff6ff; }
+  .ans-green  { border-left-color: var(--color-green-500);  background: var(--color-green-50); }
+  .ans-amber  { border-left-color: var(--color-amber-500);  background: var(--color-amber-50); }
+  .ans-red    { border-left-color: var(--color-red-500);    background: var(--color-red-50); }
+  .ans-gray   { border-left-color: var(--color-slate-300);  background: var(--color-slate-50); }
+
+  .ans-heading {
+    font-family: var(--font-display);
+    font-size: .8125rem;          /* ↑ was .75rem */
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: .625rem;
+  }
+
+  /* ── Confidence badge ────────────────────────────────────── */
+  .conf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .3rem .75rem;        /* ↑ slightly more */
+    border-radius: 999px;
+    font-size: .8125rem;          /* ↑ was .75rem */
+    font-weight: 700;
+  }
+  .conf-high         { background: var(--color-teal-100);  color: var(--color-teal-700); }
+  .conf-medium       { background: var(--color-amber-100); color: var(--color-amber-600); }
+  .conf-low          { background: var(--color-red-100);   color: var(--color-red-700); }
+  .conf-insufficient { background: var(--color-slate-100); color: var(--color-slate-500); }
+
+  /* ── Source tag ──────────────────────────────────────────── */
+  .source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .25rem .5625rem;     /* ↑ slightly more */
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: .75rem;            /* ↑ was .6875rem */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+  }
+  .source-vendor     { background: var(--color-teal-50);  color: var(--color-teal-700); }
+  .source-scientific { background: #eff6ff;               color: #1d4ed8; }
+  .source-community  { background: var(--color-amber-50); color: var(--color-amber-600); }
+
+  /* ── Nav ─────────────────────────────────────────────────── */
+  .nav-link {
+    font-size: .9375rem;          /* ↑ was .875rem */
+    font-weight: 500;
+    color: var(--color-slate-600);
+    transition: color .15s, background .15s;
+    text-decoration: none;
+    padding: .4375rem .625rem;    /* ↑ slightly more */
+    border-radius: var(--radius-md);
+  }
+  .nav-link:hover { color: var(--color-navy-900); background: var(--color-slate-100); }
+  .nav-link-active { color: var(--color-teal-600); font-weight: 600; }
+
+  /* ── Dot grid bg ─────────────────────────────────────────── */
+  .dot-grid {
+    background-image: radial-gradient(circle, var(--color-slate-300) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* ── Error box ───────────────────────────────────────────── */
+  .lab-error {
+    background: var(--color-red-50);
+    border: 1px solid var(--color-red-100);
+    border-left: 3px solid var(--color-red-500);
+    border-radius: var(--radius-md);
+    padding: .875rem 1.125rem;    /* ↑ slightly more */
+    color: var(--color-red-700);
+    font-size: .9375rem;          /* ↑ was .875rem */
+  }
+
+  /* ── Animations ──────────────────────────────────────────── */
+  .fade-in { animation: labFadeIn .35s ease forwards; }
+  @keyframes labFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, var(--color-slate-100) 25%, var(--color-slate-50) 50%, var(--color-slate-100) 75%);
+    background-size: 200% 100%;
+    animation: labShimmer 1.5s infinite;
+  }
+  @keyframes labShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Mode switcher tabs ──────────────────────────────────── */
+  .mode-tab {
+    padding: .5rem 1rem;          /* ↑ was .4375rem */
+    font-size: .875rem;           /* ↑ was .8125rem */
+    font-weight: 600;
+    font-family: var(--font-display);
+    border: none;
+    background: transparent;
+    color: var(--color-slate-500);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .mode-tab:hover { background: var(--color-slate-100); color: var(--color-slate-800); }
+  .mode-tab-active {
+    background: var(--color-navy-900);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(10,22,40,.35);
+  }
+
+  /* ── Numbered step ───────────────────────────────────────── */
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.625rem;              /* ↑ was 1.375rem */
+    height: 1.625rem;
+    background: var(--color-teal-600);
+    color: #fff;
+    border-radius: 50%;
+    font-size: .75rem;            /* ↑ was .6875rem */
+    font-weight: 700;
+    font-family: var(--font-display);
+    flex-shrink: 0;
+  }
+
+  /* ── Priority card ───────────────────────────────────────── */
+  .priority-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .875rem;
+    padding: .875rem 1.125rem;    /* ↑ was .75rem/1rem */
+    background: #fff;
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    font-size: .9375rem;          /* ↑ was .875rem */
+    color: var(--color-slate-700);
+  }
+
+  /* ── Page sections spacing ───────────────────────────────── */
+  .lab-page-header {
+    background: var(--color-navy-900);
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    padding: 2.75rem 0 2.25rem;
+  }
+  @media (min-width: 768px) { .lab-page-header { padding: 3.25rem 0 2.75rem; } }
+
+  .lab-page-body {
+    padding: 2.25rem 0 4rem;
+  }
+  @media (min-width: 768px) { .lab-page-body { padding: 2.75rem 0 5rem; } }
+}

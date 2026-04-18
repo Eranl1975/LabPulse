@@ -1,0 +1,53 @@
+[
+  {
+    "id": "seed-001",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "retention time shift",
+    "symptom": "Retention times shifted earlier than expected",
+    "likely_causes": ["column degradation", "mobile phase composition change", "temperature fluctuation"],
+    "diagnostics": ["check column age and void volume", "verify mobile phase batch", "check column oven temperature log"],
+    "corrective_actions": ["replace column", "prepare fresh mobile phase", "recalibrate column oven"],
+    "severity": "medium",
+    "escalation_conditions": ["shift > 10% of expected RT", "multiple analytes affected simultaneously"],
+    "source_id": "agilent-hplc-troubleshooting-guide",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "seed-002",
+    "technique": "LCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "LCMS source contamination",
+    "symptom": "Gradual loss of sensitivity over multiple injections",
+    "likely_causes": ["matrix buildup on source", "dirty spray shield", "blocked capillary"],
+    "diagnostics": ["inspect spray shield visually", "run solvent blank and compare background", "check capillary condition"],
+    "corrective_actions": ["clean source components", "replace spray shield", "flush capillary with strong solvent"],
+    "severity": "high",
+    "escalation_conditions": ["sensitivity loss > 50%", "source cleaning does not restore signal"],
+    "source_id": "waters-ms-source-maintenance",
+    "confidence_score": 0.9,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "seed-003",
+    "technique": "GC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "GC ghost peaks",
+    "symptom": "Unexpected peaks appearing in blank injections",
+    "likely_causes": ["contaminated inlet liner", "septum bleed", "column bleed", "solvent impurity"],
+    "diagnostics": ["run solvent blank", "bake out column at high temperature", "replace inlet liner and septum"],
+    "corrective_actions": ["replace liner and septum", "bake out column", "use higher purity solvent"],
+    "severity": "medium",
+    "escalation_conditions": ["ghost peaks co-elute with target analytes", "persist after liner replacement"],
+    "source_id": "restek-gc-troubleshooting-guide",
+    "confidence_score": 0.8,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  }
+]
