@@ -1,0 +1,48 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#0a1628"/>
+
+  <!-- Subtle grid -->
+  <line x1="256" y1="48" x2="256" y2="464" stroke="#1a2d50" stroke-width="6"/>
+  <line x1="48" y1="256" x2="464" y2="256" stroke="#1a2d50" stroke-width="6"/>
+
+  <!-- Chromatogram baseline -->
+  <line x1="56" y1="376" x2="456" y2="376" stroke="#2a4f80" stroke-width="14"/>
+
+  <!-- Main peak — Gaussian Bézier, teal -->
+  <path
+    d="M56,376 L112,376 C134,376 156,376 176,354 C200,324 228,232 256,112 C284,232 312,324 336,354 C356,376 378,376 400,376 L456,376"
+    stroke="#14b8a6"
+    stroke-width="22"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Peak fill gradient -->
+  <path
+    d="M176,354 C200,324 228,232 256,112 C284,232 312,324 336,354 Z"
+    fill="url(#peakGrad)"
+    opacity="0.20"
+  />
+
+  <!-- Small secondary peak (right) -->
+  <path
+    d="M344,376 C352,376 360,376 368,360 C376,344 392,312 400,296 C408,312 424,344 432,360 C440,376 448,376 452,376"
+    stroke="#0f9188"
+    stroke-width="14"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.65"
+  />
+
+  <!-- Peak tip highlight dot -->
+  <circle cx="256" cy="112" r="18" fill="#2dd4bf" opacity="0.90"/>
+
+  <defs>
+    <linearGradient id="peakGrad" x1="256" y1="112" x2="256" y2="376" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0a1628" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>

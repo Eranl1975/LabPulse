@@ -29,6 +29,12 @@ export const metadata: Metadata = {
   title: 'LabPulse — Instrument Troubleshooting Intelligence',
   description:
     'Rule-based diagnostic platform for LCMS, HPLC, GC, and GCMS. Evidence-ranked answers traced to verified vendor and scientific sources.',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#14b8a6',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
