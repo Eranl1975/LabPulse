@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
 
   let ranked = rankItems(query, readItems());
 
-  // AI fallback: when rule-based system finds no matching knowledge items,
+  // AI fallback: when rule-based system has no/low confidence matches,
   // ask Claude (trained on scientific literature + instrument docs) for an answer.
-  if (ranked.confidence === 0 && process.env.ANTHROPIC_API_KEY) {
+  if (ranked.confidence < 0.4 && process.env.ANTHROPIC_API_KEY) {
     try {
       ranked = await aiAnswerFallback(query);
     } catch (err) {

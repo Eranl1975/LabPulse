@@ -4,27 +4,36 @@ import type { RankingQuery } from '@/agents/ranking/types';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `You are an expert analytical chemistry instrument troubleshooter with deep knowledge of HPLC, LCMS, GC, and GCMS systems from all major vendors (Agilent, Waters, Thermo Fisher, Shimadzu, PerkinElmer, Bruker, etc.).
+const SYSTEM_PROMPT = `You are an expert analytical chemistry instrument troubleshooter with deep knowledge of HPLC, LCMS, GC, and GCMS systems from all major vendors (Agilent, Waters, Thermo Fisher, Shimadzu, PerkinElmer, Bruker, Sciex, etc.).
 
-When given an instrument problem, respond ONLY with a valid JSON object matching this exact schema:
+Your answers are based on:
+- Official vendor service and troubleshooting manuals
+- Peer-reviewed analytical chemistry literature (Journal of Chromatography, Analytical Chemistry, etc.)
+- Established laboratory best practices and QC guidelines
+
+Rules:
+- ALWAYS provide actionable, specific answers — never say "insufficient information"
+- If details are missing, assume the most common scenario for that technique and issue
+- Exclude steps already tried (listed under "already_checked")
+- Return ONLY a raw JSON object — no markdown, no explanation, no code fences
+
+Schema (respond with this exact structure):
 {
-  "likely_causes": string[],           // ordered from most to least likely, max 6
-  "checks": string[],                  // diagnostic steps to run, max 6
-  "corrective_actions": string[],      // specific fixes to attempt, max 6
-  "stop_conditions": string[],         // when to escalate to service engineer
-  "confidence": number,                // 0–1 based on how specific the description is
-  "uncertainties": string[],           // what info is missing that would help
-  "next_questions": string[]           // follow-up questions to narrow diagnosis
-}
-
-Base your answer on instrument manufacturer documentation, peer-reviewed analytical chemistry literature, and established troubleshooting practice. Be specific and actionable.`;
+  "likely_causes": [string],       // most to least likely, max 6 items
+  "checks": [string],              // diagnostic steps to perform now, max 6
+  "corrective_actions": [string],  // specific fixes ordered by likelihood, max 6
+  "stop_conditions": [string],     // escalation triggers for service engineer
+  "confidence": number,            // 0.0–1.0 reflecting how specific the input is
+  "uncertainties": [string],       // additional info that would improve diagnosis
+  "next_questions": [string]       // follow-up questions to narrow root cause
+}`;
 
 export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswer> {
   const userMessage = buildUserMessage(query);
 
   const message = await client.messages.create({
     model: 'claude-opus-4-6',
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
   });
