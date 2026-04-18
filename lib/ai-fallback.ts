@@ -34,28 +34,31 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
     .map(b => (b as { type: 'text'; text: string }).text)
     .join('');
 
-  let parsed: Partial<RankedAnswer> = {};
+  let parsed: Partial<Record<string, unknown>> = {};
   try {
-    // Strip markdown code fences if present
-    const json = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
-    parsed = JSON.parse(json);
+    // Extract the first {...} block — handles code fences, preamble text, etc.
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON object found in response');
+    parsed = JSON.parse(jsonMatch[0]);
   } catch {
-    // Fallback if Claude returned unexpected format
     parsed = {
       uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
     };
   }
 
+  const arr = (v: unknown): string[] =>
+    Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === 'string') : [];
+
   return {
     problem_summary:    query.symptom_description,
-    likely_causes:      parsed.likely_causes      ?? [],
-    checks:             parsed.checks             ?? [],
-    corrective_actions: parsed.corrective_actions ?? [],
-    stop_conditions:    parsed.stop_conditions    ?? [],
-    confidence:         parsed.confidence         ?? 0.5,
+    likely_causes:      arr(parsed.likely_causes),
+    checks:             arr(parsed.checks),
+    corrective_actions: arr(parsed.corrective_actions),
+    stop_conditions:    arr(parsed.stop_conditions),
+    confidence:         typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
     evidence_summary:   [{ source_id: 'claude-opus-4-6', excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
-    uncertainties:      parsed.uncertainties      ?? [],
-    next_questions:     parsed.next_questions     ?? [],
+    uncertainties:      arr(parsed.uncertainties),
+    next_questions:     arr(parsed.next_questions),
   };
 }
 
