@@ -143,7 +143,7 @@ export default function HomePage() {
       <section
         style={{
           position: 'relative',
-          overflow: 'hidden',
+          overflowX: 'hidden',
           paddingTop: 'clamp(3.5rem, 8vw, 6rem)',
           paddingBottom: 'clamp(3rem, 7vw, 5rem)',
           background: '#fff',
@@ -179,12 +179,13 @@ export default function HomePage() {
 
               <h1 style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
+                fontSize: 'clamp(1.875rem, 4.5vw, 3.25rem)',
                 fontWeight: 800,
-                lineHeight: 1.1,
+                lineHeight: 1.25,
                 color: '#f97316',
-                letterSpacing: '-0.025em',
+                letterSpacing: '-0.02em',
                 marginBottom: '1.25rem',
+                paddingLeft: '0.05em',
               }}>
                 Diagnose instrument<br />
                 failures <span style={{ color: 'var(--color-teal-600)' }}>before</span> they<br />

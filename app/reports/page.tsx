@@ -153,9 +153,10 @@ export default function ReportsPage() {
             fontSize: 'clamp(1.625rem, 3.5vw, 2.25rem)',
             fontWeight: 800,
             color: '#f97316',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.15,
+            letterSpacing: '-0.02em',
+            lineHeight: 1.25,
             margin: '0 0 0.75rem',
+            paddingLeft: '0.05em',
           }}>
             Monthly Updates
           </h1>
