@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { rankItems } from '@/agents/ranking/index';
 import { present }   from '@/agents/presentation/index';
 import { readItems } from '@/lib/store';
+import { aiAnswerFallback } from '@/lib/ai-fallback';
 import type { RankingQuery } from '@/agents/ranking/types';
 import type { Technique } from '@/lib/types';
 
@@ -40,10 +41,22 @@ export async function POST(req: NextRequest) {
     already_checked:     Array.isArray(body.already_checked) ? body.already_checked.filter((s): s is string => typeof s === 'string') : [],
   };
 
-  const ranked = rankItems(query, readItems());
+  let ranked = rankItems(query, readItems());
+
+  // AI fallback: when rule-based system finds no matching knowledge items,
+  // ask Claude (trained on scientific literature + instrument docs) for an answer.
+  if (ranked.confidence === 0 && process.env.ANTHROPIC_API_KEY) {
+    try {
+      ranked = await aiAnswerFallback(query);
+    } catch (err) {
+      // If AI call fails, return the original empty result rather than crashing
+      console.error('[ai-fallback] error:', err);
+    }
+  }
 
   return NextResponse.json({
     ranked_answer: ranked,
+    ai_assisted: ranked.evidence_summary.some(e => e.source_id === 'claude-opus-4-6'),
     modes: {
       concise:  present(ranked, 'concise'),
       standard: present(ranked, 'standard'),
