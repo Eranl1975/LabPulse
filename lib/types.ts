@@ -56,3 +56,32 @@ export interface TroubleshootingQuery {
   issue_category: string;
   symptom_description: string;
 }
+
+export type ReportStatus = 'pending' | 'resolved' | 'partially' | 'not_resolved';
+
+export interface LabReport {
+  id: string;
+  created_at: string;         // ISO 8601
+  technique: string;
+  vendor: string | null;
+  model: string | null;
+  issue_category: string | null;
+  symptom_description: string;
+  confidence: number;         // 0–1
+  ai_assisted: boolean;
+  status: ReportStatus;
+  resolution_note: string | null;
+  resolved_at: string | null; // ISO 8601
+}
+
+export interface AnalyticsSummary {
+  total: number;
+  resolved: number;
+  partially: number;
+  not_resolved: number;
+  pending: number;
+  avg_confidence: number;
+  ai_assisted_count: number;
+  by_technique: Record<string, number>;
+  by_day: { date: string; count: number }[];
+}

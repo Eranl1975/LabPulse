@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import type { Technique } from '@/lib/types';
+import type { Technique, LabReport } from '@/lib/types';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
+import { addReport } from '@/lib/reportStore';
+import ReportModal from './ReportModal';
 import ModeSwitcher, { type DisplayMode } from './ModeSwitcher';
 import AnswerDisplay from './AnswerDisplay';
 import ComboInput from './ComboInput';
@@ -70,6 +72,7 @@ const CHECKED_CHIPS = [
 
 interface ApiResult {
   ranked_answer: { confidence: number };
+  ai_assisted: boolean;
   modes: {
     concise:  TextOutput;
     standard: TextOutput;
@@ -268,10 +271,12 @@ export default function QueryForm() {
   const [methodConditions, setMethodConditions] = useState('');
   const [alreadyChecked,   setAlreadyChecked]   = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [result,  setResult]  = useState<ApiResult | null>(null);
-  const [error,   setError]   = useState<string | null>(null);
-  const [mode,    setMode]    = useState<DisplayMode>('standard');
+  const [loading,          setLoading]          = useState(false);
+  const [result,           setResult]           = useState<ApiResult | null>(null);
+  const [error,            setError]            = useState<string | null>(null);
+  const [mode,             setMode]             = useState<DisplayMode>('standard');
+  const [showModal,        setShowModal]        = useState(false);
+  const [pendingReportId,  setPendingReportId]  = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -309,8 +314,29 @@ export default function QueryForm() {
         throw new Error(err.error ?? `HTTP ${res.status}`);
       }
 
-      setResult(await res.json());
+      const data = await res.json() as ApiResult;
+      setResult(data);
       setMode('standard');
+
+      // Auto-create troubleshooting report in localStorage
+      const reportId = crypto.randomUUID();
+      const report: LabReport = {
+        id: reportId,
+        created_at: new Date().toISOString(),
+        technique: technique.trim(),
+        vendor: vendor.trim() || null,
+        model: model.trim() || null,
+        issue_category: issueCategory || null,
+        symptom_description,
+        confidence: data.ranked_answer?.confidence ?? 0,
+        ai_assisted: data.ai_assisted ?? false,
+        status: 'pending',
+        resolution_note: null,
+        resolved_at: null,
+      };
+      addReport(report);
+      setPendingReportId(reportId);
+      setShowModal(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed.');
     } finally {
@@ -462,6 +488,14 @@ export default function QueryForm() {
       </form>
 
       {/* ── Results ───────────────────────────────────────────────────────── */}
+      {showModal && pendingReportId && (
+        <ReportModal
+          reportId={pendingReportId}
+          onClose={() => setShowModal(false)}
+          onSave={() => setShowModal(false)}
+        />
+      )}
+
       {result && (
         <div style={{ marginTop: '2.75rem' }} className="fade-in">
           <div style={{
