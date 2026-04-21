@@ -18,9 +18,19 @@ const VENDOR_OPTIONS = [
 
 const MODEL_OPTIONS = [
   // Agilent
-  '1260 Infinity II', '1290 Infinity II', '7890B GC', '7010 GC/MS',
+  '1100 Series HPLC', '1200 Series HPLC', '1220 Infinity II LC',
+  '1260 Infinity HPLC', '1260 Infinity II', '1260 Infinity II Bio-inert LC',
+  '1290 Bio LC', '1290 Infinity UHPLC', '1290 Infinity II',
+  '1290 Infinity II Bio LC', '1290 Infinity II Flexible Pump System',
+  '1290 Infinity II Multisampler', '1290 Infinity II UHPLC',
+  '7890B GC', '7010 GC/MS',
   // Waters
-  'Xevo TQ-S', 'Xevo TQ-XS', 'Acquity UPLC', 'Alliance HPLC',
+  'ACQUITY ARC', 'ACQUITY ARC Bio', 'ACQUITY Premier UPLC',
+  'ACQUITY UPLC', 'ACQUITY UPLC H-Class', 'ACQUITY UPLC H-Class PLUS',
+  'ACQUITY UPLC I-Class', 'ACQUITY UPLC I-Class PLUS',
+  'Alliance 2695', 'Alliance e2695', 'Alliance HPLC',
+  'Arc Premier', 'Breeze HPLC',
+  'Xevo TQ-S', 'Xevo TQ-XS',
   // Thermo
   'TSQ Altis', 'Vanquish UHPLC', 'Trace 1310 GC', 'Q Exactive',
   // Shimadzu
