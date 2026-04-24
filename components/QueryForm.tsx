@@ -14,7 +14,7 @@ import ComboInput from './ComboInput';
 const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC'] as const;
 
 const VENDOR_OPTIONS = [
-  'Agilent', 'Waters', 'Thermo Fisher', 'Shimadzu', 'SCIEX',
+  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
 ] as const;
 
@@ -33,10 +33,25 @@ const MODEL_OPTIONS = [
   'Alliance 2695', 'Alliance e2695', 'Alliance HPLC',
   'Arc Premier', 'Breeze HPLC',
   'Xevo TQ-S', 'Xevo TQ-XS',
-  // Thermo
+  // Thermo Fisher
   'TSQ Altis', 'Vanquish UHPLC', 'Trace 1310 GC', 'Q Exactive',
   // Shimadzu
   'Nexera X2', 'LCMS-8045', 'GC-2030',
+  // Dionex (Ion Chromatography)
+  'Aquion IC System',
+  'Integrion HPIC System',
+  'ICS-900',
+  'ICS-1100',
+  'ICS-1600',
+  'ICS-2000',
+  'ICS-2100',
+  'ICS-3000',
+  'ICS-4000',
+  'ICS-5000',
+  'ICS-5000+',
+  'ICS-6000',
+  'ICS-6000 HPIC',
+  'ICS-6000 Capillary HPIC',
 ] as const;
 
 const ISSUE_OPTIONS = [
