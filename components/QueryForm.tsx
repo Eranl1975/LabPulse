@@ -11,11 +11,12 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC'] as const;
 
 const VENDOR_OPTIONS = [
-  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'Shimadzu', 'SCIEX',
+  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
+  'NETZSCH', 'Mettler Toledo', 'Hitachi',
 ] as const;
 
 const MODEL_OPTIONS = [
@@ -52,14 +53,46 @@ const MODEL_OPTIONS = [
   'ICS-6000',
   'ICS-6000 HPIC',
   'ICS-6000 Capillary HPIC',
+  // TA Instruments — TGA
+  'Discovery TGA 5500',
+  'Discovery TGA 5000',
+  'Discovery TGA 550',
+  'Discovery TGA 55',
+  'Discovery TGA 5500 IR',
+  'SDT 650',
+  'SDT Q600',
+  'Q50 TGA',
+  'Q500 TGA',
+  'Q5000 IR TGA',
+  'HiRes TGA 2950',
+  // TA Instruments — DSC
+  'Discovery DSC 250',
+  'Discovery DSC 2500',
+  'Discovery DSC 25',
+  'Discovery DSC 750 (HP)',
+  'Discovery Nano DSC',
+  'Q10 DSC',
+  'Q20 DSC',
+  'Q100 DSC',
+  'Q200 DSC',
+  'Q1000 DSC',
+  'Q2000 DSC',
 ] as const;
 
 const ISSUE_OPTIONS = [
+  // Chromatography (HPLC / LCMS / GC / GCMS / UHPLC)
   'retention time shift', 'peak tailing', 'peak broadening', 'low sensitivity',
   'no peak', 'carryover', 'noisy baseline', 'high backpressure',
   'LCMS source contamination', 'GC ghost peaks', 'poor GC peak shape', 'GCMS signal loss',
   'split peaks', 'baseline drift', 'loss of resolution', 'pressure surge at injection',
   'void volume issue', 'column overloading', 'ion suppression', 'adduct formation',
+  // Ion Chromatography (IC)
+  'IC suppressor failure', 'IC baseline rise', 'IC peak distortion', 'IC wrong retention time',
+  // Thermal Analysis (TGA / DSC)
+  'unstable mass signal', 'TGA wrong decomposition temperature', 'TGA buoyancy artifact',
+  'TGA oxidation in inert atmosphere', 'poor TGA reproducibility',
+  'DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak',
+  'poor enthalpy reproducibility', 'DSC baseline curvature',
 ] as const;
 
 const URGENCY_OPTIONS = [

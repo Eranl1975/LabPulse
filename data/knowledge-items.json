@@ -49,5 +49,386 @@
     "confidence_score": 0.8,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "tga-001",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "unstable mass signal",
+    "symptom": "Noisy or drifting mass signal during TGA measurement",
+    "likely_causes": [
+      "external vibration from HVAC, foot traffic, or nearby equipment",
+      "air drafts reaching the balance chamber",
+      "static electricity on sample or ceramic crucible",
+      "contaminated or mechanically damaged hang-down wire",
+      "sample mass exceeding balance capacity (>1 g)"
+    ],
+    "diagnostics": [
+      "run an empty-crucible baseline scan and quantify baseline noise level",
+      "verify purge gas flow rate (typically 40–60 mL/min N2 balance + 60 mL/min furnace)",
+      "inspect hang-down wire under magnification for contamination, kinks, or corrosion",
+      "temporarily close off lab HVAC and check if noise improves",
+      "verify instrument is on a vibration-isolated bench or anti-vibration pad"
+    ],
+    "corrective_actions": [
+      "relocate instrument away from vibration sources; use vibration-isolation pad",
+      "shield instrument from air drafts; maintain stable purge gas flow rate",
+      "clean hang-down wire with isopropanol-wetted lint-free swab; allow to dry fully",
+      "reduce sample mass to 5–20 mg for optimal signal-to-noise",
+      "replace hang-down wire if corrosion or mechanical damage is confirmed"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "noise exceeds 0.01 mg RMS after all corrective actions",
+      "hang-down wire visibly broken, fused, or severely corroded",
+      "balance drift > 0.5 mg/min on empty crucible baseline"
+    ],
+    "source_id": "ta-instruments-tga-operators-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "tga-002",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "TGA wrong decomposition temperature",
+    "symptom": "Onset or decomposition temperature does not match expected literature or previous results",
+    "likely_causes": [
+      "temperature sensor drift requiring recalibration",
+      "heating rate too fast causing thermal lag between furnace and sample",
+      "temperature calibration not performed with certified Curie-point standards",
+      "sample mass too large (> 20 mg) introducing internal thermal gradients",
+      "furnace atmosphere (oxidising vs inert) not matching literature conditions"
+    ],
+    "diagnostics": [
+      "run Curie-point temperature calibration using certified standards (e.g., Alumel ~154°C, Nickel ~358°C, Iron ~780°C)",
+      "compare onset temperature at multiple heating rates (5, 10, 20 °C/min) to extrapolate to zero-rate",
+      "verify purge gas identity and flow rate match conditions of reference measurement",
+      "repeat measurement with 5 mg sample and compare onset with previous 20 mg run",
+      "review temperature calibration date in TA Instruments TRIOS software"
+    ],
+    "corrective_actions": [
+      "perform full temperature calibration using TA Instruments Curie-point standards kit",
+      "use slower heating rate (5–10 °C/min) for precise onset temperature determination",
+      "reduce sample mass to ≤ 10 mg to minimise thermal gradients",
+      "match purge gas and flow rate exactly to the published reference conditions",
+      "contact TA Instruments service if calibration does not hold between consecutive runs"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "temperature offset > 5°C after recalibration",
+      "Curie-point transitions no longer sharp (broad over > 10°C range)",
+      "furnace thermocouple visibly damaged or oxidised"
+    ],
+    "source_id": "ta-instruments-tga-temperature-calibration-note",
+    "confidence_score": 0.91,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "tga-003",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "TGA buoyancy artifact",
+    "symptom": "Apparent mass gain at the beginning of heating or a systematic upward drift in mass with increasing temperature on an empty crucible",
+    "likely_causes": [
+      "buoyancy effect: gas density decreases with rising temperature, reducing buoyant force on crucible",
+      "no baseline subtraction applied to sample run",
+      "using high-density inert gas (Argon) without buoyancy correction",
+      "gas flow rate changed between baseline and sample run"
+    ],
+    "diagnostics": [
+      "run an empty crucible baseline under identical conditions (same gas, flow, temperature programme)",
+      "check if apparent mass gain magnitude scales with gas density (Ar > N2 > He)",
+      "overlay sample curve with empty-crucible baseline to isolate true mass loss",
+      "verify gas flow rate is identical between baseline and sample measurement"
+    ],
+    "corrective_actions": [
+      "subtract empty-crucible baseline from sample data in TRIOS software",
+      "enable automatic buoyancy correction in TRIOS method settings",
+      "use helium purge if lowest buoyancy artifact is required",
+      "run baseline and sample at the same gas, flow rate, and temperature programme without exception"
+    ],
+    "severity": "low",
+    "escalation_conditions": [
+      "apparent mass gain > 0.5 mg on empty crucible after gas stabilisation",
+      "artifact prevents accurate mass loss determination for small events (< 1% mass loss)"
+    ],
+    "source_id": "ta-instruments-tga-application-note-an099",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "tga-004",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "TGA oxidation in inert atmosphere",
+    "symptom": "Sample shows exothermic mass gain or oxidative decomposition under nominally inert (N2 or Ar) purge",
+    "likely_causes": [
+      "insufficient purge time before starting ramp (residual O2 in furnace)",
+      "O2 leak through gas line fittings, tubing cracks, or loose connections",
+      "gas purity insufficient (< 99.999% N2 or Ar)",
+      "ambient air back-diffusion through furnace exhaust port",
+      "wrong gas cylinder connected to balance or furnace purge line"
+    ],
+    "diagnostics": [
+      "increase pre-run purge time to ≥ 15 minutes at high flow (100 mL/min) before starting",
+      "verify gas purity certificate; use only 99.999% (5.0 grade) N2 or Ar",
+      "inspect all gas line fittings with soapy water or leak detector spray for bubbles",
+      "run a blank with easily oxidised reference material (e.g., pure carbon black) to confirm inertness",
+      "check outlet of furnace for back-flow by holding a tissue near exhaust"
+    ],
+    "corrective_actions": [
+      "extend pre-run purge time to ≥ 15 minutes; use an oxygen scavenger on the gas line",
+      "replace gas tubing and tighten all Swagelok fittings; leak-test under pressure",
+      "switch to certified 99.999% inert gas cylinder from reputable supplier",
+      "install an O2 trap/purifier inline between the cylinder and instrument",
+      "add a positive pressure relief port to prevent air back-diffusion at exhaust"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "O2 contamination confirmed but source cannot be identified after full line inspection",
+      "furnace ceramic or thermocouple shows signs of oxidative damage",
+      "sample safety hazard due to unexpected combustion"
+    ],
+    "source_id": "ta-instruments-tga-operators-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "tga-005",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "poor TGA reproducibility",
+    "symptom": "Mass loss percentage varies significantly between replicate runs of the same material",
+    "likely_causes": [
+      "sample inhomogeneity (particle size, mixing)",
+      "variable sample packing density in crucible",
+      "moisture or solvent uptake between sample preparation and loading",
+      "platinum or alumina crucible contamination from previous run",
+      "inconsistent sample mass between replicates"
+    ],
+    "diagnostics": [
+      "compare mass loss curves normalised to sample mass — are onset temperatures consistent?",
+      "check if variance correlates with sample particle size or preparation method",
+      "measure sample immediately after weighing to minimise moisture uptake",
+      "inspect crucibles for residue; run empty crucible through full temperature programme",
+      "record exact sample mass for each replicate and compare normalised curves"
+    ],
+    "corrective_actions": [
+      "grind and sieve sample to a uniform particle size (< 100 µm) before analysis",
+      "use consistent tamping/packing pressure when loading crucible",
+      "store prepared samples in a desiccator and analyse within 30 minutes of preparation",
+      "anneal platinum crucibles at 900°C for 30 min after each use to burn off residues",
+      "target the same sample mass (± 0.5 mg) for all replicates using a 5-place balance"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "RSD of mass loss % exceeds 5% across ≥ 5 replicates after addressing all corrective actions",
+      "onset temperature varies by > 10°C between replicates of the same sample"
+    ],
+    "source_id": "ta-instruments-tga-application-note-an033",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "dsc-001",
+    "technique": "DSC",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "DSC noisy baseline",
+    "symptom": "High-frequency noise or erratic fluctuations on DSC heat-flow baseline",
+    "likely_causes": [
+      "electrical interference from power supply or nearby equipment",
+      "vibration transmitted to cell sensors",
+      "purge gas flow too high causing turbulence inside cell",
+      "loose or corroded electrical connections at cell",
+      "condensation inside DSC cell (sub-ambient measurements)"
+    ],
+    "diagnostics": [
+      "run an empty-cell baseline at the same conditions and quantify baseline noise (µW RMS)",
+      "compare noise at different scan rates (1, 5, 10, 20 °C/min) — thermal noise scales with rate",
+      "temporarily unplug nearby instruments and check if noise improves",
+      "inspect all cable connections from cell to electronic module",
+      "verify purge gas (N2 or He) flow rate is 50 mL/min or as specified in method"
+    ],
+    "corrective_actions": [
+      "connect instrument to a dedicated power circuit with line conditioner",
+      "check and firmly seat all cell electrical connections; clean with contact spray if corroded",
+      "set purge gas flow to 50 mL/min N2 or 25 mL/min He; avoid turbulent flow",
+      "for sub-ambient work: dry cell with dry N2 purge overnight; use dry gas generator",
+      "use lower heating rate to reduce inherent noise floor"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "baseline noise > 10 µW RMS at 10 °C/min after all corrective actions",
+      "cell sensor reads implausible temperature (> 10°C from setpoint at equilibrium)",
+      "visible moisture or contamination inside the DSC cell"
+    ],
+    "source_id": "ta-instruments-dsc-operators-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "dsc-002",
+    "technique": "DSC",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "DSC Tg shift",
+    "symptom": "Glass transition temperature (Tg) is lower or higher than expected or not reproducible between runs",
+    "likely_causes": [
+      "different heating rate from literature reference (Tg shifts ~3–5°C per decade of heating rate)",
+      "thermal history not erased: residual stress or crystallinity from processing",
+      "residual moisture plasticising the polymer (lowers Tg)",
+      "temperature calibration offset (instrument Tg ≠ true Tg)",
+      "sample thickness too great causing thermal lag"
+    ],
+    "diagnostics": [
+      "perform heat-cool-heat cycle: first heat erases history, Tg from second heat is intrinsic",
+      "check and match heating rate exactly to the reference publication",
+      "dry sample in oven at T_onset - 30°C for 2h and re-measure immediately",
+      "verify temperature calibration using indium (156.6°C onset) and cyclohexane (-87°C) or other certified standard",
+      "reduce sample mass to ≤ 5 mg to minimise thermal lag"
+    ],
+    "corrective_actions": [
+      "always report Tg from second heating scan after controlled cooling at 10 °C/min",
+      "dry hygroscopic samples at 60–80°C in vacuum for ≥ 2h before DSC",
+      "recalibrate temperature axis using indium; use MDSC for weak Tg signals",
+      "standardise heating rate across all runs and always quote rate when reporting Tg",
+      "crimp hermetic pans to prevent moisture re-absorption between preparation and measurement"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Tg variation > 5°C between replicates using the same thermal history protocol",
+      "indium calibration onset temperature deviates > 1°C from 156.6°C"
+    ],
+    "source_id": "ta-instruments-dsc-application-note-polymer-tg",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "dsc-003",
+    "technique": "DSC",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "DSC broad melting peak",
+    "symptom": "Melting or crystallisation peak is unusually broad, split, or poorly resolved from baseline",
+    "likely_causes": [
+      "poor thermal contact between sample and pan bottom (uneven sample distribution)",
+      "heating rate too fast for sample thermal mass",
+      "sample particle size too large causing internal temperature gradients",
+      "hermetic pan lid not crimped flat, creating air gap",
+      "sample contains a wide distribution of crystal sizes or polymorphs"
+    ],
+    "diagnostics": [
+      "press sample flat to ensure intimate pan contact; use spatula or press tool before crimping",
+      "repeat measurement at 2 and 5 °C/min and compare peak width — broad peaks narrow at slow rate",
+      "check lid crimp: a properly crimped pan has no gap visible around the edge",
+      "compare peak shape with known reference material (e.g., indium) to rule out instrument artefact",
+      "cross-section the sample pan after measurement and inspect sample distribution"
+    ],
+    "corrective_actions": [
+      "press powdered sample flat in pan with a micro-spatula before crimping lid",
+      "reduce heating rate to 2–5 °C/min for materials with high thermal mass (e.g., metals, ceramics)",
+      "reduce sample mass to 2–5 mg and increase sample surface-to-mass ratio",
+      "use TA Instruments hermetic pan crimping tool; inspect seal under microscope",
+      "for polymorphic samples: apply a standard annealing pre-treatment and document"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "peak width at half-height is > 5× broader than indium reference under same conditions",
+      "split peak cannot be narrowed by reducing sample mass or heating rate (suggests true polymorphism)"
+    ],
+    "source_id": "ta-instruments-dsc-operators-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "dsc-004",
+    "technique": "DSC",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "poor enthalpy reproducibility",
+    "symptom": "Calculated enthalpy (ΔH) values are inconsistent between replicates or deviate significantly from literature",
+    "likely_causes": [
+      "enthalpy calibration not performed or performed with incorrect indium mass",
+      "pan mass mismatch between sample and reference pans (> 0.5 mg difference)",
+      "incorrect baseline integration limits applied in TRIOS software",
+      "sample reacts with pan material (e.g., corrosive samples in aluminium pans)",
+      "incomplete transition: sample not fully melted or crystallised within scan range"
+    ],
+    "diagnostics": [
+      "run indium calibration standard (> 3 mg, known literature ΔHf = 28.57 J/g) and check recovery",
+      "weigh sample and reference pans on a 5-place balance; pair pans within ± 0.3 mg",
+      "review integration baseline selection in TRIOS — use sigmoid baseline for overlapping transitions",
+      "check if sample reacts with pan (discolouration, pitting, or gas evolution) after run",
+      "extend temperature range to ensure complete transition before integration"
+    ],
+    "corrective_actions": [
+      "perform indium enthalpy calibration with fresh certified standard (minimum 3 mg accurately weighed)",
+      "use weight-matched sample and reference pans; pre-weigh and sort pans in batches",
+      "apply consistent baseline type (linear or sigmoid) across all replicates; document in SOP",
+      "switch to gold, platinum, or stainless-steel pans for reactive or corrosive samples",
+      "widen scan range by ±20°C beyond expected transition to capture full peak area"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "indium ΔH recovery < 95% or > 105% of 28.57 J/g after recalibration",
+      "enthalpy RSD > 5% across ≥ 5 replicates of same material and preparation"
+    ],
+    "source_id": "ta-instruments-dsc-calibration-guide",
+    "confidence_score": 0.89,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "dsc-005",
+    "technique": "DSC",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "DSC baseline curvature",
+    "symptom": "DSC baseline is curved, non-linear, or returns to a different level after a transition",
+    "likely_causes": [
+      "scan rate too high for instrument thermal equilibration",
+      "asymmetric loading: sample and reference pans have different heat capacity or contact quality",
+      "cell contamination from previous run",
+      "pan contact problem — pan not sitting flat on sensor",
+      "heat capacity of sample changes significantly over the scanned range (common in polymers)"
+    ],
+    "diagnostics": [
+      "run empty-cell baseline and empty matched-pan baseline; overlay with sample run",
+      "check if curvature direction reverses when empty pans are swapped between sample and reference positions",
+      "inspect DSC cell for residue; clean with dry cotton swab if contaminated",
+      "reduce scan rate to 10 °C/min and re-run; excessive curvature at high rates suggests thermal asymmetry",
+      "in TRIOS, subtract the matched empty-pan run from the sample run as instrument baseline correction"
+    ],
+    "corrective_actions": [
+      "limit scan rate to ≤ 20 °C/min for standard measurements; use 10 °C/min for best baseline",
+      "use weight-matched pans in both sample and reference positions",
+      "clean DSC cell sensors with dry, lint-free cotton swab; use isopropanol only for persistent residue",
+      "ensure pans sit flat with no rocking — press gently with flat tool after placement",
+      "apply matched empty-pan baseline subtraction in TRIOS data analysis for precision work"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "baseline step after empty-pan subtraction > 1 mW at any scan rate ≤ 10 °C/min",
+      "residue in cell does not respond to routine cleaning (requires field service)"
+    ],
+    "source_id": "ta-instruments-dsc-operators-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
   }
 ]
