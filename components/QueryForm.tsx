@@ -19,90 +19,97 @@ const VENDOR_OPTIONS = [
   'NETZSCH', 'Mettler Toledo', 'Hitachi',
 ] as const;
 
-const MODEL_OPTIONS = [
-  // Agilent
-  '1100 Series HPLC', '1200 Series HPLC', '1220 Infinity II LC',
-  '1260 Infinity HPLC', '1260 Infinity II', '1260 Infinity II Bio-inert LC',
-  '1290 Bio LC', '1290 Infinity UHPLC', '1290 Infinity II',
-  '1290 Infinity II Bio LC', '1290 Infinity II Flexible Pump System',
-  '1290 Infinity II Multisampler', '1290 Infinity II UHPLC',
-  '7890B GC', '7010 GC/MS',
-  // Waters
-  'ACQUITY ARC', 'ACQUITY ARC Bio', 'ACQUITY Premier UPLC',
-  'ACQUITY UPLC', 'ACQUITY UPLC H-Class', 'ACQUITY UPLC H-Class PLUS',
-  'ACQUITY UPLC I-Class', 'ACQUITY UPLC I-Class PLUS',
-  'Alliance 2695', 'Alliance e2695', 'Alliance HPLC',
-  'Arc Premier', 'Breeze HPLC',
-  'Xevo TQ-S', 'Xevo TQ-XS',
-  // Thermo Fisher
-  'TSQ Altis', 'Vanquish UHPLC', 'Trace 1310 GC', 'Q Exactive',
-  // Shimadzu
-  'Nexera X2', 'LCMS-8045', 'GC-2030',
-  // Dionex (Ion Chromatography)
-  'Aquion IC System',
-  'Integrion HPIC System',
-  'ICS-900',
-  'ICS-1100',
-  'ICS-1600',
-  'ICS-2000',
-  'ICS-2100',
-  'ICS-3000',
-  'ICS-4000',
-  'ICS-5000',
-  'ICS-5000+',
-  'ICS-6000',
-  'ICS-6000 HPIC',
-  'ICS-6000 Capillary HPIC',
-  // TA Instruments — TGA
-  'Discovery TGA 5500',
-  'Discovery TGA 5000',
-  'Discovery TGA 550',
-  'Discovery TGA 55',
-  'Discovery TGA 5500 IR',
-  'SDT 650',
-  'SDT Q600',
-  'Q50 TGA',
-  'Q500 TGA',
-  'Q5000 IR TGA',
-  'HiRes TGA 2950',
-  // TA Instruments — DSC
-  'Discovery DSC 250',
-  'Discovery DSC 2500',
-  'Discovery DSC 25',
-  'Discovery DSC 750 (HP)',
-  'Discovery Nano DSC',
-  'Q10 DSC',
-  'Q20 DSC',
-  'Q100 DSC',
-  'Q200 DSC',
-  'Q1000 DSC',
-  'Q2000 DSC',
-  // Cytiva ÄKTA AVANT (FPLC)
-  'ÄKTA avant 25',
-  'ÄKTA avant 150',
-  // Cytiva ÄKTA OligoPilot (FPLC / preparative oligo purification)
-  'ÄKTA OligoPilot 10 Plus',
-  'ÄKTA OligoPilot 100 Plus',
-] as const;
+const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
+  HPLC: {
+    'Agilent':       ['1100 Series HPLC', '1200 Series HPLC', '1220 Infinity II LC', '1260 Infinity HPLC', '1260 Infinity II', '1260 Infinity II Bio-inert LC'],
+    'Waters':        ['Alliance 2695', 'Alliance e2695', 'Alliance HPLC', 'Arc Premier', 'Breeze HPLC', 'ACQUITY ARC', 'ACQUITY ARC Bio'],
+    'Shimadzu':      ['Prominence HPLC', 'Nexera HPLC'],
+    'Thermo Fisher': ['UltiMate 3000 HPLC', 'UltiMate 3000 SD'],
+  },
+  UHPLC: {
+    'Agilent':       ['1290 Bio LC', '1290 Infinity UHPLC', '1290 Infinity II', '1290 Infinity II Bio LC', '1290 Infinity II Flexible Pump System', '1290 Infinity II Multisampler', '1290 Infinity II UHPLC'],
+    'Waters':        ['ACQUITY Premier UPLC', 'ACQUITY UPLC', 'ACQUITY UPLC H-Class', 'ACQUITY UPLC H-Class PLUS', 'ACQUITY UPLC I-Class', 'ACQUITY UPLC I-Class PLUS'],
+    'Thermo Fisher': ['Vanquish UHPLC', 'Vanquish Core UHPLC', 'Vanquish Flex UHPLC', 'Vanquish Horizon UHPLC'],
+    'Shimadzu':      ['Nexera X2', 'Nexera XR', 'Nexera X3'],
+  },
+  LCMS: {
+    'Waters':        ['Xevo TQ-S', 'Xevo TQ-XS', 'Xevo G2-XS QTof', 'Synapt XS'],
+    'Thermo Fisher': ['TSQ Altis', 'TSQ Quantis', 'Q Exactive', 'Q Exactive Plus', 'Orbitrap Exploris 480'],
+    'Agilent':       ['6460 Triple Quad LC/MS', '6495 Triple Quad LC/MS', '6546 LC/Q-TOF'],
+    'Shimadzu':      ['LCMS-8045', 'LCMS-8060', 'LCMS-9030 Q-TOF'],
+    'SCIEX':         ['QTRAP 6500+', 'TripleTOF 6600+', 'ZenoTOF 7600'],
+  },
+  GC: {
+    'Agilent':       ['7890A GC', '7890B GC', '8860 GC', '8890 GC'],
+    'Thermo Fisher': ['Trace 1310 GC', 'Trace 1600 GC', 'FOCUS GC'],
+    'Shimadzu':      ['GC-2010', 'GC-2030', 'GC-2014'],
+    'PerkinElmer':   ['Clarus 590 GC', 'Clarus 690 GC'],
+  },
+  GCMS: {
+    'Agilent':       ['5975C GC/MS', '5977B GC/MS', '7000D GC/MS Triple Quad', '7010B GC/MS Triple Quad'],
+    'Thermo Fisher': ['ISQ 7000 GC-MS', 'TSQ 9000 GC-MS/MS'],
+    'Shimadzu':      ['GCMS-QP2010 SE', 'GCMS-QP2020 NX', 'GCMS-TQ8050 NX'],
+  },
+  IC: {
+    'Dionex':        ['Aquion IC System', 'Integrion HPIC System', 'ICS-900', 'ICS-1100', 'ICS-1600', 'ICS-2000', 'ICS-2100', 'ICS-3000', 'ICS-4000', 'ICS-5000', 'ICS-5000+', 'ICS-6000', 'ICS-6000 HPIC', 'ICS-6000 Capillary HPIC'],
+    'Thermo Fisher': ['Aquion IC System', 'Integrion HPIC System', 'ICS-6000', 'ICS-6000 HPIC', 'ICS-6000 Capillary HPIC'],
+  },
+  CE: {
+    'Agilent':          ['7100 Capillary Electrophoresis', 'G7100A CE'],
+    'Beckman Coulter':  ['PA 800 Plus CE', 'CESI 8000 Plus'],
+    'SCIEX':            ['PA 800 Plus Pharmaceutical Analysis System'],
+  },
+  SFC: {
+    'Waters':   ['ACQUITY UPC² System', 'ACQUITY UPC² Bio System'],
+    'Agilent':  ['1260 Infinity II SFC System', '1260 Infinity II Analytical SFC'],
+    'Shimadzu': ['Nexera UC SFC-MS'],
+  },
+  TGA: {
+    'TA Instruments': ['Discovery TGA 5500', 'Discovery TGA 5000', 'Discovery TGA 550', 'Discovery TGA 55', 'Discovery TGA 5500 IR', 'SDT 650', 'SDT Q600', 'Q50 TGA', 'Q500 TGA', 'Q5000 IR TGA', 'HiRes TGA 2950'],
+    'NETZSCH':        ['TG 209 F1 Libra', 'TG 209 F3 Tarsus', 'STA 449 F1 Jupiter', 'STA 449 F3 Jupiter', 'TG 209 F1 Iris'],
+    'Mettler Toledo': ['TGA/DSC 3+', 'TGA 2', 'TGA/DSC 1', 'TGA 1'],
+    'PerkinElmer':    ['TGA 8000', 'TGA 4000', 'STA 8000'],
+  },
+  DSC: {
+    'TA Instruments': ['Discovery DSC 250', 'Discovery DSC 2500', 'Discovery DSC 25', 'Discovery DSC 750 (HP)', 'Discovery Nano DSC', 'Q10 DSC', 'Q20 DSC', 'Q100 DSC', 'Q200 DSC', 'Q1000 DSC', 'Q2000 DSC'],
+    'NETZSCH':        ['DSC 200 F3 Maia', 'DSC 214 Polyma', 'DSC 300 Caliris Select', 'DSC 404 F1 Pegasus', 'DSC 404 F3 Pegasus'],
+    'Mettler Toledo': ['DSC 3+', 'DSC 2', 'DSC 1', 'Flash DSC 2+'],
+    'PerkinElmer':    ['DSC 8500', 'DSC 4000', 'Pyris 1 DSC', 'DSC 6000'],
+  },
+  FPLC: {
+    'Cytiva':  ['ÄKTA avant 25', 'ÄKTA avant 150', 'ÄKTA OligoPilot 10 Plus', 'ÄKTA OligoPilot 100 Plus', 'ÄKTA pure 25', 'ÄKTA pure 150', 'ÄKTA start', 'ÄKTA go'],
+    'Bio-Rad': ['NGC Quest 10 Plus', 'NGC Quest 100 Plus', 'NGC Chromatography System'],
+  },
+};
 
-const ISSUE_OPTIONS = [
-  // Chromatography (HPLC / LCMS / GC / GCMS / UHPLC)
-  'retention time shift', 'peak tailing', 'peak broadening', 'low sensitivity',
-  'no peak', 'carryover', 'noisy baseline', 'high backpressure',
-  'LCMS source contamination', 'GC ghost peaks', 'poor GC peak shape', 'GCMS signal loss',
-  'split peaks', 'baseline drift', 'loss of resolution', 'pressure surge at injection',
-  'void volume issue', 'column overloading', 'ion suppression', 'adduct formation',
-  // Ion Chromatography (IC)
-  'IC suppressor failure', 'IC baseline rise', 'IC peak distortion', 'IC wrong retention time',
-  // Thermal Analysis (TGA / DSC)
-  'unstable mass signal', 'TGA wrong decomposition temperature', 'TGA buoyancy artifact',
-  'TGA oxidation in inert atmosphere', 'poor TGA reproducibility',
-  'DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak',
-  'poor enthalpy reproducibility', 'DSC baseline curvature',
-  // FPLC / ÄKTA
-  'high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles',
-  'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation',
-] as const;
+function getFilteredModels(technique: string, vendor: string): string[] {
+  const hasT = Boolean(technique.trim());
+  const hasV = Boolean(vendor.trim());
+  if (!hasT && !hasV) return [];
+  if (hasT && hasV) return MODELS_BY_TECHNIQUE_AND_VENDOR[technique]?.[vendor] ?? [];
+  if (hasT) return [...new Set(Object.values(MODELS_BY_TECHNIQUE_AND_VENDOR[technique] ?? {}).flat())];
+  return [...new Set(Object.values(MODELS_BY_TECHNIQUE_AND_VENDOR).flatMap(m => m[vendor] ?? []))];
+}
+
+const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['retention time shift', 'peak tailing', 'peak broadening', 'split peaks', 'noisy baseline', 'high backpressure', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak', 'void volume issue', 'column overloading', 'pressure surge at injection'],
+  UHPLC: ['retention time shift', 'peak tailing', 'peak broadening', 'split peaks', 'noisy baseline', 'high backpressure', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak', 'void volume issue', 'pressure surge at injection'],
+  LCMS:  ['LCMS source contamination', 'ion suppression', 'adduct formation', 'low sensitivity', 'no peak', 'carryover', 'loss of resolution', 'retention time shift', 'peak tailing', 'noisy baseline'],
+  GC:    ['GC ghost peaks', 'poor GC peak shape', 'retention time shift', 'noisy baseline', 'split peaks', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak'],
+  GCMS:  ['GCMS signal loss', 'GC ghost peaks', 'poor GC peak shape', 'ion suppression', 'adduct formation', 'low sensitivity', 'retention time shift', 'noisy baseline'],
+  IC:    ['IC suppressor failure', 'IC baseline rise', 'IC peak distortion', 'IC wrong retention time', 'noisy baseline', 'high backpressure', 'low sensitivity', 'no peak'],
+  CE:    ['noisy baseline', 'baseline drift', 'poor resolution', 'loss of resolution', 'retention time shift', 'low sensitivity', 'no peak', 'peak broadening'],
+  SFC:   ['retention time shift', 'peak tailing', 'peak broadening', 'high backpressure', 'noisy baseline', 'baseline drift', 'carryover', 'loss of resolution'],
+  TGA:   ['unstable mass signal', 'TGA wrong decomposition temperature', 'TGA buoyancy artifact', 'TGA oxidation in inert atmosphere', 'poor TGA reproducibility'],
+  DSC:   ['DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak', 'poor enthalpy reproducibility', 'DSC baseline curvature'],
+  FPLC:  ['high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles', 'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation'],
+};
+
+const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
+
+function getFilteredIssues(technique: string): string[] {
+  return technique.trim() ? (ISSUES_BY_TECHNIQUE[technique] ?? ALL_ISSUES) : ALL_ISSUES;
+}
 
 const URGENCY_OPTIONS = [
   'routine — can wait a few days',
@@ -111,19 +118,45 @@ const URGENCY_OPTIONS = [
   'critical — production / QC stopped',
 ] as const;
 
-const SYMPTOM_CHIPS = [
-  'peak tailing', 'peak broadening', 'split peaks', 'ghost peaks',
-  'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike',
-  'high backpressure', 'loss of resolution', 'carryover', 'low signal',
-  'no signal', 'ion suppression',
-];
+const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['peak tailing', 'peak broadening', 'split peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal'],
+  UHPLC: ['peak tailing', 'peak broadening', 'split peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal'],
+  LCMS:  ['peak tailing', 'retention time shift', 'baseline noise', 'low signal', 'no signal', 'ion suppression', 'carryover', 'adduct peaks'],
+  GC:    ['ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'split peaks', 'loss of resolution', 'low signal', 'no signal', 'carryover'],
+  GCMS:  ['ghost peaks', 'signal loss', 'ion suppression', 'retention time shift', 'low signal', 'adduct peaks'],
+  IC:    ['baseline rise', 'peak distortion', 'wrong retention time', 'suppressor failure', 'high backpressure', 'low signal', 'no signal'],
+  CE:    ['baseline noise', 'baseline drift', 'poor resolution', 'low signal', 'retention time shift', 'peak broadening'],
+  SFC:   ['peak tailing', 'peak broadening', 'high backpressure', 'baseline noise', 'retention time shift', 'carryover', 'loss of resolution'],
+  TGA:   ['unstable signal', 'wrong decomposition temp', 'buoyancy artifact', 'oxidation artifact', 'poor reproducibility'],
+  DSC:   ['noisy baseline', 'Tg shift', 'broad melting peak', 'poor enthalpy', 'baseline curvature', 'exotherm artifact'],
+  FPLC:  ['high pressure', 'poor peak resolution', 'air bubbles', 'UV baseline noise', 'gradient inaccuracy', 'oligonucleotide separation issue'],
+};
 
-const CHECKED_CHIPS = [
-  'replaced column', 'replaced guard column', 'cleaned source/ion block',
-  'flushed mobile phase lines', 'checked connections and fittings',
-  'primed pump', 'replaced septa / liner', 'cleaned injector',
-  'checked mobile phase composition', 'restarted instrument software',
-];
+const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
+
+function getFilteredSymptoms(technique: string): string[] {
+  return technique.trim() ? (SYMPTOMS_BY_TECHNIQUE[technique] ?? ALL_SYMPTOMS) : ALL_SYMPTOMS;
+}
+
+const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['replaced column', 'replaced guard column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'],
+  UHPLC: ['replaced column', 'replaced guard column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'],
+  LCMS:  ['cleaned source/ion block', 'replaced column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'checked mobile phase composition', 'restarted instrument software', 'recalibrated mass'],
+  GC:    ['replaced septa / liner', 'replaced column', 'cleaned injector', 'restarted instrument software', 'checked carrier gas flow', 'baked out column', 'checked split ratio', 'replaced inlet liner'],
+  GCMS:  ['replaced septa / liner', 'cleaned ion source', 'replaced column', 'cleaned injector', 'restarted instrument software', 'tuned mass spectrometer', 'baked out column'],
+  IC:    ['replaced suppressor', 'replaced eluent', 'checked pump', 'replaced column', 'restarted instrument software', 'purged eluent lines', 'checked eluent concentration'],
+  CE:    ['replaced capillary', 'flushed capillary', 'replaced buffer', 'cleaned electrodes', 'restarted instrument software', 'reconditioned capillary'],
+  SFC:   ['replaced column', 'checked CO2 pressure', 'flushed co-solvent lines', 'checked connections', 'restarted instrument software', 'degassed mobile phase'],
+  TGA:   ['calibrated temperature', 'calibrated mass', 'checked purge gas flow', 'cleaned furnace', 'replaced crucible', 'checked baseline', 'verified tare'],
+  DSC:   ['calibrated temperature', 'calibrated enthalpy', 'checked purge gas flow', 'cleaned DSC cell', 'replaced pans', 'checked baseline', 'calibrated with indium'],
+  FPLC:  ['cleaned column', 'regenerated column', 'replaced tubing', 'checked pump seals', 'degassed buffers', 'calibrated UV detector', 'checked column pressure limits'],
+};
+
+const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];
+
+function getFilteredChecked(technique: string): string[] {
+  return technique.trim() ? (CHECKED_BY_TECHNIQUE[technique] ?? ALL_CHECKED) : ALL_CHECKED;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -328,6 +361,11 @@ export default function QueryForm() {
   const [methodConditions, setMethodConditions] = useState('');
   const [alreadyChecked,   setAlreadyChecked]   = useState('');
 
+  const filteredModels   = getFilteredModels(technique, vendor);
+  const filteredIssues   = getFilteredIssues(technique);
+  const filteredSymptoms = getFilteredSymptoms(technique);
+  const filteredChecked  = getFilteredChecked(technique);
+
   const [loading,          setLoading]          = useState(false);
   const [result,           setResult]           = useState<ApiResult | null>(null);
   const [error,            setError]            = useState<string | null>(null);
@@ -412,7 +450,7 @@ export default function QueryForm() {
             <Field label="Technique" required>
               <ComboInput
                 value={technique}
-                onChange={setTechnique}
+                onChange={v => { setTechnique(v); setModel(''); }}
                 options={TECHNIQUE_OPTIONS}
                 placeholder="Select or type technique…"
                 required
@@ -421,7 +459,7 @@ export default function QueryForm() {
             <Field label="Vendor">
               <ComboInput
                 value={vendor}
-                onChange={setVendor}
+                onChange={v => { setVendor(v); setModel(''); }}
                 options={VENDOR_OPTIONS}
                 placeholder="Select or type vendor…"
               />
@@ -430,8 +468,8 @@ export default function QueryForm() {
               <ComboInput
                 value={model}
                 onChange={setModel}
-                options={MODEL_OPTIONS}
-                placeholder="Select or type model…"
+                options={filteredModels}
+                placeholder={technique || vendor ? 'Select or type model…' : 'Select technique or vendor first…'}
               />
             </Field>
           </div>
@@ -447,7 +485,7 @@ export default function QueryForm() {
                 <ComboInput
                   value={issueCategory}
                   onChange={setIssueCategory}
-                  options={ISSUE_OPTIONS}
+                  options={filteredIssues}
                   placeholder="Select or describe issue type…"
                 />
               </Field>
@@ -472,7 +510,7 @@ export default function QueryForm() {
 
             <Field label="Observed Symptoms">
               <QuickChips
-                chips={SYMPTOM_CHIPS}
+                chips={filteredSymptoms}
                 current={symptoms}
                 onAppend={setSymptoms}
               />
@@ -506,7 +544,7 @@ export default function QueryForm() {
               hint="One step per line — these will be deprioritised in the answer."
             >
               <QuickChips
-                chips={CHECKED_CHIPS}
+                chips={filteredChecked}
                 current={alreadyChecked}
                 onAppend={setAlreadyChecked}
               />
