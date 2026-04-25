@@ -11,10 +11,10 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC'] as const;
 
 const VENDOR_OPTIONS = [
-  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Shimadzu', 'SCIEX',
+  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
   'NETZSCH', 'Mettler Toledo', 'Hitachi',
 ] as const;
@@ -77,6 +77,12 @@ const MODEL_OPTIONS = [
   'Q200 DSC',
   'Q1000 DSC',
   'Q2000 DSC',
+  // Cytiva ÄKTA AVANT (FPLC)
+  'ÄKTA avant 25',
+  'ÄKTA avant 150',
+  // Cytiva ÄKTA OligoPilot (FPLC / preparative oligo purification)
+  'ÄKTA OligoPilot 10 Plus',
+  'ÄKTA OligoPilot 100 Plus',
 ] as const;
 
 const ISSUE_OPTIONS = [
@@ -93,6 +99,9 @@ const ISSUE_OPTIONS = [
   'TGA oxidation in inert atmosphere', 'poor TGA reproducibility',
   'DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak',
   'poor enthalpy reproducibility', 'DSC baseline curvature',
+  // FPLC / ÄKTA
+  'high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles',
+  'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation',
 ] as const;
 
 const URGENCY_OPTIONS = [

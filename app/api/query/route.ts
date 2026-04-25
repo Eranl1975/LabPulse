@@ -6,7 +6,7 @@ import { aiAnswerFallback } from '@/lib/ai-fallback';
 import type { RankingQuery } from '@/agents/ranking/types';
 import type { Technique } from '@/lib/types';
 
-const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC']);
+const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC']);
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   const technique = body.technique as Technique;
   if (!technique || !VALID_TECHNIQUES.has(technique)) {
     return NextResponse.json(
-      { error: 'technique is required and must be one of: LCMS, HPLC, GC, GCMS, UHPLC, IC, CE, SFC, TGA, DSC' },
+      { error: 'technique is required and must be one of: LCMS, HPLC, GC, GCMS, UHPLC, IC, CE, SFC, TGA, DSC, FPLC' },
       { status: 400 },
     );
   }

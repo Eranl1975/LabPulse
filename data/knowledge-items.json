@@ -430,5 +430,234 @@
     "confidence_score": 0.86,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-001",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": null,
+    "issue_category": "high system pressure",
+    "symptom": "System pressure exceeds alarm limit or rises significantly during a run",
+    "likely_causes": [
+      "column end-frit or pre-column filter blocked by precipitated protein or particulates",
+      "air bubble trapped inside column or in-line filter",
+      "column bed collapsed or heavily fouled",
+      "system tubing partially blocked (narrow-bore tubing after sample pump)",
+      "flow rate set above column manufacturer maximum or above pump specification"
+    ],
+    "diagnostics": [
+      "measure pressure drop across each component individually by bypassing column, inline filter, and UV cell",
+      "check if pressure drops when flow rate is halved (pressure should drop proportionally if column is clear)",
+      "run 1 CV of CIP buffer (e.g., 0.5 M NaOH for HIC/IEX, 6 M guanidine HCl for affinity) at 50% flow",
+      "inspect inline A1/B1 inlet filters for discolouration or blockage",
+      "review UNICORN pressure log to identify when pressure started rising (gradual vs. sudden)"
+    ],
+    "corrective_actions": [
+      "replace or clean inline 0.2 µm filter upstream of column",
+      "perform column CIP according to resin manufacturer protocol (Cytiva column handbook)",
+      "back-flush column at low flow rate (0.5 mL/min) to dislodge frit blockage if protocol allows",
+      "reduce flow rate to ≤ 75% of column maximum; increase run time to compensate",
+      "replace column if CIP does not restore pressure to < 80% of alarm limit"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "pressure alarm triggers during equilibration with clean buffer (indicates permanent column damage)",
+      "system pressure does not drop when column is bypassed (system-level blockage requires service)",
+      "back-pressure exceeds pump maximum safe operating pressure"
+    ],
+    "source_id": "cytiva-akta-avant-system-guide",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-002",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": null,
+    "issue_category": "FPLC poor peak resolution",
+    "symptom": "Target protein peaks poorly resolved or co-eluting with contaminants; broad asymmetric peaks",
+    "likely_causes": [
+      "column void volume or cracked bed from overpressure or freeze-thaw damage",
+      "sample overloading: protein mass exceeds dynamic binding capacity",
+      "gradient slope too steep — insufficient time for selective elution",
+      "incorrect buffer pH or ionic strength for the selected resin",
+      "sample not fully soluble or aggregated prior to injection"
+    ],
+    "diagnostics": [
+      "inject a small volume of acetone or blue dextran and observe peak symmetry (As should be 0.8–1.2)",
+      "reduce sample load by 50% and compare resolution",
+      "run a scouting gradient (shallow 20–100% B over 30 CV) to identify optimal elution window",
+      "verify buffer pH with calibrated electrode; adjust ionic strength to match resin conditions",
+      "centrifuge sample at 10,000 × g for 5 min; filter through 0.2 µm before injection"
+    ],
+    "corrective_actions": [
+      "if peak asymmetry > 1.5: re-pack column or replace resin; do not operate with void volume",
+      "reduce sample load to ≤ 30% of measured dynamic binding capacity",
+      "flatten gradient: extend elution phase to ≥ 20 CV for improved resolution",
+      "re-prepare buffers at correct pH and conductivity as per resin datasheet",
+      "pre-filter and clarify sample; add 1–5% glycerol to stabilise aggregation-prone proteins"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "peak asymmetry (As) > 2.0 after sample reduction and gradient optimisation (column bed damage)",
+      "resolution does not improve after all buffer and loading optimisations"
+    ],
+    "source_id": "cytiva-akta-column-handbook",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-003",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": null,
+    "issue_category": "FPLC air bubbles",
+    "symptom": "Erratic UV signal spikes, flow instability, or pressure drops suggesting air in the flow path",
+    "likely_causes": [
+      "buffers not properly degassed (dissolved gases come out of solution under low pressure)",
+      "inlet filter (A1 or B1) partially blocked drawing air",
+      "buffer bottle emptied during run — pump draws air",
+      "system not fully primed after maintenance or tubing change",
+      "back-pressure regulator (BPR) set too low, allowing dissolved gas to de-gas in UV cell"
+    ],
+    "diagnostics": [
+      "visually inspect tubing for visible air pockets; check UV signal for sharp spikes",
+      "in UNICORN, run System > Prime All to fill all lines",
+      "check buffer volumes — ensure all inlets are fully submerged (not drawing air)",
+      "increase back-pressure regulator setting to 0.3–0.5 MPa to keep gases in solution",
+      "run a pump wash cycle and inspect flow from outlet for bubbles"
+    ],
+    "corrective_actions": [
+      "degas all buffers by vacuum filtration (0.2 µm) or sonication for ≥ 15 min before use",
+      "prime all pump channels in UNICORN (System > System wash / Prime) before starting run",
+      "increase back-pressure regulator to 0.3–0.5 MPa for aqueous buffers",
+      "replace A1/B1 inlet filters if flow rate is noticeably reduced",
+      "ensure buffer bottle levels are monitored; add level sensor alarm in UNICORN method"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "air bubble reaches column: pressure drops suddenly, re-equilibration required before proceeding",
+      "UV baseline does not stabilise after full prime and degassing — possible UV cell contamination"
+    ],
+    "source_id": "cytiva-akta-avant-system-guide",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-004",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": null,
+    "issue_category": "FPLC UV baseline noise",
+    "symptom": "UV detector baseline (280 nm or 260 nm) is noisy, drifting, or shows erratic spikes during blank run",
+    "likely_causes": [
+      "air bubble passing through UV flow cell",
+      "UV lamp nearing end of life (intensity too low)",
+      "UV flow cell contaminated with protein residue or lipids",
+      "UV flow cell path length incorrect for expected protein concentration",
+      "buffer components absorbing at monitored wavelength (e.g., imidazole absorbs at 280 nm)"
+    ],
+    "diagnostics": [
+      "run a buffer blank through the UV cell and record baseline noise (should be < 2 mAU at 280 nm)",
+      "in UNICORN, check UV lamp intensity value — below 200 (instrument-dependent) indicates lamp replacement needed",
+      "check if noise is reproducible and constant (contamination) vs. random spikes (air bubbles)",
+      "review buffer composition: imidazole > 50 mM absorbs at 280 nm; switch to 254 nm or 300 nm reference",
+      "inspect flow cell windows visually through the UV port if accessible"
+    ],
+    "corrective_actions": [
+      "eliminate air bubbles: increase back-pressure, degas buffers, prime lines (see FPLC air bubble protocol)",
+      "clean UV flow cell: inject 5 CV of 0.1 M NaOH, then 5 CV water, then equilibration buffer",
+      "replace UV lamp if intensity below manufacturer threshold (Cytiva service part)",
+      "switch monitoring wavelength: use 214 nm for all proteins; 254 nm when imidazole is present",
+      "use 10 mM instead of ≥ 50 mM imidazole in binding buffer where chromatography conditions allow"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "UV lamp replacement does not restore intensity — detector unit requires service",
+      "flow cell cleaning does not restore baseline — cell scratched or etched, requires replacement"
+    ],
+    "source_id": "cytiva-akta-avant-system-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-005",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": null,
+    "issue_category": "FPLC gradient inaccuracy",
+    "symptom": "Conductivity trace during gradient does not match expected profile; elution positions shift between runs",
+    "likely_causes": [
+      "pump A or pump B flow accuracy has drifted — requires recalibration",
+      "air bubble in gradient mixer causing flow rate fluctuation",
+      "buffer composition error: incorrect salt concentration or wrong buffer prepared",
+      "gradient mixer volume not accounted for in method delay volume settings",
+      "valve actuation delay causing slow switchover between buffer A and B"
+    ],
+    "diagnostics": [
+      "run a step gradient (0%, 50%, 100% B) at low flow and compare conductivity to theoretically expected values",
+      "perform pump flow rate verification in UNICORN (System > Pump calibration test)",
+      "independently measure buffer conductivity with a benchtop conductivity meter and compare to ÄKTA reading",
+      "check UNICORN method for correct delay volume (gradient mixer volume + tubing volume) compensation",
+      "run gradient with fresh, freshly prepared buffers of verified composition"
+    ],
+    "corrective_actions": [
+      "recalibrate pumps A and B using UNICORN pump calibration wizard",
+      "prime gradient mixer thoroughly: run 5 CV 100% B, then 5 CV 100% A before starting gradient method",
+      "prepare fresh buffers with verified conductivity; confirm salt concentrations gravimetrically or by conductivity meter",
+      "update method delay volume in UNICORN to match actual system void volume (measure with acetone tracer)",
+      "check mixer seal integrity; replace mixer if step gradient still deviates > 2% from expected"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "conductivity deviation > 5% from expected at verified buffer concentrations after pump recalibration",
+      "pump calibration test fails repeatedly — mechanical pump wear, requires service engineer"
+    ],
+    "source_id": "cytiva-akta-unicorn-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "fplc-006",
+    "technique": "FPLC",
+    "instrument_family": "Cytiva ÄKTA",
+    "model": "ÄKTA OligoPilot 10 Plus",
+    "issue_category": "oligonucleotide poor separation",
+    "symptom": "Incomplete separation of full-length oligonucleotide from n-1 failure sequences or other impurities by IP-RP or IEX chromatography",
+    "likely_causes": [
+      "gradient slope too steep for resolving single-nucleotide length differences",
+      "column temperature too low: elevated temperature improves selectivity for oligonucleotides",
+      "sample load too high — overloads ion-pair reversed-phase column",
+      "incorrect ion-pairing agent concentration (TEA, TEAA) or ACN gradient range",
+      "column not fully equilibrated with ion-pair buffer before injection"
+    ],
+    "diagnostics": [
+      "run a shallow scouting gradient (5–40% ACN over 60 min) at 50°C to locate the optimal elution window",
+      "compare resolution with and without ion-pairing agent (100 mM TEAA pH 7.0 is standard for IP-RP)",
+      "reduce sample load by 5-fold and compare peak widths — overloading confirms if peak broadening is load-dependent",
+      "verify column temperature is set to 50–60°C (elevated temperature is critical for oligo selectivity)",
+      "run blank gradient and check for ghost peaks from previous run (carryover of longer oligos)"
+    ],
+    "corrective_actions": [
+      "use shallower ACN gradient: 5–25% ACN over 40–60 CV with 100 mM TEAA pH 7.0 as ion-pair buffer",
+      "set column temperature to 50–60°C using ÄKTA column oven or external heated column compartment",
+      "reduce sample concentration and injection volume to ≤ 10% of column binding capacity",
+      "equilibrate column with ≥ 10 CV of 5% ACN / 100 mM TEAA before injection",
+      "for IEX mode: use NaCl or NaClO4 gradient on anion-exchange resin (e.g., Source 15Q) at pH 12"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "n and n-1 peaks cannot be resolved even at shallow gradient and reduced load (column selectivity too low for oligo length)",
+      "column pressure rises during ACN gradient (ACN incompatible with column — verify resin compatibility)"
+    ],
+    "source_id": "cytiva-oligopilot-application-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
   }
 ]
