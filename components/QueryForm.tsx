@@ -360,18 +360,18 @@ export default function QueryForm() {
   const [symptoms,         setSymptoms]         = useState('');
   const [methodConditions, setMethodConditions] = useState('');
   const [alreadyChecked,   setAlreadyChecked]   = useState('');
-
-  const filteredModels   = getFilteredModels(technique, vendor);
-  const filteredIssues   = getFilteredIssues(technique);
-  const filteredSymptoms = getFilteredSymptoms(technique);
-  const filteredChecked  = getFilteredChecked(technique);
-
   const [loading,          setLoading]          = useState(false);
   const [result,           setResult]           = useState<ApiResult | null>(null);
   const [error,            setError]            = useState<string | null>(null);
   const [mode,             setMode]             = useState<DisplayMode>('standard');
   const [showModal,        setShowModal]        = useState(false);
   const [pendingReportId,  setPendingReportId]  = useState<string | null>(null);
+
+  // Derived filtered lists — recomputed on every render when technique/vendor change
+  const filteredModels   = getFilteredModels(technique, vendor);
+  const filteredIssues   = getFilteredIssues(technique);
+  const filteredSymptoms = getFilteredSymptoms(technique);
+  const filteredChecked  = getFilteredChecked(technique);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -450,7 +450,7 @@ export default function QueryForm() {
             <Field label="Technique" required>
               <ComboInput
                 value={technique}
-                onChange={v => { setTechnique(v); setModel(''); }}
+                onChange={v => { setTechnique(v); setModel(''); setIssueCategory(''); }}
                 options={TECHNIQUE_OPTIONS}
                 placeholder="Select or type technique…"
                 required
