@@ -124,6 +124,65 @@ export class SupabasePersistenceAdapter implements PersistenceAdapter {
 }
 
 // ---------------------------------------------------------------------------
+// FilePersistenceAdapter
+// Stores knowledge items as a JSON file on disk — no database required.
+// ---------------------------------------------------------------------------
+import fs   from 'fs';
+import path from 'path';
+
+export class FilePersistenceAdapter implements PersistenceAdapter {
+  private readonly filePath: string;
+
+  constructor(filePath = './data/knowledge.json') {
+    this.filePath = path.resolve(filePath);
+  }
+
+  private read(): AcquiredItem[] {
+    if (!fs.existsSync(this.filePath)) return [];
+    try {
+      return JSON.parse(fs.readFileSync(this.filePath, 'utf-8')) as AcquiredItem[];
+    } catch {
+      return [];
+    }
+  }
+
+  private write(items: AcquiredItem[]): void {
+    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+    fs.writeFileSync(this.filePath, JSON.stringify(items, null, 2), 'utf-8');
+  }
+
+  async getAll(): Promise<AcquiredItem[]> {
+    return this.read().filter(i => !i.is_deprecated);
+  }
+
+  async getByIds(ids: string[]): Promise<AcquiredItem[]> {
+    const set = new Set(ids);
+    return this.read().filter(i => set.has(i.id));
+  }
+
+  async upsert(items: AcquiredItem[]): Promise<{ inserted: number; updated: number }> {
+    const store = new Map(this.read().map(i => [i.id, i]));
+    let inserted = 0;
+    let updated  = 0;
+    for (const item of items) {
+      store.has(item.id) ? updated++ : inserted++;
+      store.set(item.id, item);
+    }
+    this.write([...store.values()]);
+    return { inserted, updated };
+  }
+
+  async deprecate(ids: string[]): Promise<void> {
+    const store = new Map(this.read().map(i => [i.id, i]));
+    for (const id of ids) {
+      const item = store.get(id);
+      if (item) store.set(id, { ...item, is_deprecated: true });
+    }
+    this.write([...store.values()]);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Row mappers
 // ---------------------------------------------------------------------------
 

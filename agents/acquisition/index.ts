@@ -174,7 +174,7 @@ export { formatReport, recommendNextPriorities } from './pipeline/report';
 export type { AcquiredItem, PipelineRunStats }   from './types';
 export type { SourceAdapter }                    from './adapters/interface';
 export type { PersistenceAdapter }               from './pipeline/persist';
-export { MockPersistenceAdapter, SupabasePersistenceAdapter } from './pipeline/persist';
+export { MockPersistenceAdapter, SupabasePersistenceAdapter, FilePersistenceAdapter } from './pipeline/persist';
 export { MockVendorAdapter }                     from './adapters/mock-vendor';
 export { MockCommunityAdapter }                  from './adapters/mock-community';
 export {
