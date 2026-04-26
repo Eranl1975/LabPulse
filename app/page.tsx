@@ -174,7 +174,7 @@ export default function HomePage() {
             {/* Text column */}
             <div>
               <span className="lab-eyebrow" style={{ display: 'block', marginBottom: '1rem' }}>
-                Instrument Diagnostics · LCMS · HPLC · GC · GCMS
+                Instrument Diagnostics · HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC
               </span>
 
               <h1 style={{
@@ -438,7 +438,7 @@ export default function HomePage() {
             Lab<span style={{ color: 'var(--color-teal-500)' }}>Pulse</span>
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.35)' }}>
-            LCMS · HPLC · GC · GCMS · Rule-based diagnostics
+            HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · Rule-based diagnostics
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.3)' }}>
             v0.1.0 · MVP

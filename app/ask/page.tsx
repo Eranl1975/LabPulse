@@ -2,7 +2,7 @@ import QueryForm from '@/components/QueryForm';
 
 export const metadata = {
   title: 'Ask a Question — LabPulse',
-  description: 'Rule-based diagnostic assistant for LCMS, HPLC, GC, and GCMS instruments.',
+  description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, and FPLC instruments.',
 };
 
 export default function AskPage() {
@@ -55,8 +55,9 @@ export default function AskPage() {
             margin: 0,
             maxWidth: '540px',
           }}>
-            Describe the issue and your instrument details. LabPulse will analyse
-            against known failure patterns for HPLC, LCMS, GC, and GCMS.
+            Describe the issue and your instrument details. LabPulse analyses known
+            failure patterns for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA,
+            DSC, and FPLC — powered by vendor documentation and scientific literature.
           </p>
 
         </div>

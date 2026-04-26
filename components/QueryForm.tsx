@@ -16,7 +16,7 @@ const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'S
 const VENDOR_OPTIONS = [
   'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
-  'NETZSCH', 'Mettler Toledo', 'Hitachi',
+  'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -81,6 +81,11 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Bio-Rad': ['NGC Quest 10 Plus', 'NGC Quest 100 Plus', 'NGC Chromatography System'],
   },
 };
+
+function getFilteredVendors(technique: string): string[] {
+  if (!technique.trim()) return [...VENDOR_OPTIONS];
+  return Object.keys(MODELS_BY_TECHNIQUE_AND_VENDOR[technique] ?? {});
+}
 
 function getFilteredModels(technique: string, vendor: string): string[] {
   const hasT = Boolean(technique.trim());
@@ -368,6 +373,7 @@ export default function QueryForm() {
   const [pendingReportId,  setPendingReportId]  = useState<string | null>(null);
 
   // Derived filtered lists — recomputed on every render when technique/vendor change
+  const filteredVendors  = getFilteredVendors(technique);
   const filteredModels   = getFilteredModels(technique, vendor);
   const filteredIssues   = getFilteredIssues(technique);
   const filteredSymptoms = getFilteredSymptoms(technique);
@@ -450,7 +456,7 @@ export default function QueryForm() {
             <Field label="Technique" required>
               <ComboInput
                 value={technique}
-                onChange={v => { setTechnique(v); setModel(''); setIssueCategory(''); }}
+                onChange={v => { setTechnique(v); setVendor(''); setModel(''); setIssueCategory(''); }}
                 options={TECHNIQUE_OPTIONS}
                 placeholder="Select or type technique…"
                 required
@@ -460,8 +466,8 @@ export default function QueryForm() {
               <ComboInput
                 value={vendor}
                 onChange={v => { setVendor(v); setModel(''); }}
-                options={VENDOR_OPTIONS}
-                placeholder="Select or type vendor…"
+                options={filteredVendors}
+                placeholder={technique ? 'Select or type vendor…' : 'Select technique first…'}
               />
             </Field>
             <Field label="Instrument Model">
