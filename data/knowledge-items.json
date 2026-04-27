@@ -659,5 +659,225 @@
     "confidence_score": 0.88,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-001",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "incomplete coupling",
+    "symptom": "Low crude purity, deletion sequences detected by HPLC-MS, truncated peptide products",
+    "likely_causes": [
+      "Insufficient coupling reagent equivalents (HATU/HBTU/DIC) for sterically hindered residues",
+      "Coupling time too short for difficult sequences (beta-sheet prone, hydrophobic stretches)",
+      "Resin overloading — substitution too high for efficient solvation",
+      "Aggregation of growing peptide chain blocking amino acid access",
+      "Degraded or improperly stored coupling reagents (HATU hygroscopic)"
+    ],
+    "diagnostics": [
+      "Perform Kaiser (ninhydrin) or chloranil test for free amines after each coupling",
+      "Run analytical HPLC-MS of resin cleavage aliquot to identify deletion positions",
+      "Check coupling reagent freshness and storage conditions (HATU: dry, below -20 C)",
+      "Measure resin substitution (Fmoc loading) by UV quantitation at 301 nm after Fmoc removal"
+    ],
+    "corrective_actions": [
+      "Double-couple difficult residues (Ile, Val, Thr, Aib) with fresh activator",
+      "Increase coupling time to 60-120 min for beta-sheet prone sequences",
+      "Use HATU/HOAt or PyBOP/HOBt with DIPEA in DMF — avoid HBTU for low-loading resins",
+      "Add pseudoproline (Psi Pro) dipeptide building blocks at Ser/Thr positions to disrupt aggregation",
+      "Reduce resin substitution: target 0.2-0.4 mmol/g for long or difficult sequences",
+      "Implement microwave-assisted coupling (50-75 C) to improve kinetics"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Deletion sequences >20% by HPLC even after double coupling — consider redesigning sequence",
+      "Coupling efficiency <90% on multiple consecutive residues (systematic issue)"
+    ],
+    "source_id": "fields-methods-peptide-synthesis",
+    "confidence_score": 0.91,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-002",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "aggregation during synthesis",
+    "symptom": "Resin bead clumping, incomplete swelling, poor coupling efficiency mid-sequence, gel-like resin",
+    "likely_causes": [
+      "Beta-sheet aggregation from hydrophobic stretches (Leu, Ile, Val, Phe clusters)",
+      "Inappropriate solvent — DMF only without co-solvent to disrupt H-bonding",
+      "High resin substitution causing steric crowding on beads",
+      "Polar sequence segments forming intra-chain hydrogen bonds"
+    ],
+    "diagnostics": [
+      "Visually inspect resin: clumped or gel-like beads indicate aggregation",
+      "Try resin in DCM or NMP — improved swelling indicates DMF aggregation",
+      "Perform Fmoc loading quantitation mid-synthesis to detect coupling drop-off",
+      "Check solubility of peptide in synthesis solvent by cleaving a test aliquot"
+    ],
+    "corrective_actions": [
+      "Switch to NMP or DMF/DCM (1:1) with 10-30% DMSO to disrupt beta-sheet structure",
+      "Add chaotropic additives: 0.1 M LiCl or 0.3 M LiClO4 in DMF",
+      "Use backbone amide protection (Dmb on Gly/Ala) to disrupt H-bonding",
+      "Incorporate a beta-breaker residue (e.g. Aib) in the middle of hydrophobic runs",
+      "Reduce synthesis temperature and extend solvation times before coupling"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Resin beads irreversibly fused — restart synthesis with lower substitution resin",
+      "No improvement with solvent change — consider Fmoc strategy on PEG-based resin (ChemMatrix)"
+    ],
+    "source_id": "isidro-llobet-aggregation-spps-oc-2009",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-003",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "incomplete Fmoc deprotection",
+    "symptom": "Retained Fmoc detected by UV, low coupling on next residue, double-Fmoc peak in HPLC",
+    "likely_causes": [
+      "Piperidine concentration too low or contact time insufficient",
+      "Hindered Fmoc group after Aib, N-methyl amino acids, or Hmb backbone protection",
+      "Aggregated chain making Fmoc inaccessible to piperidine",
+      "Piperidine solution degraded or containing dibenzofulvene build-up"
+    ],
+    "diagnostics": [
+      "Monitor UV absorbance at 301 nm during deprotection: incomplete if signal persists",
+      "Run double deprotection and compare UV response on second vs. first treatment",
+      "Kaiser test after deprotection — positive (blue) confirms free amine",
+      "Inspect piperidine solution for dibenzofulvene precipitate (turbidity)"
+    ],
+    "corrective_actions": [
+      "Use 20% piperidine in DMF for 2 x 5 min (standard); extend to 2 x 10 min for hindered residues",
+      "For N-Me amino acids: use 20% piperidine + 0.1 M HOBt in DMF to suppress diketopiperazine",
+      "Replace piperidine solution — dibenzofulvene accumulation inhibits deprotection",
+      "Use 5% DBU + 5% piperidine in DMF for very hindered Fmoc groups",
+      "For aggregated sequences: pre-swell resin in NMP with DMSO before deprotection"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Incomplete deprotection after 3 extended treatments — likely Hmb or backbone protected residue",
+      "Systematic failure at same position in repeated synthesis attempts"
+    ],
+    "source_id": "chan-white-fmoc-solid-phase-peptide-synthesis",
+    "confidence_score": 0.89,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-004",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "cleavage and deprotection issues",
+    "symptom": "Low cleavage yield, incomplete side-chain deprotection, tert-butyl or Pbf adducts in MS, peptide stuck on resin",
+    "likely_causes": [
+      "TFA cleavage time too short for bulky protecting groups (Pbf on Arg requires over 2 h)",
+      "Insufficient scavenger cocktail — reattachment of carbocations to Trp or Cys",
+      "High loading or aggregated peptide with restricted TFA access",
+      "Low water or TIS content in cleavage cocktail preventing full deprotection"
+    ],
+    "diagnostics": [
+      "Analyse crude peptide by HPLC-MS: look for +56 Da (tBu adduct) or +252 Da (Pbf adduct) peaks",
+      "Re-treat resin with fresh TFA cocktail if first cleavage shows incomplete deprotection",
+      "Check cleavage cocktail composition against recommended protocols for side-chains present",
+      "Weigh resin before and after cleavage to assess remaining peptide load"
+    ],
+    "corrective_actions": [
+      "Extend TFA cleavage to 3-4 h for Arg-rich peptides (Pbf removal is rate-limiting)",
+      "Use Reagent K (TFA/water/thioanisole/EDT/phenol 82.5:5:5:2.5:5) for Cys/Met peptides",
+      "For simple sequences: TFA/TIS/H2O (95:2.5:2.5) for 2 h is adequate",
+      "Add 2-5% thioanisole or EDT to scavenge t-Bu carbocations and protect Trp",
+      "Filter resin and re-cleave residual peptide with fresh TFA cocktail for 30 min"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Adducts still present after 4 h cleavage with excess scavengers — consider backbone protection",
+      "Peptide precipitates in diethyl ether — possible incomplete deprotection, re-dissolve in AcOH/water"
+    ],
+    "source_id": "king-cleavage-side-reactions-spps-ijppr-1990",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-005",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "racemization",
+    "symptom": "Epimeric peptide impurities, doublet peaks in chiral HPLC, same mass as target with different retention time in MS",
+    "likely_causes": [
+      "OBt ester activation of C-terminal amino acid loading — especially Cys, His, Thr",
+      "Excess base (DIPEA) and long activation time before coupling — oxazolone formation",
+      "Use of HBTU/HATU at elevated temperature without coupling time control",
+      "His coupling without Boc or Trt protection on imidazole side chain"
+    ],
+    "diagnostics": [
+      "Run chiral HPLC (Chirobiotic T or CHIRALPAK column) to detect D-enantiomers",
+      "HPLC-MS: same mass, earlier-eluting mirror-image peak on C18 reversed-phase",
+      "Check coupling protocol — HBTU/DIPEA >2 eq at RT for >2 min is racemization-prone for Cys",
+      "Verify His building block: use Fmoc-His(Trt)-OH or Fmoc-His(Boc)-OH"
+    ],
+    "corrective_actions": [
+      "Use HATU/HOAt instead of HBTU/HOBt — reduced racemization due to active ester stability",
+      "Minimise pre-activation time: add amino acid and activator to resin simultaneously",
+      "For Cys: use Fmoc-Cys(Trt)-OH and couple with PyBOP/HOBt/DIPEA at RT",
+      "For His: switch to Fmoc-His(Trt)-OH or add collidine as non-nucleophilic base",
+      "Reduce DIPEA to 2 equivalents and avoid excess base during activation"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Racemisation >5% on multiple residues — reconsider activation strategy for entire sequence",
+      "Chiral HPLC required for final purity release if epimerisation confirmed"
+    ],
+    "source_id": "han-racemisation-fmoc-spps-joc-1996",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "spps-006",
+    "technique": "SPPS",
+    "instrument_family": "Peptide Synthesizer",
+    "model": null,
+    "issue_category": "instrument delivery failure",
+    "symptom": "Missed amino acid delivery, clogged lines, incorrect volume dispensed, reagent not transferred to vessel",
+    "likely_causes": [
+      "Clogged frit or delivery line from precipitated amino acid or activator",
+      "Gas bubble in syringe pump or delivery line interrupting flow",
+      "Incorrect volume calibration — syringe pump drift over time",
+      "Amino acid solution crystallised in lines due to temperature drop",
+      "Empty or low-volume amino acid vessel not detected by sensor"
+    ],
+    "diagnostics": [
+      "Run a priming cycle and visually check all delivery lines for flow",
+      "Weigh reaction vessels before and after delivery to confirm dispensed volume",
+      "Inspect frits and transfer lines for crystalline deposits or blockages",
+      "Check instrument log/event file for delivery alarms or flow errors",
+      "Perform calibration run with solvent only to verify syringe pump accuracy"
+    ],
+    "corrective_actions": [
+      "Back-flush clogged delivery lines with DMF or DMSO and sonicate if accessible",
+      "Prime all lines before synthesis to purge air bubbles",
+      "Recalibrate syringe pump volumes using gravimetric check",
+      "Increase amino acid solution temperature or switch to higher-solubility solvent (DMF/NMP)",
+      "Replace blocked frits per CSBio/CEM maintenance schedule"
+    ],
+    "severity": "critical",
+    "escalation_conditions": [
+      "Repeated delivery failures on same channel — hardware fault, contact CSBio/CEM service",
+      "Syringe pump not responding to calibration — replace syringe or pump mechanism"
+    ],
+    "source_id": "csbio-cs136x-operation-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "moderate",
+    "updated_at": "2025-01-01T00:00:00Z"
   }
 ]

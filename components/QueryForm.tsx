@@ -11,12 +11,13 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS'] as const;
 
 const VENDOR_OPTIONS = [
   'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
-  'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter',
+  'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter', 'CSBio', 'CEM Corporation',
+  'Biotage', 'Gyros Protein Technologies',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -80,6 +81,12 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Cytiva':  ['ÄKTA avant 25', 'ÄKTA avant 150', 'ÄKTA OligoPilot 10 Plus', 'ÄKTA OligoPilot 100 Plus', 'ÄKTA pure 25', 'ÄKTA pure 150', 'ÄKTA start', 'ÄKTA go'],
     'Bio-Rad': ['NGC Quest 10 Plus', 'NGC Quest 100 Plus', 'NGC Chromatography System'],
   },
+  SPPS: {
+    'CSBio':                    ['CS136X', 'CS336X', 'CS536X', 'CS136XT', 'CS336XT', 'CS536XT', 'CS336Xi', 'CSBio 6200', 'CSBio 396'],
+    'CEM Corporation':          ['Liberty Blue', 'Liberty Blue HT', 'Liberty Prime', 'Liberty Lite', 'Liberty Classic'],
+    'Biotage':                  ['Syro I', 'Syro Wave', 'Biotage SP Wave', 'Biotage SP Wave Duo'],
+    'Gyros Protein Technologies': ['Prelude X', 'Symphony X', 'Symphony 12'],
+  },
 };
 
 function getFilteredVendors(technique: string): string[] {
@@ -108,6 +115,7 @@ const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
   TGA:   ['unstable mass signal', 'TGA wrong decomposition temperature', 'TGA buoyancy artifact', 'TGA oxidation in inert atmosphere', 'poor TGA reproducibility'],
   DSC:   ['DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak', 'poor enthalpy reproducibility', 'DSC baseline curvature'],
   FPLC:  ['high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles', 'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation'],
+  SPPS:  ['incomplete coupling', 'deletion sequences', 'aggregation during synthesis', 'incomplete Fmoc deprotection', 'cleavage and deprotection issues', 'racemization', 'instrument delivery failure', 'low crude purity', 'aspartimide formation', 'diketopiperazine formation'],
 };
 
 const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
@@ -135,6 +143,7 @@ const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
   TGA:   ['unstable signal', 'wrong decomposition temp', 'buoyancy artifact', 'oxidation artifact', 'poor reproducibility'],
   DSC:   ['noisy baseline', 'Tg shift', 'broad melting peak', 'poor enthalpy', 'baseline curvature', 'exotherm artifact'],
   FPLC:  ['high pressure', 'poor peak resolution', 'air bubbles', 'UV baseline noise', 'gradient inaccuracy', 'oligonucleotide separation issue'],
+  SPPS:  ['deletion sequences', 'low crude purity', 'aggregated resin', 'incomplete coupling', 'Fmoc deprotection failure', 'racemization', 'cleavage failure', 'tBu adduct', 'Pbf adduct', 'missed delivery'],
 };
 
 const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
@@ -155,6 +164,7 @@ const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
   TGA:   ['calibrated temperature', 'calibrated mass', 'checked purge gas flow', 'cleaned furnace', 'replaced crucible', 'checked baseline', 'verified tare'],
   DSC:   ['calibrated temperature', 'calibrated enthalpy', 'checked purge gas flow', 'cleaned DSC cell', 'replaced pans', 'checked baseline', 'calibrated with indium'],
   FPLC:  ['cleaned column', 'regenerated column', 'replaced tubing', 'checked pump seals', 'degassed buffers', 'calibrated UV detector', 'checked column pressure limits'],
+  SPPS:  ['double coupled residue', 'extended coupling time', 'replaced coupling reagent', 'switched to HATU/HOAt', 'added DMSO to solvent', 'used NMP instead of DMF', 're-cleaved with fresh TFA', 'recalibrated syringe pump', 'primed delivery lines', 'replaced resin'],
 };
 
 const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];
