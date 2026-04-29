@@ -879,5 +879,385 @@
     "confidence_score": 0.85,
     "evidence_strength": "moderate",
     "updated_at": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "gc-oven-001",
+    "technique": "GC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "GC oven cooling failure",
+    "symptom": "GC oven not cooling, oven temperature remains high after program ends, cooling is slower than expected",
+    "likely_causes": [
+      "oven cooling fan failure or fan speed reduction due to motor degradation",
+      "oven vent flap or cooling duct blocked by lint, debris, or mechanical obstruction",
+      "ambient laboratory temperature too high — insufficient temperature differential for fan-assisted cooling",
+      "electronic temperature controller fault: PID parameters drifted, controller board failure",
+      "auxiliary cryogenic cooling system failure: LN2 or CO2 solenoid valve not opening"
+    ],
+    "diagnostics": [
+      "listen for cooling fan operation immediately after oven cycle ends — no fan noise indicates fan failure",
+      "inspect rear oven vent outlet for blockage; check for detectable airflow with hand near exhaust",
+      "compare actual cool-down time against instrument specification (typical: 300°C to 50°C in 10–15 min)",
+      "check instrument diagnostic menu or front-panel display for oven temperature sensor error codes",
+      "verify ambient laboratory temperature is ≤ 30°C — high ambient significantly slows cooling",
+      "for cryogenic cooling: check LN2 or CO2 supply pressure and listen for solenoid valve actuation"
+    ],
+    "corrective_actions": [
+      "replace oven cooling fan if no airflow detected at exhaust vent; consult Agilent/Shimadzu/Thermo Fisher service manual for part number",
+      "clear oven vent blockage: remove back panel and clean vent duct with compressed air or soft brush",
+      "improve lab ventilation or reduce ambient temperature to below 30°C; relocate instrument away from heat sources",
+      "run instrument self-diagnostics from front panel or data system (Chemstation, OpenLAB, LabSolutions) to retrieve controller error codes",
+      "call service engineer if temperature controller error persists after power cycle — may require PID recalibration or board replacement",
+      "for LN2/CO2 cooling: verify solenoid valve opens during cool-down cycle; replace valve if stuck closed"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "oven temperature does not decrease below 100°C within 30 min of program end — severe cooling failure",
+      "instrument reports oven temperature sensor fault or hardware error on front panel display",
+      "oven fan replacement does not restore normal cooling — internal duct or controller fault requires service engineer"
+    ],
+    "source_id": "agilent-8890-gc-user-guide",
+    "confidence_score": 0.92,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "gc-oven-002",
+    "technique": "GC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "GC oven temperature instability",
+    "symptom": "GC oven temperature overshooting setpoint, temperature oscillation, or failure to hold isothermal temperature accurately",
+    "likely_causes": [
+      "PID controller parameters not tuned for current column and hardware configuration",
+      "oven temperature sensor (thermocouple or RTD) degraded, displaced, or faulty",
+      "heater element partial failure causing uneven or intermittent heating",
+      "damaged oven door seal or insulation panels allowing heat loss and controller overcorrection",
+      "power supply fluctuation or ground fault affecting the heater control circuit"
+    ],
+    "diagnostics": [
+      "run isothermal method and log temperature vs. time — normal deviation is ± 0.1°C; overshoot > 2°C indicates PID issue",
+      "verify oven temperature against external calibrated thermocouple placed inside oven",
+      "run oven temperature ramp and compare setpoint vs. actual temperature trace in instrument software",
+      "inspect oven door seal and insulation panels for visible damage, gaps, or deformation",
+      "check instrument error log for heater fault codes or temperature sensor alarms"
+    ],
+    "corrective_actions": [
+      "run oven PID autotune procedure from instrument diagnostics menu (Agilent: Maintenance > Oven Calibration)",
+      "replace oven temperature sensor if external thermocouple comparison shows deviation > 2°C",
+      "replace oven door seal and insulation panels if heat loss is confirmed by thermal inspection",
+      "verify and stabilise laboratory power supply; use a dedicated circuit for the GC system",
+      "contact service engineer if heater element failure is confirmed — requires oven disassembly"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "oven temperature deviation > 5°C from setpoint after PID autotune — hardware fault requiring service",
+      "temperature sensor replacement does not resolve oscillation — heater or controller board failure"
+    ],
+    "source_id": "agilent-8890-gc-user-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "gc-inlet-001",
+    "technique": "GC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "GC inlet contamination",
+    "symptom": "Increasing peak tailing, ghost peaks in blank runs, or gradual sensitivity loss after multiple injections",
+    "likely_causes": [
+      "inlet liner contaminated with non-volatile sample matrix residues",
+      "septum degradation — septum bleed producing background peaks at elevated temperatures",
+      "column front section degraded from repeated injections of high-matrix samples",
+      "solvent with high boiling point causing flooding and residue deposition in liner"
+    ],
+    "diagnostics": [
+      "visually inspect liner under magnification for brown discolouration, deposits, or char",
+      "run a solvent blank injection and compare background chromatogram against reference blank",
+      "trim 15–30 cm from column inlet and rerun blank — improvement confirms column inlet contamination",
+      "check if ghost peaks have consistent elution temperatures matching septum bleed profile"
+    ],
+    "corrective_actions": [
+      "replace inlet liner and septum; use deactivated liners for trace-level analyses",
+      "bake column at 10°C below maximum rated temperature for 30–60 min under carrier gas flow",
+      "trim 15–30 cm from column inlet to remove contaminated section",
+      "switch to low-bleed septum (Merlin Microseal or equivalent) if septum bleed is confirmed"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "ghost peaks persist after full inlet maintenance and column bakeout — possible column damage or core contamination",
+      "sensitivity loss > 50% after inlet maintenance — detector or column end-of-life"
+    ],
+    "source_id": "restek-gc-troubleshooting-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "hplc-002",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "high backpressure",
+    "symptom": "System backpressure exceeds normal operating range, pressure alarm triggered, or flow rate drops unexpectedly",
+    "likely_causes": [
+      "clogged column inlet frit from particulate matter accumulation",
+      "blocked in-line filter or guard column cartridge",
+      "mobile phase contains precipitated buffer salts or undissolved components",
+      "mobile phase viscosity too high due to low temperature or high aqueous content",
+      "flow rate set above column maximum specification for the column internal diameter"
+    ],
+    "diagnostics": [
+      "bypass column and measure system pressure alone — if high, blockage is in pump or tubing, not column",
+      "replace in-line guard column or filter and re-measure pressure",
+      "inspect mobile phase for turbidity, precipitate, or particles before and after filtration",
+      "back-flush column (if allowed by manufacturer) at 50% flow with strong solvent to test frit permeability",
+      "confirm column specifications match method flow rate and column internal diameter"
+    ],
+    "corrective_actions": [
+      "replace in-line filter or guard column cartridge as first corrective step",
+      "back-flush column at low flow rate if manufacturer protocol allows; replace column if pressure remains high",
+      "filter all mobile phases through 0.2 µm membrane filter before use",
+      "increase mobile phase temperature within column operating range to reduce viscosity",
+      "reduce pump flow rate to ≤ 80% of column maximum specification"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "system pressure exceeds pump maximum rated pressure — stop flow immediately to prevent damage",
+      "pressure remains high when column is removed — system-level blockage requires pump or tubing inspection"
+    ],
+    "source_id": "agilent-hplc-troubleshooting-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "hplc-003",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "peak tailing",
+    "symptom": "Asymmetric peaks with tailing on the later-eluting side, tailing factor greater than 1.5, reduced resolution",
+    "likely_causes": [
+      "secondary silanol interactions between basic analyte and unreacted silanols on C18 stationary phase",
+      "void volume at column inlet from silica bed collapse or mechanical damage",
+      "extra-column dead volume in connections, injector, or detector flow cell",
+      "mobile phase pH outside optimal range for the column chemistry",
+      "column overloading — sample mass exceeds linear capacity causing asymmetric peak distortion"
+    ],
+    "diagnostics": [
+      "measure tailing factor using a low-concentration standard injection (< 1 µg on-column)",
+      "inject progressively smaller sample volumes — if tailing improves with dilution, column is overloaded",
+      "check all connection fittings for dead volume; measure from injector to detector with unretained marker",
+      "add 0.1% formic acid or 10 mM ammonium formate to mobile phase — silanophilic tailing improves with mobile-phase additives",
+      "run unretained marker (uracil) — broad or tailing void peak indicates dead volume at column inlet"
+    ],
+    "corrective_actions": [
+      "replace column if void at inlet confirmed (tailing unresponsive to additive and concentration changes)",
+      "add amine modifier to mobile phase (0.1% triethylamine) for basic analytes to reduce silanol interactions",
+      "dilute sample 5–10x; if tailing improves, reduce injection volume or switch to more dilute standard",
+      "re-make all column connections using correct ferrule size; replace worn compression fittings",
+      "switch to an end-capped C18 phase or a column with low silanol activity (e.g., BEH, HSS) for basic analytes"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "tailing factor > 2.5 with small injection volume on a new column — possible column batch defect",
+      "peak tailing prevents meeting USP system suitability tailing factor requirement (≤ 2.0)"
+    ],
+    "source_id": "waters-column-care-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "lcms-002",
+    "technique": "LCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "ion suppression",
+    "symptom": "Reduced MS signal for target analytes in complex matrix versus neat standard; inconsistent or inaccurate quantitation across sample types",
+    "likely_causes": [
+      "co-eluting matrix components (salts, lipids, proteins) suppressing ionisation in ESI source",
+      "mobile phase additive concentration too high — TFA > 0.1% strongly suppresses ESI signal",
+      "phospholipid co-elution in biological matrices causing widespread signal suppression",
+      "injection volume too large, overloading the source with non-volatile matrix components",
+      "flow rate too high for ESI source — optimal ESI flow range is typically 0.1–0.5 mL/min"
+    ],
+    "diagnostics": [
+      "post-column infusion test: infuse pure standard via T-piece and inject blank matrix — signal dip identifies suppression window",
+      "compare stable isotope-labelled internal standard response in matrix versus neat standard",
+      "reduce injection volume 5-fold and compare signal normalised to injected mass",
+      "run HPLC-UV run with same gradient to visualise co-eluting UV-absorbing matrix components",
+      "switch mobile phase additive from TFA to 0.1% formic acid and compare signal"
+    ],
+    "corrective_actions": [
+      "optimise LC gradient to shift analyte elution away from matrix-dense region of the chromatogram",
+      "implement protein precipitation, LLE, or SPE cleanup to remove phospholipids and salts before injection",
+      "reduce TFA concentration to 0.01–0.05% or replace with 0.1% formic acid",
+      "add stable isotope-labelled internal standard co-eluting with analyte to correct for variable suppression",
+      "use online dilution or reduce injection volume to minimise matrix load on source"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "suppression > 50% in analyte elution window after matrix cleanup optimisation — method redesign required",
+      "quantitative accuracy fails validation criteria (> 15% bias from nominal) due to matrix effects"
+    ],
+    "source_id": "waters-ms-source-maintenance",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "gcms-001",
+    "technique": "GCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "GCMS signal loss",
+    "symptom": "Sudden or gradual loss of GC-MS detector signal; reduced sensitivity or flat detector response across all analytes",
+    "likely_causes": [
+      "detector filament broken or near end of service life",
+      "ion source contamination from column bleed or high-matrix sample residue",
+      "electron multiplier (SEM/CDEM) gain below usable threshold",
+      "vacuum system degraded — source operating at too high a pressure due to roughing pump wear",
+      "transfer line temperature too low causing analyte condensation before reaching source"
+    ],
+    "diagnostics": [
+      "run instrument autotune and review tune report: poor ion ratios or high mass offset indicates source contamination",
+      "check filament status in data system (Chemstation, Xcalibur, LabSolutions) — filament fault alert",
+      "monitor vacuum gauge: ion source vacuum should be < 1×10⁻⁵ Torr; high pressure indicates vacuum system issue",
+      "run PFTBA mass calibration standard and compare peak heights against last good tune report",
+      "verify transfer line temperature setpoint is at least equal to the maximum column oven temperature"
+    ],
+    "corrective_actions": [
+      "vent instrument and clean ion source (repeller, lenses, source block) per manufacturer cleaning protocol",
+      "replace filament if broken or if emission current in tune report is below specification",
+      "replace electron multiplier if detector gain < 10⁵ — service life typically 3–5 years",
+      "replace roughing pump oil or diaphragm pump diaphragm to restore vacuum",
+      "increase transfer line temperature to prevent condensation; set to 10–20°C above column maximum"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "source cleaning does not restore tune report to within specification — ion source component damaged",
+      "vacuum cannot reach operating pressure after pump maintenance — turbo pump failure requires service"
+    ],
+    "source_id": "agilent-5977-gcms-users-guide",
+    "confidence_score": 0.89,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "uhplc-001",
+    "technique": "UHPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "UHPLC high backpressure",
+    "symptom": "System pressure exceeds operating limit or rises rapidly during gradient; instrument stops or triggers alarm",
+    "likely_causes": [
+      "sub-2-µm column inlet frit clogged with sample particulates or buffer precipitate",
+      "column void from sub-2-µm particle collapse at high pressure",
+      "mobile phase not filtered or containing undissolved buffer salts",
+      "flow rate above column maximum (sub-2-µm columns typically rated to 600–1000 bar)",
+      "column temperature too low increasing mobile phase viscosity"
+    ],
+    "diagnostics": [
+      "measure system pressure without column (bypass) — if high, blockage is upstream of column",
+      "replace in-line filter (0.2 µm) before column and re-measure pressure",
+      "check mobile phase preparation: all salts fully dissolved, filtered through 0.2 µm",
+      "reduce flow rate by 30% and check if pressure falls proportionally",
+      "increase column temperature to 40–50°C to reduce viscosity-related pressure contribution"
+    ],
+    "corrective_actions": [
+      "replace in-line filter or guard column as immediate first step",
+      "filter all mobile phases through 0.2 µm PTFE membrane before pumping",
+      "reduce flow rate to within column operating specification",
+      "increase column temperature to reduce viscosity; most sub-2-µm columns tolerate 60–80°C",
+      "replace column if in-line filter replacement does not resolve elevated pressure"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "pressure exceeds instrument maximum (1000 bar for most UHPLC systems) — stop pump immediately",
+      "pressure remains high after column removal — pump seal or check valve damage, contact service"
+    ],
+    "source_id": "waters-acquity-uplc-system-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "ic-001",
+    "technique": "IC",
+    "instrument_family": "Dionex ICS",
+    "model": null,
+    "issue_category": "IC baseline drift",
+    "symptom": "Suppressed conductivity baseline drifts upward or is noisy during isocratic or gradient ion chromatography run",
+    "likely_causes": [
+      "suppressor regenerant exhausted or suppressor membrane fouled",
+      "eluent generator (EG) concentration unstable — KOH or MSA generator depleted",
+      "column not fully equilibrated with eluent before injection",
+      "sample anions or matrix contaminants fouling the suppressor",
+      "temperature fluctuation in column compartment affecting conductivity baseline"
+    ],
+    "diagnostics": [
+      "run blank eluent injection and observe baseline stability over 30 min — drift > 0.1 µS/cm indicates suppressor issue",
+      "check suppressor current and voltage in Chromeleon software — abnormal values indicate suppressor wear",
+      "verify EG cartridge concentration output by measuring eluent conductivity with external meter",
+      "check column equilibration volume — most ICS columns require 10–15 min at 1 mL/min before stable baseline",
+      "monitor column oven temperature stability — should be ± 0.1°C for stable conductivity"
+    ],
+    "corrective_actions": [
+      "regenerate suppressor per Dionex protocol: run deionised water for 30 min at full suppressor current",
+      "replace EG cartridge if eluent concentration deviates > 2% from setpoint",
+      "extend column equilibration time to 20–30 min before beginning sample sequence",
+      "clean suppressor with 5 mM oxalic acid (anion suppressor) per Thermo Fisher ICS maintenance protocol",
+      "recalibrate column oven temperature to ± 0.1°C; avoid placing instrument near air conditioning vents"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "baseline drift > 1 µS/cm over 10 min after full suppressor regeneration — suppressor membrane replacement needed",
+      "EG cartridge replacement does not restore eluent concentration — EG module fault, contact Thermo Fisher service"
+    ],
+    "source_id": "thermo-dionex-ics-6000-user-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "tga-002",
+    "technique": "TGA",
+    "instrument_family": "TA Instruments",
+    "model": null,
+    "issue_category": "TGA unexpected weight loss",
+    "symptom": "Weight loss step appears at unexpected temperature, spurious weight change events, or buoyancy artefact distorts baseline",
+    "likely_causes": [
+      "buoyancy effect from purge gas density change with temperature — not corrected by empty-crucible baseline",
+      "moisture desorption from hygroscopic sample at 50–120°C masking or overlapping primary decomposition",
+      "sample preparation artefact: solvent inclusion, incomplete drying, or surface contamination",
+      "crucible not properly tared — balance offset from previous run",
+      "purge gas flow rate inconsistency changing apparent sample mass"
+    ],
+    "diagnostics": [
+      "run empty-crucible blank scan under identical conditions and subtract from sample scan",
+      "perform sample drying pre-treatment at 60–80°C for 2 h under vacuum before TGA to remove moisture",
+      "repeat scan with a fresh aliquot of the same material — reproducible step confirms real transition",
+      "verify purge gas flow rate with a flowmeter before measurement",
+      "compare crucible mass before loading to ensure correct tare value"
+    ],
+    "corrective_actions": [
+      "subtract matched empty-crucible baseline to remove buoyancy artefact",
+      "pre-dry sample at 60–80°C in vacuum oven for 2 h; analyse immediately after drying",
+      "use smaller sample mass (1–5 mg) to sharpen resolution and reduce crucible-contact effects",
+      "recalibrate balance using reference weights before sample sequence",
+      "maintain constant purge gas flow rate within ± 2 mL/min throughout run sequence"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "unexpected weight loss > 5% below 150°C on a nominally anhydrous sample after drying — likely solvent inclusion or impurity",
+      "buoyancy correction does not converge after baseline subtraction — hang-down wire or balance hardware issue"
+    ],
+    "source_id": "ta-instruments-tga-operators-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
   }
 ]

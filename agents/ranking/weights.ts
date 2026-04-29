@@ -20,6 +20,8 @@ export const CHECKED_PENALTY  = 0.15;  // when all corrective actions are alread
 export const VENDOR_SOURCE_PREFIXES = [
   'agilent', 'waters', 'thermo', 'shimadzu', 'sciex',
   'perkinelmer', 'restek', 'merck', 'sigma', 'phenomenex', 'supelco',
+  'ta-instruments', 'cytiva', 'csbio', 'cem-corporation', 'biotage',
+  'netzsch', 'mettler', 'bruker', 'dionex',
 ] as const;
 
 export const EVIDENCE_STRENGTH_SCORES: Record<string, number> = {

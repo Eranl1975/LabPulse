@@ -35,11 +35,12 @@ Schema (respond with this exact structure):
   "next_questions": [string]       // follow-up questions to narrow root cause
 }`;
 
-export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswer> {
-  const userMessage = buildUserMessage(query);
+// Confidence threshold below which we escalate from Sonnet to Opus
+const OPUS_ESCALATION_THRESHOLD = 0.5;
 
+async function callModel(model: string, userMessage: string): Promise<{ parsed: Partial<Record<string, unknown>>; modelUsed: string }> {
   const message = await client.messages.create({
-    model: 'claude-opus-4-6',
+    model,
     max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
@@ -52,7 +53,6 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
 
   let parsed: Partial<Record<string, unknown>> = {};
   try {
-    // Extract the first {...} block — handles code fences, preamble text, etc.
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No JSON object found in response');
     parsed = JSON.parse(jsonMatch[0]);
@@ -60,6 +60,27 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
     parsed = {
       uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
     };
+  }
+
+  return { parsed, modelUsed: model };
+}
+
+export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswer> {
+  const userMessage = buildUserMessage(query);
+
+  // Default: use Sonnet (fast, cost-efficient)
+  let { parsed, modelUsed } = await callModel('claude-sonnet-4-6', userMessage);
+
+  // Escalate to Opus if Sonnet confidence is below threshold
+  const sonnetConfidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0.5;
+  if (sonnetConfidence < OPUS_ESCALATION_THRESHOLD) {
+    const opusResult = await callModel('claude-opus-4-6', userMessage);
+    // Use Opus result only if it has higher confidence
+    const opusConfidence = typeof opusResult.parsed.confidence === 'number' ? opusResult.parsed.confidence : 0.5;
+    if (opusConfidence >= sonnetConfidence) {
+      parsed = opusResult.parsed;
+      modelUsed = opusResult.modelUsed;
+    }
   }
 
   const arr = (v: unknown): string[] =>
@@ -72,7 +93,7 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
     corrective_actions: arr(parsed.corrective_actions),
     stop_conditions:    arr(parsed.stop_conditions),
     confidence:         typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
-    evidence_summary:   [{ source_id: 'claude-opus-4-6', excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
+    evidence_summary:   [{ source_id: modelUsed, excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
     uncertainties:      arr(parsed.uncertainties),
     next_questions:     arr(parsed.next_questions),
   };

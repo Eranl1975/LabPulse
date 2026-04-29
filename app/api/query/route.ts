@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     ranked_answer: ranked,
-    ai_assisted: ranked.evidence_summary.some(e => e.source_id === 'claude-opus-4-6'),
+    ai_assisted: ranked.evidence_summary.some(e => e.source_id.startsWith('claude-')),
     modes: {
       concise:  present(ranked, 'concise'),
       standard: present(ranked, 'standard'),

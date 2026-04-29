@@ -81,7 +81,18 @@ export function rankItems(query: RankingQuery, items: KnowledgeItem[]): RankedAn
   const topScores = tiered.highly_likely.length > 0
     ? tiered.highly_likely.map(t => t.score.total)
     : tiered.plausible.map(t => t.score.total);
-  const confidence = parseFloat(mean(topScores).toFixed(2));
+  const rawConfidence = parseFloat(mean(topScores).toFixed(2));
+
+  // Confidence calibration: suppress false confidence when issue relevance is weak.
+  // If none of the top items have meaningful issue relevance (< 0.2), the ranking is
+  // driven purely by source authority / recency — not by actual symptom match.
+  // Cap at 0.35 to ensure AI fallback is triggered for off-topic matches.
+  const maxIssueRelevance = topItems.length > 0
+    ? Math.max(...topItems.map(t => t.score.issue_relevance))
+    : 0;
+  const confidence = maxIssueRelevance < 0.2
+    ? Math.min(rawConfidence, 0.35)
+    : rawConfidence;
 
   const uncertainties: string[] = [
     ...tiered.low_confidence.map(
