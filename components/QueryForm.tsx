@@ -11,13 +11,14 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO'] as const;
 
 const VENDOR_OPTIONS = [
   'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
   'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
   'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter', 'CSBio', 'CEM Corporation',
   'Biotage', 'Gyros Protein Technologies',
+  'Metrohm', 'Malvern Panalytical', 'Rigaku',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -87,6 +88,31 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Biotage':                  ['Syro I', 'Syro Wave', 'Biotage SP Wave', 'Biotage SP Wave Duo'],
     'Gyros Protein Technologies': ['Prelude X', 'Symphony X', 'Symphony 12'],
   },
+  XRD: {
+    'Bruker':               ['D2 Phaser', 'D8 Advance', 'D8 Discover', 'D8 ENDEAVOR', 'D8 QUEST', 'D8 VENTURE'],
+    'Malvern Panalytical':  ['Empyrean', "X'Pert Pro", 'Aeris', 'Zetium', 'Epsilon 4'],
+    'Rigaku':               ['MiniFlex 600', 'MiniFlex 600-C', 'SmartLab SE', 'SmartLab Studio II', 'Ultima IV', 'Synergy'],
+    'Shimadzu':             ['XRD-6100', 'XRD-7000', 'XRD-7000L', 'XRD-8000'],
+    'Thermo Fisher':        ['ARL EQUINOX 100', 'ARL EQUINOX 1000', 'ARL PERFORM X'],
+  },
+  DLS: {
+    'Malvern Panalytical':  ['Zetasizer Nano S', 'Zetasizer Nano ZS', 'Zetasizer Nano ZSP', 'Zetasizer Ultra Red', 'Zetasizer Pro', 'Zetasizer Lab', 'Mastersizer 3000', 'Mastersizer 3000E', 'NanoSight NS300', 'NanoSight NS500', 'Viscosizer TD'],
+    'Brookhaven':           ['NanoBrook 90Plus PALS', 'NanoBrook Omni', 'NanoBrook ZetaPALS'],
+    'Malvern':              ['Zetasizer Nano S', 'Zetasizer Nano ZS', 'Zetasizer Nano ZSP'],
+  },
+  Titration: {
+    'Metrohm':        ['905 Titrando', '888 Titrando', '877 Titrino Plus', '848 Titrino Plus', '809 Titrando', 'Eco Titrator', '916 Ti-Touch', '756 KF Coulometer'],
+    'Mettler Toledo': ['T5 Excellence Titrator', 'T7 Excellence Titrator', 'T9 Excellence Titrator', 'EasyPlus T5', 'EasyPlus T7'],
+    'Hanna Instruments': ['HI 932', 'HI 931 Dual Acid-Base'],
+  },
+  KF: {
+    'Metrohm':        ['870 KF Titrino Plus', '851 Titrando KF', '899 Coulometer', '917 Coulometer', 'Aqua 40.00 Coulometer', '756 KF Coulometer', '831 KF Coulometer'],
+    'Mettler Toledo': ['C51 Compact KF Coulometer', 'C30 Compact KF Coulometer', 'V20 Compact KF Volumetric', 'V30 Compact KF Volumetric'],
+  },
+  KFO: {
+    'Metrohm':        ['874 Oven Sample Processor', '885 Compact Oven Sample Processor', 'KF Oven 703 Sample Processor'],
+    'Mettler Toledo': ['DO308 Drying Oven KF', 'DO308M Drying Oven'],
+  },
 };
 
 function getFilteredVendors(technique: string): string[] {
@@ -116,6 +142,11 @@ const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
   DSC:   ['DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak', 'poor enthalpy reproducibility', 'DSC baseline curvature'],
   FPLC:  ['high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles', 'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation'],
   SPPS:  ['incomplete coupling', 'deletion sequences', 'aggregation during synthesis', 'incomplete Fmoc deprotection', 'cleavage and deprotection issues', 'racemization', 'instrument delivery failure', 'low crude purity', 'aspartimide formation', 'diketopiperazine formation'],
+  XRD:   ['XRD peak shift', 'XRD broad peaks', 'XRD low intensity', 'XRD background noise', 'XRD preferred orientation', 'XRD split peaks', 'XRD detector malfunction', 'XRD sample preparation error', 'XRD calibration drift'],
+  DLS:   ['DLS high PDI', 'DLS flat correlogram', 'DLS inconsistent size', 'DLS unreliable zeta potential', 'DLS dust contamination', 'DLS large particle artifact', 'DLS poor autocorrelation', 'DLS sample instability'],
+  Titration: ['endpoint not detected', 'titration high drift', 'wrong titre volume', 'electrode sluggish response', 'titration carryover', 'reagent instability', 'burette calibration error', 'blank too high'],
+  KF:    ['KF endpoint drift', 'KF low water recovery', 'KF negative reading', 'KF high blank', 'KF reagent decomposition', 'KF cell conditioning failure', 'KF coulometric error'],
+  KFO:   ['KFO incomplete water transfer', 'KFO high blank', 'KFO sample charring', 'KFO low recovery', 'KFO condensation in transfer line', 'KFO oven temperature error'],
 };
 
 const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
@@ -144,6 +175,11 @@ const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
   DSC:   ['noisy baseline', 'Tg shift', 'broad melting peak', 'poor enthalpy', 'baseline curvature', 'exotherm artifact'],
   FPLC:  ['high pressure', 'poor peak resolution', 'air bubbles', 'UV baseline noise', 'gradient inaccuracy', 'oligonucleotide separation issue'],
   SPPS:  ['deletion sequences', 'low crude purity', 'aggregated resin', 'incomplete coupling', 'Fmoc deprotection failure', 'racemization', 'cleavage failure', 'tBu adduct', 'Pbf adduct', 'missed delivery'],
+  XRD:   ['peak shift', 'broad peaks', 'low intensity', 'high background', 'split peaks', 'weak signal', 'no diffraction', 'preferred orientation artifact'],
+  DLS:   ['high PDI', 'flat correlogram', 'inconsistent size', 'no autocorrelation signal', 'large particle artifacts', 'unstable zeta potential', 'sample aggregation'],
+  Titration: ['no endpoint detected', 'drifting endpoint', 'wrong volume', 'sluggish electrode', 'high blank', 'inconsistent results'],
+  KF:    ['high drift', 'low water result', 'negative reading', 'no endpoint', 'unstable baseline', 'reagent failure'],
+  KFO:   ['incomplete water transfer', 'high blank', 'charring', 'low recovery', 'condensation', 'temperature error'],
 };
 
 const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
@@ -165,6 +201,11 @@ const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
   DSC:   ['calibrated temperature', 'calibrated enthalpy', 'checked purge gas flow', 'cleaned DSC cell', 'replaced pans', 'checked baseline', 'calibrated with indium'],
   FPLC:  ['cleaned column', 'regenerated column', 'replaced tubing', 'checked pump seals', 'degassed buffers', 'calibrated UV detector', 'checked column pressure limits'],
   SPPS:  ['double coupled residue', 'extended coupling time', 'replaced coupling reagent', 'switched to HATU/HOAt', 'added DMSO to solvent', 'used NMP instead of DMF', 're-cleaved with fresh TFA', 'recalibrated syringe pump', 'primed delivery lines', 'replaced resin'],
+  XRD:   ['recalibrated 2θ zero offset', 'cleaned sample holder', 'verified sample preparation', 'realigned goniometer', 'replaced detector', 'checked X-ray tube current', 'verified sample height'],
+  DLS:   ['cleaned cuvette', 'filtered sample through 0.2 µm', 'temperature equilibrated', 'replaced DTS1070 cell', 'centrifuged sample 2000g', 'diluted sample', 'checked laser alignment'],
+  Titration: ['replaced pH/ISE electrode', 'recalibrated burette', 'replaced titrant reagent', 'cleaned electrode junction', 'recalibrated with buffer standard', 'checked for CO2 absorption'],
+  KF:    ['reconditioned KF cell', 'replaced KF reagent', 'dried cell with blank titration', 'refreshed working medium', 'replaced electrode', 'checked for moisture ingress'],
+  KFO:   ['cleaned transfer line', 'replaced septum/seal', 'recalibrated oven temperature', 'replaced drying tube', 'checked carrier gas flow', 'purged transfer lines'],
 };
 
 const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];

@@ -21,6 +21,21 @@ const ISSUE_KEYWORDS: Record<string, string[]> = {
   'UHPLC high backpressure':       ['uhplc pressure', 'uplc pressure', 'acquity pressure', 'ultra high pressure', 'sub-2 micron column pressure'],
   'IC baseline drift':             ['ion chromatography baseline', 'suppressor', 'conductivity baseline', 'ic baseline', 'eluent generator'],
   'TGA unexpected weight loss':    ['unexpected weight loss', 'spurious weight', 'buoyancy', 'tga artefact', 'moisture tga', 'weight step tga'],
+  'XRD peak shift':                ['xrd peak shift', '2theta', 'peak position', 'lattice parameter', 'sample height xrd', 'zero offset', 'd-spacing', 'diffraction peak shift', 'goniometer offset'],
+  'XRD broad peaks':               ['xrd broad', 'xrd peak width', 'fwhm', 'crystallite size', 'poor resolution xrd', 'peak broadening xrd', 'scherrer', 'xrd resolution'],
+  'XRD low intensity':             ['xrd low intensity', 'xrd weak signal', 'xrd signal loss', 'x-ray signal', 'diffraction intensity', 'preferred orientation', 'xrd tube'],
+  'DLS high PDI':                  ['high pdi', 'polydisperse', 'polydispersity', 'dls pdi', 'size distribution broad', 'dls broad', 'multimodal dls'],
+  'DLS flat correlogram':          ['flat correlogram', 'no autocorrelation', 'correlogram', 'dls no signal', 'dls flat', 'acf flat', 'no dls signal', 'count rate low'],
+  'DLS unreliable zeta potential': ['zeta potential', 'unreliable zeta', 'zeta measurement', 'zeta instab', 'zeta negative', 'zeta reversal'],
+  'Titration endpoint failure':    ['endpoint not detected', 'missed endpoint', 'no endpoint', 'titration endpoint', 'titrator endpoint', 'ep not found'],
+  'titration high drift':          ['blank drift', 'high drift titrat', 'titration drift', 'electrode drift', 'co2 titrat', 'drift before titrat'],
+  'wrong titre volume':            ['wrong titre', 'titre volume', 'burette calibrat', 'titre too high', 'titre too low', 'incorrect titre'],
+  'KF endpoint drift':             ['kf drift', 'karl fischer drift', 'kf endpoint drift', 'high drift kf', 'kf cell conditioning', 'moisture ingress kf'],
+  'KF low water recovery':         ['low water recovery', 'kf low result', 'incomplete kf', 'water recovery kf', 'kf underestimate'],
+  'KF coulometric error':          ['negative water', 'kf negative', 'kf coulometric', 'coulometric error', 'anolyte', 'generator electrode kf'],
+  'KFO incomplete water transfer': ['incomplete water transfer', 'kfo transfer', 'oven sample processor', 'incomplete water evolution', 'kf oven low', 'oven kf result low'],
+  'KFO high blank':                ['kfo blank', 'oven blank high', 'transfer line moisture', 'kf oven blank', 'high blank kfo'],
+  'KFO sample charring':           ['sample char', 'charring', 'kf oven decomposition', 'decomposition kf oven', 'kfo char', 'oven temperature too high kf'],
 };
 
 export function detectIssueCategory(description: string): string | null {

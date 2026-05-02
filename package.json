@@ -1,6 +1,6 @@
 {
   "name": "labpulse",
-  "version": "2.1.0-gc-cooling-fix",
+  "version": "2.2.0-new-techniques",
   "private": true,
   "scripts": {
     "dev": "next dev",

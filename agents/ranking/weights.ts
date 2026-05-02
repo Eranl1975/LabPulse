@@ -22,6 +22,7 @@ export const VENDOR_SOURCE_PREFIXES = [
   'perkinelmer', 'restek', 'merck', 'sigma', 'phenomenex', 'supelco',
   'ta-instruments', 'cytiva', 'csbio', 'cem-corporation', 'biotage',
   'netzsch', 'mettler', 'bruker', 'dionex',
+  'metrohm', 'malvern', 'rigaku', 'anton-paar',
 ] as const;
 
 export const EVIDENCE_STRENGTH_SCORES: Record<string, number> = {

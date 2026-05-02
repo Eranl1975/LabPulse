@@ -1259,5 +1259,575 @@
     "confidence_score": 0.86,
     "evidence_strength": "strong",
     "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "xrd-001",
+    "technique": "XRD",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "XRD peak shift",
+    "symptom": "Diffraction peaks appear at incorrect 2θ positions; systematic offset from reference pattern or known d-spacings",
+    "likely_causes": [
+      "sample surface not at correct goniometer height — sample displacement is the most common XRD systematic error",
+      "zero-point offset of detector or goniometer not calibrated; instrument drift since last alignment",
+      "sample preparation error: uneven surface, particles protruding above holder surface level",
+      "high sample absorption causing beam penetration below sample surface (transparency displacement)",
+      "thermal expansion of sample stage at elevated temperature shifting diffractometer geometry"
+    ],
+    "diagnostics": [
+      "run LaB6 or corundum (NIST SRM 676a) reference standard under identical conditions; compare measured vs. certified 2θ",
+      "calculate systematic shift: uniform Δ2θ across all peaks = zero offset or sample height error",
+      "if shift is non-linear (larger at low 2θ) = sample transparency or absorption displacement",
+      "check sample surface height using manufacturer alignment tool or laser height gauge",
+      "run goniometer alignment check in software (Bruker EVA, PANalytical HighScore, Rigaku SmartLab Studio)"
+    ],
+    "corrective_actions": [
+      "re-seat sample in holder; confirm surface is flush with holder rim; use back-fill or side-fill for powders",
+      "perform zero-point correction: run LaB6 standard, fit peaks, apply offset correction in software",
+      "perform full goniometer realignment following manufacturer procedure (PANalytical PIXcel, Bruker LynxEye)",
+      "for transparent samples (polymers, organics): use thin sample on zero-background holder",
+      "schedule service for optical realignment if LaB6 peaks still deviate > 0.03° 2θ after zero correction"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "peak position deviation > 0.05° 2θ from certified LaB6 values after zero correction — goniometer alignment required",
+      "phase identification fails in search-match software despite good peak shapes — systematic offset corrupts d-spacings"
+    ],
+    "source_id": "bruker-d8-advance-user-manual",
+    "confidence_score": 0.91,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "xrd-002",
+    "technique": "XRD",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "XRD broad peaks",
+    "symptom": "Diffraction peaks are unusually broad (large FWHM), poorly resolved from adjacent peaks, or show significant line broadening beyond instrument resolution",
+    "likely_causes": [
+      "small crystallite size (< 100 nm) causing intrinsic Scherrer broadening — physical property of sample",
+      "microstrain broadening from lattice defects, dislocations, or residual stress",
+      "instrument broadening contribution: divergence or receiving slit too wide for the geometry",
+      "sample contains multiple phases or solid solutions with overlapping reflections",
+      "amorphous content diluting crystalline diffraction signal"
+    ],
+    "diagnostics": [
+      "measure FWHM of LaB6 or Si standard to determine instrument broadening contribution (instrument resolution function)",
+      "calculate apparent crystallite size using Scherrer equation: D = Kλ/(β cos θ), K = 0.9",
+      "perform Williamson-Hall plot (β cos θ vs. sin θ) to separate size and strain contributions",
+      "run TOPAS or HighScore Plus Rietveld refinement to deconvolute instrument vs. sample broadening",
+      "compare sample pattern with PDF-5+ reference card to identify additional phases"
+    ],
+    "corrective_actions": [
+      "if crystallite size is the cause: report Scherrer crystallite size — this is a real physical property",
+      "narrow divergence and receiving slits to reduce instrument broadening contribution",
+      "use Cu Kα1 monochromator (Ge(111) primary monochromator) to eliminate Kα2 and improve resolution",
+      "use Rietveld refinement to deconvolute overlapping phases (Bruker TOPAS, PANalytical HighScore Plus)",
+      "anneal sample to increase crystallite size if thermal treatment is acceptable for the material"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "FWHM > 5× instrument broadening even after Rietveld refinement — consult crystallographer for nanocrystalline analysis",
+      "Rietveld fit fails to converge despite correct phase model — possible unknown phase or severe preferred orientation"
+    ],
+    "source_id": "malvern-panalytical-xrd-application-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "xrd-003",
+    "technique": "XRD",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "XRD low intensity",
+    "symptom": "Diffraction peak intensities are weak, peak-to-background ratio is poor, or expected reflections are absent",
+    "likely_causes": [
+      "X-ray tube aged or power too low — reduced flux output; tube life typically 5000–10000 h",
+      "preferred orientation — crystallites not randomly oriented, suppressing certain hkl reflections",
+      "sample too thin or insufficient irradiated volume for the selected divergence slit setting",
+      "sample absorbs X-rays strongly (high-Z elements, Fe-rich materials) causing self-absorption",
+      "incorrect divergence slit size: beam overspills sample edges wasting intensity"
+    ],
+    "diagnostics": [
+      "run corundum standard and compare peak intensities against historical laboratory baseline",
+      "check X-ray tube age and accumulated kWh in instrument log",
+      "measure generator high voltage and filament current; compare against setpoints",
+      "check if intensities match JCPDS/ICDD reference card — systematic absences suggest preferred orientation",
+      "pack sample fresh using side-loading or back-loading method to check if orientation changes result"
+    ],
+    "corrective_actions": [
+      "replace X-ray tube if intensity < 60% of reference standard at same conditions",
+      "increase generator power within tube rating (increase kV and mA proportionally)",
+      "re-prepare sample: grind to < 10 µm, use side-loading or back-loading to minimise preferred orientation",
+      "use spinner stage or capillary geometry to average crystallite orientations",
+      "for highly absorbing samples: use Mo or Ag X-ray source instead of Cu; or use transmission geometry"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "intensity drop > 40% vs. reference at same conditions after sample preparation check — X-ray tube replacement required",
+      "HV generator error message or tube instability alarm — service engineer required"
+    ],
+    "source_id": "rigaku-smartlab-user-guide",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "dls-001",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": null,
+    "issue_category": "DLS high PDI",
+    "symptom": "Polydispersity index (PDI) consistently > 0.3; broad or multimodal size distribution; irreproducible size results",
+    "likely_causes": [
+      "sample aggregation or agglomeration in the dispersant before or during measurement",
+      "dust or large particles contaminating cuvette or sample — even single dust particles dominate scattering",
+      "sample not properly dispersed: requires sonication, surfactant, or pH adjustment",
+      "genuinely polydisperse sample with inherent broad size distribution",
+      "measurement temperature not equilibrated — thermal gradients cause convection artifacts"
+    ],
+    "diagnostics": [
+      "inspect autocorrelation function (ACF): multimodal ACF = multiple populations; flat baseline required",
+      "examine size distribution by intensity, volume, and number — few large aggregates dominate intensity mean",
+      "filter sample through 0.2 µm and re-measure — if PDI drops dramatically, dust/aggregates are the cause",
+      "centrifuge at 2000–5000 × g for 5 min; measure supernatant",
+      "verify temperature equilibration ≥ 120 s before measurement start"
+    ],
+    "corrective_actions": [
+      "filter all samples and dispersant through 0.2 µm immediately before measurement",
+      "clean cuvette thoroughly: rinse 3× with filtered dispersant; use optical-quality cuvette free of scratches",
+      "sonicate in ultrasonic bath for 2–5 min then filter to break aggregates",
+      "optimise dispersant: adjust pH or add 0.05% Tween 20 to prevent aggregation",
+      "for PDI > 0.5: use CONTIN analysis or NanoSight NTA instead of cumulants fitting"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "PDI > 0.5 even after filtration and fresh dispersant — sample requires pre-fractionation (SEC or DGC) before DLS",
+      "count rate unstable and spiking > 20% during measurement — sample aggregating in real time, reformulate dispersant"
+    ],
+    "source_id": "malvern-zetasizer-user-guide",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "dls-002",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": null,
+    "issue_category": "DLS flat correlogram",
+    "symptom": "Autocorrelation function (ACF) is flat or shows no significant decay; no size result; intercept near zero",
+    "likely_causes": [
+      "sample too dilute — insufficient scattering intensity for autocorrelation signal",
+      "sample too concentrated — multiple scattering obscures single-particle signal",
+      "particles fully sedimented before or during measurement — no particles in beam path",
+      "particles too large (> 10 µm) — scattering fluctuation frequency too slow for DLS time scale",
+      "cuvette misalignment or laser path obstruction — sample not in beam focus"
+    ],
+    "diagnostics": [
+      "check count rate: optimal for Zetasizer ZS is 50–500 kcps; < 10 kcps = too dilute; > 1000 kcps = too concentrated",
+      "inspect cuvette for sedimented particles visible at bottom",
+      "confirm cuvette properly seated and lid closed; no trapped bubbles",
+      "check correlogram intercept: should be > 0.5 at 173° backscatter for reliable measurement",
+      "try 10× more concentrated sample to test if count rate improves"
+    ],
+    "corrective_actions": [
+      "adjust concentration: polymer/silica NPs 0.1–5 mg/mL; gold/silver NPs 0.01–0.1 nM",
+      "for sedimenting particles: mix immediately before measurement; use NanoSight NTA instead of DLS",
+      "re-seat cuvette; add sample slowly to avoid bubbles; set attenuator to automatic in Zetasizer software",
+      "dilute 10× if count rate > 1000 kcps; confirm PDI also improves",
+      "if count rate < 5 kcps at max laser power — sample below DLS detection limit, use alternative method"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "count rate < 5 kcps at maximum attenuator — sample below detection limit or fully sedimented",
+      "correlogram intercept < 0.1 after concentration optimisation — possible instrument laser alignment issue"
+    ],
+    "source_id": "malvern-zetasizer-user-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "dls-003",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": null,
+    "issue_category": "DLS unreliable zeta potential",
+    "symptom": "Zeta potential shows high variability, unexpected sign reversal, or values outside expected range",
+    "likely_causes": [
+      "DTS1070 electrode cell fouled with protein or lipid coating changing electrode response",
+      "ionic strength too high — double layer compression collapses zeta toward zero",
+      "incorrect measurement pH — zeta potential is strongly pH-dependent",
+      "sample concentration too high causing electrode polarisation",
+      "air bubbles in zeta cell capillary disrupting the applied electric field"
+    ],
+    "diagnostics": [
+      "run Malvern DTS1235 zeta reference standard (−42 ± 4.5 mV in pre-diluted reagent) — if off, cell is fouled",
+      "check dispersant conductivity: should be < 5 mS/cm; > 10 mS/cm compresses double layer",
+      "visually inspect DTS1070 electrode for protein film, discolouration, or damage",
+      "inspect capillary for bubbles: tap cell, inject slowly, check using Zetasizer auto-titrator protocol",
+      "measure same sample at 3 pH values to build zeta vs. pH profile and identify IEP"
+    ],
+    "corrective_actions": [
+      "replace DTS1070 disposable folded capillary cell after each protein or liposome measurement",
+      "dilute dispersant to < 5 mS/cm using 1 mM NaCl or 0.1 mM phosphate buffer for zeta work",
+      "prepare dispersant at controlled target pH using buffer; document pH alongside zeta result",
+      "dilute to < 1 mg/mL for proteins or < 0.5 mg/mL for NPs before zeta measurement",
+      "flush cell 3× with fresh dispersant to purge bubbles before sample injection"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "reference standard deviates > 10 mV from certified value after cell replacement — instrument service required",
+      "phase plot shows non-linear or erratic phase angle — electrode damage, replace cell immediately"
+    ],
+    "source_id": "malvern-zetasizer-user-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "titr-001",
+    "technique": "Titration",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "Titration endpoint failure",
+    "symptom": "Titrator fails to detect endpoint; runs to maximum volume without triggering; endpoint detected at wrong volume",
+    "likely_causes": [
+      "pH or ISE electrode response sluggish or failed — contaminated liquid junction, cracked membrane, depleted reference electrolyte",
+      "incorrect titration parameters: EP recognition threshold too high, stop criterion not matching chemistry",
+      "wrong titrant concentration entered — causes endpoint at incorrect volume",
+      "titrant pump not priming or reservoir empty — no titrant actually delivered",
+      "sample chemistry incompatible with electrode type (e.g., pH electrode used for non-aqueous samples)"
+    ],
+    "diagnostics": [
+      "test electrode in calibration buffers pH 4, 7, 10 — slope should be > 56 mV/decade at 25°C",
+      "weigh delivered volume on balance and compare against nominal — confirms pump delivery",
+      "verify titrant concentration with certified primary standard (KHP for NaOH, Na2CO3 for HCl)",
+      "check liquid junction: unclog or refill KCl electrolyte if junction is dry or blocked",
+      "review Titrando/Titrino event log for error codes during the run"
+    ],
+    "corrective_actions": [
+      "recondition electrode overnight in 3 M KCl; replace reference electrolyte cartridge",
+      "replace electrode if slope < 50 mV/decade after reconditioning",
+      "restandardise titrant with 3 replicates of primary standard and update titer factor",
+      "prime burette manually and verify bubble-free delivery before starting sequence",
+      "for non-aqueous samples: use Solvotrode electrode with non-aqueous electrolyte (Metrohm part)"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "electrode replacement does not restore endpoint detection — verify sample matrix compatibility with method",
+      "burette gravimetric check error > 1% — exchange unit O-rings or pump seal replacement needed"
+    ],
+    "source_id": "metrohm-titrando-operation-manual",
+    "confidence_score": 0.89,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "titr-002",
+    "technique": "Titration",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "titration high drift",
+    "symptom": "High blank drift before titration; sample consumes abnormally high titre volume; results systematically high",
+    "likely_causes": [
+      "CO2 absorption into NaOH titrant from atmosphere — increasing effective molarity or forming carbonate",
+      "electrode junction dried or contaminated causing unstable potential readings",
+      "sample not fully dissolved — slow reaction rate causing under-titration then back-drift",
+      "NaOH titrant aged > 2 weeks without CO2 protection",
+      "temperature drift in sample during titration changing equilibrium constant"
+    ],
+    "diagnostics": [
+      "measure blank drift rate: acceptable < 0.02 mL/min for aqueous acidimetry",
+      "check CO2 guard tube (Ascarite/soda lime) on NaOH burette — should be intact and recently replaced",
+      "titrate KHP primary standard and check recovery",
+      "compare duplicate titrations with different stir speeds to diagnose mass transfer issues",
+      "monitor temperature during titration — use thermostated vessel for high-precision work"
+    ],
+    "corrective_actions": [
+      "fit NaOH burette with fresh Ascarite guard tube; fresh NaOH solution deteriorates < 2 weeks without CO2 protection",
+      "restandardise NaOH using 3 replicates of KHP; update titer factor; discard solutions > 2 weeks old",
+      "increase stir speed or extend dissolution time; use kinetic titration mode for slow reactions (Metrohm: pause before EP)",
+      "replace electrode KCl electrolyte and unclog junction; store electrode in KCl between uses",
+      "use thermostated titration vessel (25 ± 0.5°C) for pharmaceutical or QC titrations"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "blank drift > 0.5 mL/min persists after burette protection — titrant contaminated, replace completely",
+      "KHP recovery < 99% or > 101% after restandardisation — investigate balance and weighing procedure"
+    ],
+    "source_id": "metrohm-titrando-operation-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "titr-003",
+    "technique": "Titration",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "wrong titre volume",
+    "symptom": "Titre volume consistently too high or too low versus expected; results outside acceptance criteria",
+    "likely_causes": [
+      "titrant concentration inaccurate — wrong molarity at preparation or not restandardised",
+      "burette calibration drift — delivering incorrect volume",
+      "sample mass or volume measurement error — balance not calibrated, volumetric glassware misused",
+      "air bubble in burette line delivering less than nominal volume",
+      "incorrect molecular weight or purity factor in method calculation"
+    ],
+    "diagnostics": [
+      "titrate certified primary standard (KHP for NaOH, Na2CO3 for HCl) and calculate recovery factor",
+      "gravimetric burette check: weigh 1 mL delivered by burette — should be ≈ 1.000 g for water",
+      "verify sample mass on calibrated 4-place balance with OIML certified weights",
+      "inspect burette cylinder for air bubbles: prime 2× and visually confirm bubble-free",
+      "review method formula: correct molecular weight and titration factor"
+    ],
+    "corrective_actions": [
+      "restandardise titrant using 3 replicates of primary standard; update titer in Titrando method",
+      "perform gravimetric burette calibration; if error > 0.5%, replace Metrohm 20 mL exchange unit",
+      "re-calibrate balance with certified F1 or E2 weights before critical weighing operations",
+      "use only Class A volumetric glassware; clean with hot detergent water, rinse with deionised water",
+      "replace exchange unit piston O-rings if burette delivers inconsistently on repeat checks"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "burette error > 1% on gravimetric check after O-ring replacement — exchange unit requires service",
+      "restandardisation RSD > 0.2% across 3 replicates — systematic balance or weighing error"
+    ],
+    "source_id": "metrohm-titrando-operation-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kf-001",
+    "technique": "KF",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KF endpoint drift",
+    "symptom": "Karl Fischer titration shows high pre-titration drift; cell requires long conditioning; drift never stabilises below acceptable threshold",
+    "likely_causes": [
+      "residual water in KF cell from previous high-moisture sample or insufficient conditioning",
+      "moisture ingress through exhausted desiccant or damaged seals — atmospheric water entering cell",
+      "KF reagent contaminated with water from hygroscopic solvent batch",
+      "electrode membrane contaminated or carbonised from previous reactive sample",
+      "temperature fluctuation in lab causing condensation on glassware or transfer components"
+    ],
+    "diagnostics": [
+      "measure drift rate: acceptable for volumetric KF < 0.1 mL/min; for coulometric < 5 µg/min",
+      "condition cell: run blank until drift < 0.05 mL/min (volumetric) or < 3 µg/min (coulometric)",
+      "check all seals, septum, and desiccant: silica gel should be blue/orange — pink/white = exhausted",
+      "inspect KF reagent: Hydranal Composite should be amber; brown-black = decomposition",
+      "check electrode: bipotentiometric electrode should polarise at 5–10 µA; open-circuit = electrode damaged"
+    ],
+    "corrective_actions": [
+      "condition cell: add 20–30 mL fresh working medium (methanol), titrate to dryness, repeat until drift stable",
+      "replace all desiccant on openings with fresh molecular sieves or silica gel; grease all glass joints",
+      "replace KF titrant if discoloured or water equivalent factor deviates > 2% from specification",
+      "clean bipotentiometric electrode with methanol-wetted cotton swab; platinum tip should be bright",
+      "replace Viton seals and O-rings in cell assembly if moisture ingress confirmed after desiccant replacement"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "drift does not stabilise after 3 conditioning cycles — possible cracked cell glassware or irreversibly fouled electrode",
+      "water equivalent factor deviates > 5% from labeled value — reagent lot issue, replace with new lot"
+    ],
+    "source_id": "metrohm-kf-titrino-user-guide",
+    "confidence_score": 0.91,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kf-002",
+    "technique": "KF",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KF low water recovery",
+    "symptom": "Water content result lower than expected or reference method; inconsistent low results between replicates",
+    "likely_causes": [
+      "slow sample dissolution — crystalline or waxy samples release water slowly in methanol working medium",
+      "sample reacts with KF reagent: aldehydes/ketones consume iodine; strongly basic samples neutralise acid medium",
+      "hygroscopic sample lost moisture between weighing and dissolution in cell",
+      "methanol working medium cannot dissolve sample — water trapped in undissolved particles",
+      "coulometric generator anode passivated — reduced electrochemical iodine generation efficiency"
+    ],
+    "diagnostics": [
+      "run Hydranal Water Standard 10.0 (≈ 10.00 mg/g water) — recovery should be 100 ± 1%",
+      "extend dissolution time 5–10 min with stirring before titration; check if result increases",
+      "for aldehydes/ketones: use Hydranal Composite 5K (ketone-free reagent)",
+      "for insoluble solids: use KF Oven method to transfer moisture via carrier gas",
+      "inspect coulometric generator electrode for brown/black iodine byproduct coating"
+    ],
+    "corrective_actions": [
+      "extend stir time to 5–15 min for slow-dissolving samples; gently warm working medium to 35–40°C",
+      "switch to specialised KF reagent: Hydranal-Composite 5K for ketones, Methanol Rapid for non-polar solvents",
+      "weigh samples in closed containers; add directly to KF cell via syringe to prevent pre-measurement moisture loss",
+      "for coulometric: clean generator electrode with 600-grit polishing paper; condition with 3 blank titrations",
+      "switch to KFO method for wax-like or poorly soluble solid samples"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "water standard recovery < 97% after reagent replacement — possible below-specification reagent lot",
+      "coulometric cell cleaning does not restore generator efficiency — generator electrode requires replacement"
+    ],
+    "source_id": "metrohm-kf-titrino-user-guide",
+    "confidence_score": 0.89,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kf-003",
+    "technique": "KF",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KF coulometric error",
+    "symptom": "Coulometric Karl Fischer gives negative water result, erratic endpoint, or result much higher than expected",
+    "likely_causes": [
+      "anolyte exhausted — iodide in anolyte depleted, cannot generate iodine electrochemically",
+      "strongly reducing sample (ascorbic acid, sulfite, H2S) reduces generated iodine back to iodide",
+      "generator electrode (platinum anode) passivated by organic deposits — reduced generation current",
+      "bipotentiometric endpoint electrode contaminated — false early endpoint detection",
+      "catholyte consumed or contaminated — H2 evolution interfering with endpoint"
+    ],
+    "diagnostics": [
+      "run Hydranal Water Standard 5 mg/g: recovery outside 98–102% confirms reagent or electrode issue",
+      "observe generation current in Titrando display: should peak then decay; flat curve = no generation",
+      "check anolyte colour: light amber = normal; dark brown-black = iodine accumulated or anolyte exhausted",
+      "for negative results: reducing agent consuming iodine faster than generated",
+      "inspect both platinum electrodes visually: dark coating = passivation"
+    ],
+    "corrective_actions": [
+      "replace anolyte and catholyte (Hydranal Coulomat AG and CG) if water standard fails or anolyte discoloured",
+      "for reducing agents: use Hydranal-Coulomat A-Olio; for SO2/H2S: use specific reagent formulation",
+      "clean generator electrode with 600-grit polishing paper; rinse with fresh anolyte; run 3 conditioning blank titrations",
+      "for redox-interfering samples: switch to volumetric KF which is less sensitive to redox interference",
+      "replace bipotentiometric electrode if platinum pins are corroded or visibly damaged"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "water standard recovery < 95% after full reagent and electrode replacement — cell component damage",
+      "generation current does not respond to water injection — generator circuit fault, contact Metrohm service"
+    ],
+    "source_id": "metrohm-kf-coulometer-application-guide",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kfo-001",
+    "technique": "KFO",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KFO incomplete water transfer",
+    "symptom": "KF Oven result lower than expected; result increases with longer drying time suggesting incomplete water transfer from sample to KF cell",
+    "likely_causes": [
+      "oven temperature too low — bound water not fully released at set temperature",
+      "drying time too short for sample mass and thermal stability",
+      "carrier gas (dry N2) flow rate too low — water vapour not swept completely to KF cell",
+      "transfer line temperature too low — water condenses inside the glass or PTFE tube before reaching KF cell",
+      "sample mass too large — centre does not reach oven temperature within the drying time"
+    ],
+    "diagnostics": [
+      "run cellulose KF standard (≈ 5% water) at same temperature and time — recovery indicates transfer efficiency",
+      "extend drying time from default (3–5 min) to 8–10 min; compare results",
+      "vary oven temperature in 20°C steps while monitoring cumulative result — plateau = complete release temperature",
+      "verify carrier gas flow: typically 100–150 mL/min dry N2; use flowmeter to confirm",
+      "check transfer line for condensation: unheated glass tube > 30 cm can condense water from humid samples"
+    ],
+    "corrective_actions": [
+      "increase oven temperature in 20°C steps until result plateaus — typical optimal range: 100–200°C for pharmaceutical solids",
+      "increase drying time until successive 1-min increments add < 0.5% additional water",
+      "increase carrier gas flow to 150 mL/min; use freshly dried N2 from gas generator or 4A molecular sieve column",
+      "heat or insulate transfer line to ≥ 10°C above oven temperature to prevent condensation",
+      "reduce sample mass to ≤ 0.5 g for solid samples to improve heat penetration"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "result does not plateau even at maximum oven temperature — sample decomposition interfering at all temperatures",
+      "cellulose standard recovery < 95% after optimisation — check oven heater element and transfer line integrity"
+    ],
+    "source_id": "metrohm-874-oven-sample-processor-manual",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kfo-002",
+    "technique": "KFO",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KFO high blank",
+    "symptom": "Blank run with empty sample boat gives high water reading; baseline moisture transfer too high for accurate low-moisture measurements",
+    "likely_causes": [
+      "residual moisture in transfer line from previous high-moisture sample or insufficient purging",
+      "carrier gas (N2) not sufficiently dry — moisture from gas supply entering the oven cell",
+      "sample boat contaminated with atmospheric moisture before measurement",
+      "septum or seals on oven connection not sealing properly — ambient humid air ingress",
+      "KF cell working medium absorbing atmospheric moisture during inter-run idle time"
+    ],
+    "diagnostics": [
+      "run 3 consecutive blanks (empty boat): decreasing blank indicates carryover from previous run",
+      "measure carrier gas dew point: should be < −50°C for measurements below 0.1% water",
+      "run blank after 20 min N2 purge — should approach 0.2–0.5 µg H2O/min maximum",
+      "compare blank before and after inserting empty sample boat — boat contribution should be < 0.1 µg",
+      "inspect septum and glass joints for cracks or misalignment"
+    ],
+    "corrective_actions": [
+      "purge system with dry N2 for 20–30 min before starting measurements",
+      "replace N2 drying tube (molecular sieve 4A or Sicapent) if dew point > −40°C",
+      "pre-condition sample boats: heat at 150°C for 30 min; store in desiccator until use",
+      "replace septum on oven inlet if blank does not decrease after purging",
+      "keep KF cell covered with desiccant-protected cap between measurements"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "blank does not decrease below 2 µg/min after 30 min purging and septum replacement — system-level leak requiring service",
+      "carrier gas dew point cannot be dried below −30°C — drying column exhausted or supply contaminated"
+    ],
+    "source_id": "metrohm-874-oven-sample-processor-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "kfo-003",
+    "technique": "KFO",
+    "instrument_family": "Metrohm",
+    "model": null,
+    "issue_category": "KFO sample charring",
+    "symptom": "Sample chars, decomposes, or shows discolouration in KF oven boat; combustion products interfere with KF endpoint; results erratic",
+    "likely_causes": [
+      "oven temperature exceeds sample thermal decomposition temperature — organic matrix decomposes releasing interfering species",
+      "low-melting sample components flow and contact oven wall causing local overheating",
+      "residual oxygen in carrier gas or insufficient N2 purge causing partial combustion",
+      "volatile organic acids or aldehydes released on thermal treatment react with KF working medium",
+      "sample mass too large — centre reaches decomposition temperature before water fully evolved"
+    ],
+    "diagnostics": [
+      "visually inspect sample boat after oven run — char or colour change indicates decomposition",
+      "run TGA on sample to identify exact decomposition temperature and distinguish water loss from decomposition",
+      "compare results at 100, 120, 150°C — if results increase then drop, decomposition interferes above a threshold",
+      "check KF working medium colour after run: brown/black = organic decomposition products entered cell",
+      "run N2 purity check: O2 content should be < 10 ppm for combustion-sensitive samples"
+    ],
+    "corrective_actions": [
+      "reduce oven temperature to just above complete water release temperature (use TGA to identify optimal window)",
+      "reduce sample mass to 50–150 mg to limit decomposition product load",
+      "increase N2 purge time to ≥ 5 min before oven heating to eliminate residual O2",
+      "use glass wool plug in sample boat to hold powders and improve heat distribution",
+      "if charring unavoidable: switch to direct KF titration in suitable solvent or headspace moisture method"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "KF working medium persistently brown/black after runs — replace cell contents completely",
+      "sample fuses to boat or oven wall — oven requires dismantling and cleaning; contact Metrohm service"
+    ],
+    "source_id": "metrohm-874-oven-sample-processor-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-04-29T00:00:00Z"
   }
 ]
