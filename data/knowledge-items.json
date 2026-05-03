@@ -1829,5 +1829,133 @@
     "confidence_score": 0.88,
     "evidence_strength": "strong",
     "updated_at": "2025-04-29T00:00:00Z"
+  },
+  {
+    "id": "lcms-sq-001",
+    "technique": "LCMS",
+    "instrument_family": "Agilent",
+    "model": "6130B LC/MSD",
+    "issue_category": "low sensitivity",
+    "symptom": "Low or absent MS signal in full scan mode on Agilent single-quadrupole LC/MSD (6120B/6125B/6130B/6135B); signal undetectable for trace-level analytes",
+    "likely_causes": [
+      "Full scan window too wide — reduces dwell time per mass unit and lowers signal-to-noise vs. SIM",
+      "Fragmentor voltage not optimised for analyte — default 70 V may be too low for high-MW or too high for small molecules",
+      "ESI capillary fouled with matrix deposits — reduces spray stability and ion transfer",
+      "Drying gas temperature or flow rate suboptimal — poor droplet desolvation increases chemical noise",
+      "Nebuliser pressure too low — causes large droplets and reduced ionisation efficiency",
+      "Incorrect ESI polarity (positive vs. negative) for the analyte of interest"
+    ],
+    "diagnostics": [
+      "Infuse Agilent tuning mix (G1969-85000) at 5 µL/min — verify ions at m/z 118, 322, 622, 922 in positive ESI",
+      "Run MassHunter Tune autotune to optimise capillary, fragmentor, skimmer, and octopole RF",
+      "Check scan range: narrow to analyte region ± 50 Da; note SIM mode gives 10–100× sensitivity improvement",
+      "Verify drying gas: temperature 350 °C, flow 12 L/min; nebuliser pressure 45 psi",
+      "Inspect ESI capillary tip and spray shield for brown or white deposits; check nebuliser needle for blockage",
+      "Test both ESI+ and ESI− polarity on a known standard to confirm correct polarity selection"
+    ],
+    "corrective_actions": [
+      "Switch from full scan to SIM mode targeting analyte [M+H]+ (or [M−H]−) ± 0.5 Da — delivers 10–100× sensitivity gain",
+      "Re-optimise fragmentor voltage by direct infusion: ramp 50–250 V in 20 V steps, record signal at each step",
+      "Clean ESI source: remove capillary, wipe spray shield with lint-free tissue soaked in 50:50 MeOH:water, clean nebuliser tip",
+      "Set drying gas to 350 °C and 12 L/min N2; set nebuliser to 45 psi",
+      "Run full MassHunter autotune to restore optimal capillary, fragmentor, skimmer, octopole RF settings",
+      "If no signal after cleaning and tuning: replace ESI capillary (Agilent PN 5190-2426 or equivalent)"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Signal absent in direct infusion of tuning mix after source cleaning and autotune",
+      "Arcing noise or electrical discharge from ESI source",
+      "API vacuum not maintained — turbo pump fault",
+      "MSD error code persists after full power cycle"
+    ],
+    "source_id": "agilent-6100-series-msd-hardware-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-05-01T00:00:00Z"
+  },
+  {
+    "id": "lcms-sq-002",
+    "technique": "LCMS",
+    "instrument_family": "Waters",
+    "model": "QDa Performance Mass Detector",
+    "issue_category": "no peak",
+    "symptom": "No MS signal from Waters QDa detector while UV/PDA trace shows analyte; QDa shows no response or erratic signal across runs",
+    "likely_causes": [
+      "Cone voltage not optimised for analyte — factory default 10 V is insufficient for many compound classes",
+      "QDa source contamination — ion block and cone fouled by non-volatile matrix or mobile phase additives",
+      "Incorrect ESI polarity selected (positive vs. negative) for analyte ionisation",
+      "Mobile phase contains non-volatile buffers (phosphate, borate) severely suppressing ionisation",
+      "Mass range misconfigured in method — QDa range is 30–2000 Da; analyte m/z outside acquisition window",
+      "QDa USB/Ethernet communication failure — detector not receiving acquisition start trigger from MassLynx"
+    ],
+    "diagnostics": [
+      "Check QDa status in MassLynx Instrument Console — verify green ready indicator and no fault codes",
+      "Infuse 100 ng/mL leucine enkephalin in 50:50 MeOH:0.1% formic acid — expect [M+H]+ at m/z 556.3",
+      "Inspect cone voltage in method Instrument tab — try ramping 10 V → 50 V in 10 V steps by direct infusion",
+      "Visually inspect QDa cone for brown/white deposits; remove cone and examine for fouling",
+      "Confirm mobile phase is MS-compatible: formic acid or ammonium formate/acetate only; no phosphate or involatile salts",
+      "Check acquisition start/stop times and scan range in the MS method file match the analyte window"
+    ],
+    "corrective_actions": [
+      "Optimise cone voltage by infusion of target analyte: test 10, 20, 30, 40, 50 V and select value giving maximum signal",
+      "Clean QDa cone: remove and wipe with lint-free tissue wetted with 50:50 MeOH:water; allow to air-dry 5 min before reinstalling",
+      "Replace phosphate-based mobile phase with 0.1% formic acid or 10 mM ammonium formate equivalent",
+      "Correct ESI polarity setting in MassLynx method to match analyte ionisation mode",
+      "Restart QDa from MassLynx Console (Restart Detector); power-cycle detector if communication fault persists",
+      "Run QDa System Suitability test using leucine enkephalin standard to confirm baseline mass accuracy and sensitivity"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "No signal in direct infusion of leucine enkephalin after source cleaning and cone voltage ramp",
+      "QDa not detected or shows persistent fault code in MassLynx after reboot",
+      "Vacuum pump noise, vacuum fault, or unusual odour from QDa",
+      "QDa firmware upgrade required — contact Waters field service"
+    ],
+    "source_id": "waters-qda-mass-detector-operator-guide",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2025-05-01T00:00:00Z"
+  },
+  {
+    "id": "lcms-sq-003",
+    "technique": "LCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "adduct formation",
+    "symptom": "Unexpected adduct ions ([M+Na]+, [M+NH4]+, [M+K]+) dominate the mass spectrum over the protonated molecule [M+H]+; quantitation unreliable due to signal split across multiple adduct forms",
+    "likely_causes": [
+      "Sodium contamination from glassware — glass volumetric ware or glass vials leach Na+ into mobile phase",
+      "Ammonium adducts from ammonium formate or acetate buffer at high concentration (>20 mM)",
+      "Potassium adducts from residual KH2PO4 or contaminated water",
+      "Cone/fragmentor voltage too low — does not promote in-source dissociation of weakly-held alkali adducts",
+      "Poor desolvation — low drying gas temperature or flow leaves residual solvent clusters that retain Na+/K+",
+      "High concentration of alkali metal impurities in LC-grade solvents or sample diluent"
+    ],
+    "diagnostics": [
+      "Identify adduct type: [M+Na]+ = [M+H]+ + 22 Da; [M+NH4]+ = [M+H]+ + 17 Da; [M+K]+ = [M+H]+ + 38 Da",
+      "Infuse neat analyte in 0.1% formic acid/MeOH (no buffer) — if adducts disappear, source is mobile phase or glassware",
+      "Check mobile phase preparation: plastic polypropylene containers vs. glass; HPLC-grade water conductivity",
+      "Increase fragmentor (Agilent) or cone voltage (Waters) by 20–40 V to promote in-source CID dissociation of adducts",
+      "Increase drying gas temperature to 350 °C and flow to 12 L/min to improve droplet desolvation",
+      "Review buffer type and concentration: ammonium formate ≤10 mM preferred over ammonium acetate"
+    ],
+    "corrective_actions": [
+      "Prepare all mobile phases in polypropylene containers — replace glass volumetric flasks and storage bottles",
+      "Use freshly prepared HPLC- or LC-MS-grade water; confirm resistivity ≥18.2 MΩ·cm",
+      "Reduce ammonium formate/acetate to 5–10 mM and add 0.1% formic acid to suppress Na+/K+ adduction",
+      "Increase fragmentor (Agilent) or cone voltage (Waters) by 20–50 V to drive in-source dissociation of adducts",
+      "Flush LC system and source with 50:50 MeOH:water containing 0.01% formic acid for 30 min to remove alkali metal residues",
+      "Switch analyte quantitation to [M+Na]+ or [M+NH4]+ ion if adducts cannot be eliminated and signal is stable"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Adduct pattern changes run-to-run with RSD >20% — unstable source contamination source not identified",
+      "Adducts persist after all mobile phase changes, plastic ware switch, and source flush",
+      "Method validation fails due to unacceptable linearity caused by variable adduct distribution"
+    ],
+    "source_id": "journal-analytical-chemistry-lcms-adduct-suppression",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2025-05-01T00:00:00Z"
   }
 ]

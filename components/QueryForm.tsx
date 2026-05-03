@@ -35,11 +35,25 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Shimadzu':      ['Nexera X2', 'Nexera XR', 'Nexera X3'],
   },
   LCMS: {
-    'Waters':        ['Xevo TQ-S', 'Xevo TQ-XS', 'Xevo G2-XS QTof', 'Synapt XS'],
-    'Thermo Fisher': ['TSQ Altis', 'TSQ Quantis', 'Q Exactive', 'Q Exactive Plus', 'Orbitrap Exploris 480'],
-    'Agilent':       ['6460 Triple Quad LC/MS', '6495 Triple Quad LC/MS', '6546 LC/Q-TOF'],
-    'Shimadzu':      ['LCMS-8045', 'LCMS-8060', 'LCMS-9030 Q-TOF'],
-    'SCIEX':         ['QTRAP 6500+', 'TripleTOF 6600+', 'ZenoTOF 7600'],
+    'Agilent':       [
+      // Single quadrupole
+      '6120B Compact LC/MSD', '6125B LC/MSD', '6130B LC/MSD', '6135B LC/MSD',
+      // Triple quadrupole
+      '6460 Triple Quad LC/MS', '6470 Triple Quad LC/MS', '6495 Triple Quad LC/MS', '6495C Triple Quad LC/MS',
+      // Q-TOF
+      '6530 LC/Q-TOF', '6545 LC/Q-TOF', '6546 LC/Q-TOF', '6560 Ion Mobility LC/Q-TOF',
+    ],
+    'Waters':        [
+      // Single quadrupole
+      'QDa Mass Detector', 'QDa Performance Mass Detector', 'Xevo SQ Detector 2',
+      // Triple quadrupole
+      'Xevo TQ-S', 'Xevo TQ-XS', 'Xevo TQ-S micro',
+      // Q-TOF
+      'Xevo G2-XS QTof', 'Xevo G3 QTof', 'Synapt XS', 'SELECT SERIES Cyclic IMS',
+    ],
+    'Thermo Fisher': ['TSQ Altis', 'TSQ Altis Plus', 'TSQ Quantis', 'Q Exactive', 'Q Exactive Plus', 'Q Exactive HF', 'Orbitrap Exploris 480', 'Orbitrap Astral'],
+    'Shimadzu':      ['LCMS-2050', 'LCMS-2020', 'LCMS-8045', 'LCMS-8060', 'LCMS-8060NX', 'LCMS-9030 Q-TOF', 'LCMS-9050 Q-TOF'],
+    'SCIEX':         ['QTRAP 4500', 'QTRAP 5500', 'QTRAP 6500+', 'Triple Quad 5500+', 'Triple Quad 6500+', 'TripleTOF 6600+', 'ZenoTOF 7600'],
   },
   GC: {
     'Agilent':       ['7890A GC', '7890B GC', '8860 GC', '8890 GC'],

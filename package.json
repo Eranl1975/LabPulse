@@ -1,6 +1,6 @@
 {
   "name": "labpulse",
-  "version": "2.2.0-new-techniques",
+  "version": "2.3.0-lcms-single-quad",
   "private": true,
   "scripts": {
     "dev": "next dev",

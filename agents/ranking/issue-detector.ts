@@ -11,6 +11,7 @@ const ISSUE_KEYWORDS: Record<string, string[]> = {
   'noisy baseline':                ['noisy baseline', 'baseline noise', 'baseline drift', 'baseline instability'],
   'high backpressure':             ['high pressure', 'backpressure', 'back pressure', 'clogged', 'blocked column', 'pressure alarm', 'pressure rise'],
   'LCMS source contamination':     ['source contamination', 'spray shield', 'ms sensitivity loss', 'source dirty'],
+  'adduct formation':              ['adduct', 'sodium adduct', 'ammonium adduct', 'potassium adduct', 'adduct peak', '[m+na]', '[m+k]', '[m+nh4]', 'formate adduct', 'unexpected mass', 'wrong m/z', 'alkali adduct', 'adduct ion'],
   'GC ghost peaks':                ['ghost peak', 'phantom peak', 'extra peak blank', 'blank injection peak'],
   'poor GC peak shape':            ['gc peak shape', 'gc fronting', 'gc split peak', 'gc tailing'],
   'GCMS signal loss':              ['gcms signal', 'gc-ms response', 'gcms sensitivity', 'ms detector loss', 'gc ms signal', 'detector response loss'],
