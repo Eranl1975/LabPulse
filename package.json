@@ -10,11 +10,14 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
+    "@stripe/stripe-js": "^9.4.0",
+    "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.45.0",
     "@tailwindcss/postcss": "^4.2.2",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "stripe": "^22.1.0",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
