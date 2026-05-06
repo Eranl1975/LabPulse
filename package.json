@@ -1,6 +1,6 @@
 {
   "name": "labpulse",
-  "version": "2.3.0-lcms-single-quad",
+  "version": "2.4.0-communication-fault-diagnosis",
   "private": true,
   "scripts": {
     "dev": "next dev",

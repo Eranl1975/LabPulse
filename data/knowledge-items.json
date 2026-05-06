@@ -1957,5 +1957,91 @@
     "confidence_score": 0.82,
     "evidence_strength": "strong",
     "updated_at": "2025-05-01T00:00:00Z"
+  },
+  {
+    "id": "lcms-sq-004",
+    "technique": "LCMS",
+    "instrument_family": "Agilent",
+    "model": "6135B LC/MSD",
+    "issue_category": "instrument communication fault",
+    "symptom": "Agilent 6100-series MSD raises error event code ee(65,0) or similar ee() codes; MassHunter reports instrument not responding or communication fault; MSD may also show vacuum-related alarm. Error event (ee) codes are firmware-level events that can originate from vacuum system faults OR from communication failures between the MSD, data system, and connected LC modules.",
+    "likely_causes": [
+      "USB or LAN communication interruption between MSD and PC running MassHunter — USB cable fault, USB hub power issue, or LAN IP conflict causes firmware to raise ee() error event",
+      "Vacuum system fault (turbomolecular pump or fore pump) — ee(65,0) is a known vacuum interlock error; turbo pump failure, fore pump oil depletion, or vent valve fault also triggers this code",
+      "Windows USB Selective Suspend or power management suspending the MSD USB device — causes communication timeout reported as ee() error even when hardware is intact",
+      "MassHunter instrument driver version incompatible with MSD firmware — communication protocol mismatch raises ee() error event",
+      "CAN bus or module communication failure within the LC stack — MSD cannot receive ready signal from pump, degasser, or autosampler module",
+      "MSD firmware hang or crash requiring full power cycle — commonly triggered after PC hibernate/sleep with instrument online"
+    ],
+    "diagnostics": [
+      "Open MassHunter Instrument Control → check MSD status panel: vacuum gauge reading, turbo pump RPM, fore pump status — distinguishes vacuum fault from pure communication fault",
+      "Listen to MSD: audible spinning turbo pump (high-pitched whine) indicates vacuum system running; silence suggests pump stopped or fault",
+      "Power-cycle test: shut down MassHunter, power off MSD fully (hold power button 5 s), wait 15 min for turbo to decelerate, restart — if ee() clears, fault was firmware communication hang not hardware vacuum failure",
+      "Check USB: open Windows Device Manager → Universal Serial Bus controllers → look for yellow warning on MSD device; reseat cable at both ends; try a different USB port (not a hub)",
+      "On LAN-connected instruments: ping MSD IP address from PC; check for IP address conflict; verify network switch port is active",
+      "Check Windows Event Viewer → System log for USB errors or network adapter events at the time of ee() occurrence — confirms communication origin vs. vacuum origin"
+    ],
+    "corrective_actions": [
+      "Full power cycle MSD: power off → wait 15 min (allows turbo deceleration) → power on → re-initialise in MassHunter — resolves firmware communication hang (most common fix for ee(65,0) when vacuum hardware is intact)",
+      "Reseat or replace USB cable; use a direct USB port on the PC motherboard (not a hub); if LAN-connected, assign a static IP to MSD and verify no IP conflict",
+      "Disable USB Selective Suspend: Windows Device Manager → MSD USB device → Properties → Power Management → uncheck 'Allow computer to turn off this device to save power'",
+      "If vacuum fault confirmed (turbo not spinning, vacuum gauge low): check fore pump oil level and operation, inspect vacuum fittings for leaks — replace fore pump oil or call service for turbo replacement",
+      "Update MassHunter instrument driver and MSD firmware to latest compatible versions (Agilent support site) if communication errors recur after cable and power management fixes",
+      "Check LC module communication: in MassHunter Configuration verify all LC modules are detected; reseat inter-module cables if any show as offline"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Turbo pump physically failed — pump not spinning after power cycle, ee() error returns immediately at startup",
+      "Vacuum cannot be maintained after fore pump service and leak check",
+      "MSD firmware corruption — error persists after driver reinstall and firmware reflash (requires Agilent field service)",
+      "Hardware communication board failure — USB/LAN interface card fault inside MSD"
+    ],
+    "source_id": "agilent-6100-series-msd-hardware-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2025-05-06T00:00:00Z"
+  },
+  {
+    "id": "lcms-comm-001",
+    "technique": "LCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "instrument communication fault",
+    "symptom": "LC/MS instrument not responding to data system; communication timeout or error code; module communication failures; instrument appears offline or unreachable despite being powered on",
+    "likely_causes": [
+      "Physical communication layer fault: USB cable damage, LAN cable or port failure, or loose inter-module communication cable (CAN bus, Agilent controller, Waters ACQUITY I/O bus)",
+      "PC-side issue: Windows power management (USB suspend, sleep) disconnecting instrument; firewall blocking instrument communication ports; IP address conflict on network",
+      "Instrument firmware hang: crash triggered by abrupt PC shutdown, software crash, or environmental limit exceeded (temperature, humidity)",
+      "Software driver or version mismatch between data system software and instrument firmware",
+      "Module communication failure within instrument stack: one module fails to report ready status, halting whole-system communication",
+      "Hardware failure: communication interface board inside instrument (USB/LAN card, internal CAN bus controller)"
+    ],
+    "diagnostics": [
+      "Full power cycle instrument: shut down data system software → power off instrument → wait 10–15 min → power on → relaunch software — clears most firmware hang conditions",
+      "Verify physical connections: reseat all communication cables (USB, LAN, inter-module); check for visible cable damage or bent pins",
+      "Check data system PC: Windows Device Manager for USB device errors; network adapter status; firewall/antivirus logs for blocked instrument communication",
+      "Ping instrument IP address (LAN instruments) or verify USB device presence in Device Manager (USB instruments)",
+      "Review instrument front panel display or status LEDs for hardware error codes",
+      "Test with a known-good PC or laptop if available — isolates instrument hardware fault vs. PC-side issue"
+    ],
+    "corrective_actions": [
+      "Full power cycle (instrument off → wait for rotating components to stop → power on) — resolves majority of firmware communication hang faults",
+      "Replace communication cable (USB or LAN); use a dedicated PC port; eliminate USB hubs for USB-connected instruments",
+      "Disable all Windows power management affecting USB devices and network adapters; set PC sleep to Never during instrument operation",
+      "Reinstall or update instrument driver to the version compatible with current instrument firmware",
+      "Assign static IP address to LAN instruments; document the IP to prevent future conflicts",
+      "If module communication fault: identify the non-responding module via software diagnostics; reseat inter-module cables; replace faulty module if required"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Communication fault persists after full power cycle, cable replacement, and driver reinstall",
+      "Instrument front panel shows persistent hardware fault code",
+      "Communication interface board suspected failed — requires hardware replacement by service engineer",
+      "Instrument vacuum or high-voltage systems affected by communication fault (safety concern)"
+    ],
+    "source_id": "agilent-6100-series-msd-hardware-manual",
+    "confidence_score": 0.80,
+    "evidence_strength": "moderate",
+    "updated_at": "2025-05-06T00:00:00Z"
   }
 ]
