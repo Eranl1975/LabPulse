@@ -1,7 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const AUTH_ROUTES = new Set(['/login', '/register', '/forgot-password', '/reset-password']);
+// AUTH_ROUTES: pages to redirect *away from* when already logged in
+// NOTE: /reset-password is intentionally excluded — users need it after clicking the reset link
+const AUTH_ROUTES = new Set(['/login', '/register', '/forgot-password']);
 const PUBLIC_ROUTES = new Set(['/', '/login', '/register', '/forgot-password', '/reset-password']);
 
 // Simple in-memory rate limiter
