@@ -68,7 +68,10 @@
    BASE
    ───────────────────────────────────────────────────────────── */
 @layer base {
-  *, *::before, *::after { box-sizing: border-box; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
 
   /*
    * Smooth gradient background on <html> so it covers the
@@ -77,6 +80,7 @@
    */
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling on orientation change */
     -webkit-font-smoothing: antialiased;
     min-height: 100%;
     background:
@@ -149,8 +153,8 @@
   }
   .lab-input {
     width: 100%;
-    padding: .6875rem .9375rem;   /* ↑ more vertical padding */
-    font-size: .9375rem;          /* ↑ was .875rem */
+    padding: .6875rem .9375rem;
+    font-size: 1rem;              /* 16px — prevents iOS Safari zoom-on-focus */
     font-family: var(--font-sans);
     color: var(--color-slate-900);
     background: var(--color-slate-50);
@@ -182,6 +186,7 @@
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
+    touch-action: manipulation; /* removes 300ms tap delay on mobile */
     transition: all .15s ease;
     white-space: nowrap;
     text-decoration: none;
@@ -353,6 +358,7 @@
     color: var(--color-slate-500);
     border-radius: var(--radius-md);
     cursor: pointer;
+    touch-action: manipulation; /* removes 300ms tap delay on mobile */
     transition: all .15s ease;
     white-space: nowrap;
   }

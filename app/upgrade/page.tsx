@@ -15,14 +15,14 @@ export default async function UpgradePage() {
     new Date(profile.trial_ends_at) < new Date();
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(1rem, 4vw, 2rem)' }}>
       <div style={{ maxWidth: '560px', width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.75rem', color: '#0f172a' }}>
             Lab<span style={{ color: '#14b8a6' }}>Pulse</span>
           </span>
         </div>
-        <div style={{ background: '#fff', borderRadius: '16px', padding: '2.5rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+        <div style={{ background: '#fff', borderRadius: '16px', padding: 'clamp(1.25rem, 5vw, 2.5rem)', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
             Upgrade to Full Access
           </h1>

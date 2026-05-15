@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
@@ -25,6 +25,13 @@ const jetbrains = JetBrains_Mono({
   display: 'swap',
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#14b8a6',
+};
+
 export const metadata: Metadata = {
   title: 'LabPulse — Instrument Troubleshooting Intelligence',
   description:
@@ -34,7 +41,6 @@ export const metadata: Metadata = {
     apple: '/icon.svg',
   },
   manifest: '/manifest.json',
-  themeColor: '#14b8a6',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

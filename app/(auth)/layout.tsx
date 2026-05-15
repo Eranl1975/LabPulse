@@ -12,11 +12,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      padding: '2rem',
+      padding: 'clamp(0.75rem, 4vw, 2rem)',
     }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.75rem', color: '#fff' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(1.375rem, 5vw, 1.75rem)', color: '#fff' }}>
             Lab<span style={{ color: '#14b8a6' }}>Pulse</span>
           </span>
           <div style={{ fontSize: '0.875rem', color: '#94a3b8', marginTop: '0.25rem' }}>
