@@ -63,18 +63,14 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
           ))}
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }} className="hidden-mobile">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="hidden-mobile">
           {profile ? (
             <UserMenu profile={profile} />
           ) : (
-            <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-sm">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-                <path d="M5.5 6.5C5.5 5.12 6.62 4 8 4s2.5 1.12 2.5 2.5c0 1.5-1.5 2-2.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="8" cy="12" r=".75" fill="currentColor"/>
-              </svg>
-              Troubleshoot
-            </Link>
+            <>
+              <Link href="/login" className="lab-btn lab-btn-secondary lab-btn-sm">Log in</Link>
+              <Link href="/register" className="lab-btn lab-btn-primary lab-btn-sm">Sign up free</Link>
+            </>
           )}
         </div>
 
@@ -141,9 +137,17 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
               </button>
             </div>
           ) : (
-            <Link href="/ask" className="lab-btn lab-btn-primary" style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}>
-              Troubleshoot Now
-            </Link>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '0.25rem' }}>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-slate-500)', margin: 0 }}>
+                Troubleshoot your analytical instruments with evidence-ranked diagnostics.
+              </p>
+              <Link href="/login" className="lab-btn lab-btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                Log in
+              </Link>
+              <Link href="/register" className="lab-btn lab-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Sign up free — 14-day trial
+              </Link>
+            </div>
           )}
         </div>
       )}
