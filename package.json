@@ -1,6 +1,6 @@
 {
   "name": "labpulse",
-  "version": "2.5.2-auth-payments",
+  "version": "2.5.3-auth-payments",
   "private": true,
   "scripts": {
     "dev": "next dev",

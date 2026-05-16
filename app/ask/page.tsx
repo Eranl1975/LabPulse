@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getUser } from '@/lib/auth';
+import { getProfile } from '@/lib/auth';
 import QueryForm from '@/components/QueryForm';
 
 export const metadata = {
@@ -8,8 +8,8 @@ export const metadata = {
 };
 
 export default async function AskPage() {
-  const user = await getUser();
-  if (!user) redirect('/login');
+  const profile = await getProfile();
+  if (!profile) redirect('/login');
   return (
     <div style={{ minHeight: '100vh' }}>
 

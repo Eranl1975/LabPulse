@@ -55,13 +55,15 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
           <Logo size={34} />
         </Link>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="hidden-mobile">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className={`nav-link ${pathname === href ? 'nav-link-active' : ''}`}>
-              {label}
-            </Link>
-          ))}
-        </nav>
+        {profile && (
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }} className="hidden-mobile">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link key={href} href={href} className={`nav-link ${pathname === href ? 'nav-link-active' : ''}`}>
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="hidden-mobile">
           {profile ? (
@@ -98,7 +100,7 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
           style={{ position: 'fixed', top: '64px', left: 0, right: 0, background: '#fff', borderBottom: '1px solid var(--color-slate-200)', padding: '1rem 1.25rem 1.5rem', boxShadow: '0 8px 24px rgba(15,23,42,.1)', zIndex: 49 }}
           className="fade-in"
         >
-          {NAV_LINKS.map(({ href, label }) => (
+          {profile && NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
