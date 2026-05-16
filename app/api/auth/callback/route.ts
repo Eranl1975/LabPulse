@@ -23,8 +23,25 @@ export async function GET(request: NextRequest) {
         },
       }
     );
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      // Ensure profile row exists — handles the case where the DB trigger
+      // (011_profiles.sql) has not been run yet in the Supabase dashboard.
+      const user = data.session?.user;
+      if (user) {
+        const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+        await supabase.from('profiles').upsert(
+          {
+            id: user.id,
+            email: user.email ?? null,
+            full_name: (user.user_metadata?.full_name as string) ?? null,
+            trial_ends_at: trialEndsAt,
+          },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
+      }
+      return NextResponse.redirect(`${origin}${next}`);
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=callback`);
