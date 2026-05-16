@@ -74,70 +74,78 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session (important — keeps JWT fresh)
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    // Refresh session (important — keeps JWT fresh)
+    const { data: { user } } = await supabase.auth.getUser();
 
-  // ── Admin routes ──────────────────────────────────────────────────────────
-  if (pathname.startsWith('/admin')) {
+    // ── Admin routes ──────────────────────────────────────────────────────────
+    if (pathname.startsWith('/admin')) {
+      if (!user) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        url.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(url);
+      }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      if (profile?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/ask', request.url));
+      }
+      return response;
+    }
+
+    // ── Public routes ─────────────────────────────────────────────────────────
+    if (PUBLIC_ROUTES.has(pathname)) {
+      // Authenticated users landing on auth pages → send to app
+      if (user && AUTH_ROUTES.has(pathname)) {
+        return NextResponse.redirect(new URL('/ask', request.url));
+      }
+      return response;
+    }
+
+    // ── Protected routes ─────────────────────────────────────────────────────
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
-      url.searchParams.set('redirect', pathname);
+      if (pathname !== '/ask') url.searchParams.set('redirect', pathname);
       return NextResponse.redirect(url);
     }
+
+    // Fetch profile for role/lock checks
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, trial_ends_at, locked_until')
       .eq('id', user.id)
       .single();
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/ask', request.url));
+
+    if (profile) {
+      if (profile.role === 'blocked_user') {
+        return NextResponse.redirect(new URL('/login?error=blocked', request.url));
+      }
+      if (profile.locked_until && new Date(profile.locked_until) > new Date()) {
+        return NextResponse.redirect(new URL('/login?error=locked', request.url));
+      }
+      if (
+        profile.role === 'trial_user' &&
+        profile.trial_ends_at &&
+        new Date(profile.trial_ends_at) < new Date() &&
+        !pathname.startsWith('/upgrade')
+      ) {
+        return NextResponse.redirect(new URL('/upgrade?reason=trial_expired', request.url));
+      }
     }
+
     return response;
-  }
-
-  // ── Public routes ─────────────────────────────────────────────────────────
-  if (PUBLIC_ROUTES.has(pathname)) {
-    // Authenticated users landing on auth pages → send to app
-    if (user && AUTH_ROUTES.has(pathname)) {
-      return NextResponse.redirect(new URL('/ask', request.url));
+  } catch {
+    // Supabase unreachable — let public/auth pages through, block protected routes
+    if (PUBLIC_ROUTES.has(pathname) || pathname.startsWith('/api/')) {
+      return response;
     }
-    return response;
+    return NextResponse.redirect(new URL('/login', request.url));
   }
-
-  // ── Protected routes ─────────────────────────────────────────────────────
-  if (!user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    if (pathname !== '/ask') url.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // Fetch profile for role/lock checks
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, trial_ends_at, locked_until')
-    .eq('id', user.id)
-    .single();
-
-  if (profile) {
-    if (profile.role === 'blocked_user') {
-      return NextResponse.redirect(new URL('/login?error=blocked', request.url));
-    }
-    if (profile.locked_until && new Date(profile.locked_until) > new Date()) {
-      return NextResponse.redirect(new URL('/login?error=locked', request.url));
-    }
-    if (
-      profile.role === 'trial_user' &&
-      profile.trial_ends_at &&
-      new Date(profile.trial_ends_at) < new Date() &&
-      !pathname.startsWith('/upgrade')
-    ) {
-      return NextResponse.redirect(new URL('/upgrade?reason=trial_expired', request.url));
-    }
-  }
-
-  return response;
 }
 
 export const config = {

@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { getUser } from '@/lib/auth';
 import QueryForm from '@/components/QueryForm';
 
 export const metadata = {
@@ -5,7 +7,9 @@ export const metadata = {
   description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, and KFO instruments.',
 };
 
-export default function AskPage() {
+export default async function AskPage() {
+  const user = await getUser();
+  if (!user) redirect('/login');
   return (
     <div style={{ minHeight: '100vh' }}>
 
