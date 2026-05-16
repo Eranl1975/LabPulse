@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getUser } from '@/lib/auth';
 
 // ── Decorative chromatogram trace for the hero ──────────────────────────────
 function ChromatogramHero() {
@@ -136,7 +137,8 @@ const HOW_IT_WORKS = [
   { num: '03', title: 'Verified Action',      body: 'Get structured corrective actions traced to authoritative vendor or scientific sources.' },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getUser();
   return (
     <>
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -205,17 +207,30 @@ export default function HomePage() {
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.75rem', alignItems: 'center' }}>
-                <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M5.5 6.5C5.5 5.12 6.62 4 8 4s2.5 1.12 2.5 2.5C10.5 8 9 8.5 8 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    <circle cx="8" cy="12" r=".75" fill="currentColor"/>
-                  </svg>
-                  Ask a Question
-                </Link>
-                <Link href="/reports" className="lab-btn lab-btn-secondary lab-btn-lg">
-                  View Reports
-                </Link>
+                {user ? (
+                  <>
+                    <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M5.5 6.5C5.5 5.12 6.62 4 8 4s2.5 1.12 2.5 2.5C10.5 8 9 8.5 8 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <circle cx="8" cy="12" r=".75" fill="currentColor"/>
+                      </svg>
+                      Ask a Question
+                    </Link>
+                    <Link href="/reports" className="lab-btn lab-btn-secondary lab-btn-lg">
+                      View Reports
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/register" className="lab-btn lab-btn-primary lab-btn-lg">
+                      Start Free Trial
+                    </Link>
+                    <Link href="/login" className="lab-btn lab-btn-secondary lab-btn-lg">
+                      Log in
+                    </Link>
+                  </>
+                )}
               </div>
 
               {/* Trust badges */}
@@ -410,9 +425,15 @@ export default function HomePage() {
           <p style={{ color: '#f97316', marginBottom: '1.75rem', fontSize: '.9375rem' }}>
             Describe your instrument problem and get evidence-ranked answers instantly.
           </p>
-          <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg" style={{ color: '#000' }}>
-            Start Troubleshooting
-          </Link>
+          {user ? (
+            <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg" style={{ color: '#000' }}>
+              Start Troubleshooting
+            </Link>
+          ) : (
+            <Link href="/register" className="lab-btn lab-btn-primary lab-btn-lg" style={{ color: '#000' }}>
+              Start Free Trial — No Credit Card
+            </Link>
+          )}
         </div>
       </section>
 
