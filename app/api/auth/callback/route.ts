@@ -29,16 +29,20 @@ export async function GET(request: NextRequest) {
       // (011_profiles.sql) has not been run yet in the Supabase dashboard.
       const user = data.session?.user;
       if (user) {
-        const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-        await supabase.from('profiles').upsert(
-          {
-            id: user.id,
-            email: user.email ?? null,
-            full_name: (user.user_metadata?.full_name as string) ?? null,
-            trial_ends_at: trialEndsAt,
-          },
-          { onConflict: 'id', ignoreDuplicates: true }
-        );
+        try {
+          const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+          await supabase.from('profiles').upsert(
+            {
+              id: user.id,
+              email: user.email ?? null,
+              full_name: (user.user_metadata?.full_name as string) ?? null,
+              trial_ends_at: trialEndsAt,
+            },
+            { onConflict: 'id', ignoreDuplicates: true }
+          );
+        } catch {
+          // Profile table may not exist yet — redirect anyway, login will still work
+        }
       }
       return NextResponse.redirect(`${origin}${next}`);
     }
