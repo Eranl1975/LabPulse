@@ -70,8 +70,8 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
             <UserMenu profile={profile} />
           ) : (
             <>
-              <Link href="/login" className="lab-btn lab-btn-secondary lab-btn-sm">Log in</Link>
-              <Link href="/register" className="lab-btn lab-btn-primary lab-btn-sm">Sign up free</Link>
+              <a href="/login" className="lab-btn lab-btn-secondary lab-btn-sm">Log in</a>
+              <a href="/register" className="lab-btn lab-btn-primary lab-btn-sm">Sign up free</a>
             </>
           )}
         </div>
@@ -143,12 +143,12 @@ export default function NavBarClient({ profile }: { profile: Profile | null }) {
               <p style={{ fontSize: '0.9375rem', color: 'var(--color-slate-500)', margin: 0 }}>
                 Troubleshoot your analytical instruments with evidence-ranked diagnostics.
               </p>
-              <Link href="/login" className="lab-btn lab-btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+              <a href="/login" className="lab-btn lab-btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
                 Log in
-              </Link>
-              <Link href="/register" className="lab-btn lab-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              </a>
+              <a href="/register" className="lab-btn lab-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 Sign up free — 14-day trial
-              </Link>
+              </a>
             </div>
           )}
         </div>

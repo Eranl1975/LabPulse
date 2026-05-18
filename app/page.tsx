@@ -1,4 +1,3 @@
-import Link from 'next/link';
 
 // ── Decorative chromatogram trace for the hero ──────────────────────────────
 function ChromatogramHero() {
@@ -205,17 +204,17 @@ export default function HomePage() {
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.75rem', alignItems: 'center' }}>
-                <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg">
+                <a href="/ask" className="lab-btn lab-btn-primary lab-btn-lg">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
                     <path d="M5.5 6.5C5.5 5.12 6.62 4 8 4s2.5 1.12 2.5 2.5C10.5 8 9 8.5 8 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <circle cx="8" cy="12" r=".75" fill="currentColor"/>
                   </svg>
                   Ask a Question
-                </Link>
-                <Link href="/reports" className="lab-btn lab-btn-secondary lab-btn-lg">
+                </a>
+                <a href="/reports" className="lab-btn lab-btn-secondary lab-btn-lg">
                   View Reports
-                </Link>
+                </a>
               </div>
 
               {/* Trust badges */}
@@ -410,9 +409,9 @@ export default function HomePage() {
           <p style={{ color: '#f97316', marginBottom: '1.75rem', fontSize: '.9375rem' }}>
             Describe your instrument problem and get evidence-ranked answers instantly.
           </p>
-          <Link href="/ask" className="lab-btn lab-btn-primary lab-btn-lg" style={{ color: '#000' }}>
+          <a href="/ask" className="lab-btn lab-btn-primary lab-btn-lg" style={{ color: '#000' }}>
             Start Troubleshooting
-          </Link>
+          </a>
         </div>
       </section>
 
