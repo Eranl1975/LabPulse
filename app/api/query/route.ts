@@ -3,12 +3,19 @@ import { rankItems } from '@/agents/ranking/index';
 import { present }   from '@/agents/presentation/index';
 import { readItems } from '@/lib/store';
 import { aiAnswerFallback } from '@/lib/ai-fallback';
+import { getUser } from '@/lib/auth';
 import type { RankingQuery } from '@/agents/ranking/types';
 import type { Technique } from '@/lib/types';
 
 const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO']);
 
 export async function POST(req: NextRequest) {
+  // Require authentication
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized. Please log in to use LabPulse.' }, { status: 401 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
