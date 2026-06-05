@@ -11,7 +11,7 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR'] as const;
 
 const VENDOR_OPTIONS = [
   'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
@@ -21,6 +21,8 @@ const VENDOR_OPTIONS = [
   'Metrohm', 'Malvern Panalytical', 'Rigaku',
   // Physical characterization (v3.0)
   'JASCO', 'Denton Vacuum', 'Micromeritics',
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  'Wyatt Technology', 'Tosoh Bioscience', 'Renishaw', 'HORIBA', 'JEOL',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -142,6 +144,32 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
   BET: {
     'Micromeritics': ['Gemini VII 2390', 'Gemini VII 2385', 'TriStar II Plus', 'ASAP 2020', 'ASAP 2460', 'ASAP 2020 Plus', 'Flowsorb III'],
   },
+  // ── Spectroscopy / NMR / SEC-MALS / TEM (v3.1) ───────────────────────────
+  SECMALS: {
+    'Wyatt Technology':  ['DAWN HELEOS II', 'DAWN 8+', 'miniDAWN TREOS II', 'Optilab T-rEX', 'microDAWN'],
+    'Malvern Panalytical': ['OMNISEC Resolve', 'OMNISEC Reveal', 'OMNISEC Tetra'],
+    'Tosoh Bioscience':  ['HLC-8321GPC/HT', 'EcoSEC Elite', 'EcoSEC HLC-8320GPC'],
+    'Shimadzu':          ['Nexera GPC System', 'Prominence GPC-20A'],
+  },
+  TEM: {
+    'Thermo Fisher':  ['Talos F200C', 'Talos L120C', 'Tecnai T12', 'Tecnai G2 F20', 'Glacios Cryo-TEM', 'Titan Krios G4'],
+    'JEOL':           ['JEM-1400 Plus', 'JEM-2100', 'JEM-2100F', 'JEM-F200', 'JEM-ARM200F', 'JEM-Z300FSC'],
+    'Hitachi':        ['HT7800', 'HT9500', 'HT7700', 'HT5000'],
+  },
+  Raman: {
+    'Renishaw':       ['inVia Raman', 'inVia Qontor', 'inVia Reflex', 'Smiths Detection RA816'],
+    'HORIBA':         ['LabRAM Odyssey', 'LabRAM HR Evolution', 'LabRAM HR800', 'XploRA PLUS'],
+    'Thermo Fisher':  ['DXR3 Raman', 'DXR3xi Raman Imaging', 'DXR3 SmartRaman'],
+    'Bruker':         ['Senterra II', 'BRAVO', 'MultiRAM'],
+  },
+  ssNMR: {
+    'Bruker': ['Avance Neo 400 MHz (ssNMR)', 'Avance Neo 600 MHz (ssNMR)', 'Avance Neo 800 MHz (ssNMR)', 'Avance III HD 400 MHz', 'NEO 1 GHz (ssNMR)'],
+    'JEOL':   ['ECZ-R 400 MHz', 'ECZ-R 600 MHz'],
+  },
+  NMR: {
+    'Bruker': ['Avance Neo 300 MHz', 'Avance Neo 400 MHz', 'Avance Neo 500 MHz', 'Avance Neo 600 MHz', 'Avance Neo 800 MHz', 'Avance Neo 1 GHz', 'Fourier 300', 'Avance III HD 400'],
+    'JEOL':   ['ECZL 400', 'ECZL 500', 'ECZL 600', 'ECZS 600', 'ECZL 800', 'ECX 400'],
+  },
 };
 
 function getFilteredVendors(technique: string): string[] {
@@ -181,6 +209,12 @@ const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
   SEM:     ['SEM blurry image', 'SEM charging artifacts', 'SEM poor contrast', 'SEM vacuum failure', 'SEM focus instability', 'SEM detector error', 'SEM stage movement failure', 'SEM beam alignment issue'],
   Sputter: ['Sputter non-uniform coating', 'Sputter arcing', 'Sputter poor film adhesion', 'Sputter excessive grain size', 'Sputter vacuum instability', 'Sputter plasma ignition failure'],
   BET:     ['BET negative constant', 'BET poor linearity', 'BET low reproducibility', 'BET degassing failure', 'BET leak', 'BET unexpected surface area', 'BET outlier adsorption points'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['SECMALS light scattering noise', 'SECMALS incorrect molecular weight', 'SECMALS negative peaks', 'SECMALS RI baseline drift', 'SECMALS detector alignment error', 'SECMALS peak broadening', 'SECMALS aggregation artifact'],
+  TEM:     ['TEM poor image quality', 'TEM sample drift', 'TEM charging', 'TEM beam damage', 'TEM vacuum failure', 'TEM astigmatism', 'TEM grid contamination', 'TEM ice contamination'],
+  Raman:   ['Raman high fluorescence', 'Raman weak signal', 'Raman cosmic ray spike', 'Raman baseline drift', 'Raman sample burning', 'Raman peak shift', 'Raman wavelength calibration failure'],
+  ssNMR:   ['ssNMR MAS failure', 'ssNMR rotor instability', 'ssNMR probe tuning failure', 'ssNMR low sensitivity', 'ssNMR peak broadening', 'ssNMR arcing', 'ssNMR probe overheating'],
+  NMR:     ['NMR lock failure', 'NMR poor shimming', 'NMR broad peaks', 'NMR solvent suppression failure', 'NMR baseline distortion', 'NMR low sensitivity', 'NMR probe failure', 'NMR gradient failure'],
 };
 
 const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
@@ -219,6 +253,12 @@ const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
   SEM:     ['blurry image', 'charging artifacts', 'poor contrast', 'vacuum failure', 'focus drift', 'detector error', 'stage stuck', 'beam alignment issue'],
   Sputter: ['non-uniform coating', 'arcing', 'poor film adhesion', 'excessive grain size', 'vacuum instability', 'plasma not igniting'],
   BET:     ['negative BET constant', 'poor linearity', 'low reproducibility', 'degassing incomplete', 'gas leak', 'unexpected surface area', 'outlier adsorption points'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['light scattering noise', 'incorrect molecular weight', 'negative peaks', 'RI baseline drift', 'detector alignment error', 'peak broadening', 'aggregation artifact'],
+  TEM:     ['blurry image', 'sample drift', 'charging artifact', 'beam damage', 'vacuum failure', 'astigmatism', 'grid contamination', 'ice contamination'],
+  Raman:   ['high fluorescence background', 'weak signal', 'cosmic ray spike', 'baseline drift', 'sample burning', 'peak shift', 'wavelength calibration failure'],
+  ssNMR:   ['MAS spinning failure', 'rotor instability', 'probe tuning failure', 'low sensitivity', 'broad peaks', 'arcing', 'probe overheating'],
+  NMR:     ['lock failure', 'poor shimming', 'broad peaks', 'solvent suppression failure', 'baseline distortion', 'low sensitivity', 'probe failure', 'gradient failure'],
 };
 
 const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
@@ -250,6 +290,12 @@ const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
   SEM:     ['cleaned SEM chamber', 'reseated sample stub', 'applied sputter coating', 'checked vacuum status', 'realigned beam', 'replaced detector', 'restarted Phenom software'],
   Sputter: ['cleaned sputter chamber', 'replaced target material', 'checked argon gas supply', 'verified vacuum pump operation', 'cleaned substrate', 'replaced O-ring seals'],
   BET:     ['degassed sample at higher temperature', 'cleaned sample tube', 'checked nitrogen gas supply', 'leak tested manifold', 'replaced sample tube O-ring', 'restarted Gemini software', 'ran blank tube analysis'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['adjusted inter-detector delay volumes', 'cleaned SEC columns', 'verified dn/dc value', 'recalibrated RI detector', 'replaced flow cell', 'filtered sample through 0.2 µm', 'restarted ASTRA or OmniSEC software'],
+  TEM:     ['plasma-cleaned grid', 'prepared fresh negative stain', 'cleaned specimen holder', 'degassed column overnight', 'corrected astigmatism', 'lowered beam current', 'loaded fresh grid'],
+  Raman:   ['adjusted laser power', 'replaced calibration standard', 're-calibrated wavenumber axis', 'cleaned sample stage', 'changed excitation wavelength', 'applied baseline correction', 'used cosmic ray filter'],
+  ssNMR:   ['replaced rotor', 'retuned probe', 're-optimized MAS speed', 'recalibrated magic angle', 'reduced RF power', 'replaced probe', 'cooled probe with nitrogen'],
+  NMR:     ['re-locked on deuterium solvent', 'reshimmed manually', 'retuned probe', 'increased NS (number of scans)', 'optimized solvent suppression parameters', 'replaced NMR tube', 'recalibrated gradient coil'],
 };
 
 const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];

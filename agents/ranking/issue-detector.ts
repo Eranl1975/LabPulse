@@ -75,6 +75,52 @@ const ISSUE_KEYWORDS: Record<string, string[]> = {
   'BET leak detection':            ['bet leak', 'gemini leak', 'bet gas leak', 'nitrogen leak bet', 'bet pressure drop', 'bet manifold leak'],
   'BET unexpected surface area':   ['unexpected surface area', 'bet surface area wrong', 'bet result wrong', 'bet low result', 'bet high result', 'surface area anomaly', 'bet unexpected'],
   'BET outlier adsorption':        ['bet outlier', 'adsorption outlier', 'bet point outlier', 'adsorption isotherm anomaly', 'bet data point', 'bet isotherm anomaly'],
+
+  // ── SEC-MALS ──────────────────────────────────────────────────────────────
+  'SECMALS light scattering noise':   ['mals noise', 'light scattering noise', 'secmals noise', 'dawn noise', 'mals signal noise', 'mals baseline noise', 'omnisec noise', 'secmals signal instab'],
+  'SECMALS incorrect molecular weight': ['wrong molecular weight', 'incorrect mw', 'mals mw error', 'secmals mw', 'absolute mw wrong', 'molecular weight error mals', 'dn/dc error', 'dndc wrong', 'molar mass wrong mals', 'mals molar mass'],
+  'SECMALS negative peaks':           ['negative peak mals', 'inverted peak sec', 'negative elution mals', 'secmals negative', 'negative ri peak', 'ri negative peak'],
+  'SECMALS RI baseline drift':        ['ri baseline', 'ri drift', 'refractive index baseline', 'optilab drift', 'ri detector drift', 'ri instab', 'secmals baseline drift', 'omnisec ri drift'],
+  'SECMALS detector alignment':       ['mals alignment', 'detector delay', 'inter-detector delay', 'detector offset mals', 'dawn alignment', 'mals detector delay volume', 'delay volume secmals'],
+  'SECMALS peak broadening':          ['sec peak broad', 'mals peak broad', 'secmals band broad', 'gpc peak broad', 'column peak broad secmals', 'mw distribution broad mals'],
+  'SECMALS aggregation artifact':     ['secmals aggregat', 'mals aggregat', 'light scatter aggregat', 'high mw peak mals', 'void volume peak mals', 'aggregates sec', 'mals void peak'],
+
+  // ── TEM ───────────────────────────────────────────────────────────────────
+  'TEM poor image quality':           ['tem image', 'poor tem', 'tem resolution', 'tem blurry', 'tem focus', 'tem image quality', 'tem sharp', 'tem magnification'],
+  'TEM sample drift':                 ['tem drift', 'sample drift tem', 'tem image drift', 'tem stage drift', 'tem specimen drift', 'thermal drift tem', 'stage drift tem'],
+  'TEM charging':                     ['tem charging', 'tem charge', 'charging tem', 'beam charging tem', 'tem bright area', 'sample charge tem'],
+  'TEM beam damage':                  ['beam damage tem', 'tem radiation', 'tem sample damage', 'electron beam damage', 'tem contamination', 'tem sample burn', 'tem hole formation'],
+  'TEM vacuum failure':               ['tem vacuum', 'vacuum failure tem', 'tem pressure', 'tem column vacuum', 'tem pump', 'tem evacuate', 'turbo pump tem'],
+  'TEM astigmatism':                  ['tem astigmat', 'astigmatism tem', 'tem stigmation', 'tem objective astigmat', 'tem lens astigmat', 'elliptical diffraction tem'],
+  'TEM grid contamination':           ['tem grid', 'grid contamin', 'tem grid dirty', 'carbon contamination tem', 'tem cryo grid', 'tem specimen contamin'],
+  'TEM ice contamination':            ['ice contamin tem', 'vitreous ice', 'cryo-tem ice', 'crystalline ice tem', 'ice crystal tem', 'frost tem', 'cryo contamination'],
+
+  // ── Raman ─────────────────────────────────────────────────────────────────
+  'Raman high fluorescence':          ['fluorescence raman', 'raman fluorescence', 'high background raman', 'fluorescent sample raman', 'fluorescence interference raman', 'raman background high'],
+  'Raman weak signal':                ['raman weak', 'low raman signal', 'raman sensitivity', 'raman intensity low', 'weak raman', 'raman no signal', 'poor raman signal'],
+  'Raman cosmic ray spike':           ['cosmic ray', 'raman spike', 'raman cosmic', 'sharp spike raman', 'cosmic spike raman', 'artifact spike raman'],
+  'Raman baseline drift':             ['raman baseline', 'raman drift', 'raman background drift', 'raman baseline drift', 'raman wavenumber drift'],
+  'Raman sample burning':             ['raman burn', 'sample burn raman', 'laser power raman', 'raman decomposition', 'raman thermal damage', 'raman sample heating'],
+  'Raman peak shift':                 ['raman peak shift', 'wavenumber shift raman', 'raman calibration shift', 'raman band shift', 'peak position raman'],
+  'Raman wavelength calibration':     ['raman calibration', 'raman wavenumber calibration', 'raman neon calibration', 'raman silicon calibration', 'raman wavelength fail'],
+
+  // ── Solid-State NMR ───────────────────────────────────────────────────────
+  'ssNMR MAS failure':                ['mas failure', 'magic angle spinning fail', 'rotor not spinning', 'mas speed', 'ssn mr spinning', 'mas speed not achieved', 'rotor crash', 'spinning fail nmr'],
+  'ssNMR rotor instability':          ['rotor instab', 'ssn mr rotor', 'rotor wobble', 'rotor speed unstable', 'mas rotor', 'rotor eject', 'rotor balance nmr'],
+  'ssNMR probe tuning':               ['ssn mr probe', 'probe tuning ssn mr', 'probe tune fail', 'ssn mr tune', 'probe tuning nmr solid', 'rf tuning ssn mr', 'probe mismatch ssn mr'],
+  'ssNMR low sensitivity':            ['ssn mr sensitivity', 'ssn mr low signal', 'cp sensitivity', 'cross polarization fail', 'ssn mr weak signal', 'low sensitivity ssn mr'],
+  'ssNMR arcing':                     ['ssn mr arcing', 'probe arcing', 'arcing nmr', 'rf arcing ssn mr', 'spark nmr probe', 'probe discharge ssn mr'],
+  'ssNMR probe overheating':          ['probe overheat ssn mr', 'ssn mr probe hot', 'probe temperature nmr solid', 'probe cooling ssn mr'],
+
+  // ── Liquid-State NMR ──────────────────────────────────────────────────────
+  'NMR lock failure':                 ['lock fail', 'nmr lock', 'field lock nmr', 'deuterium lock', 'lock signal lost', 'nmr field drift', 'lock channel nmr', 'lock failure nmr'],
+  'NMR poor shimming':                ['shim fail', 'nmr shim', 'poor shim', 'field homogeneity nmr', 'shimming nmr', 'bad shim nmr', 'shim map nmr', 'shimming fail'],
+  'NMR broad peaks':                  ['nmr broad', 'broad nmr peak', 'linewidth nmr', 'nmr resolution', 'nmr line broad', 'nmr poor resolution', 'broad line nmr', 't2 broadening nmr'],
+  'NMR solvent suppression failure':  ['solvent suppress', 'water suppress', 'nmr solvent fail', 'presaturation fail', 'water signal nmr', 'h2o suppress nmr', 'solvent peak nmr', 'watergate fail'],
+  'NMR baseline distortion':          ['nmr baseline', 'baseline distort nmr', 'nmr baseline roll', 'phase distort nmr', 'nmr baseline correct', 'baseline artifact nmr'],
+  'NMR low sensitivity':              ['nmr sensitivity', 'low nmr signal', 'nmr weak signal', 'nmr snr', 'nmr signal to noise', 'nmr sensitivity low'],
+  'NMR probe failure':                ['nmr probe', 'probe fail nmr', 'probe damage nmr', 'nmr probe tune', 'probe arcing nmr', 'probe overload nmr'],
+  'NMR gradient failure':             ['nmr gradient', 'gradient fail nmr', 'gradient coil nmr', 'diffusion nmr fail', 'pulsed field gradient fail', 'pfg nmr fail'],
 };
 
 export function detectIssueCategory(description: string): string | null {

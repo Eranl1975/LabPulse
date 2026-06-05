@@ -25,6 +25,8 @@ export const VENDOR_SOURCE_PREFIXES = [
   'metrohm', 'malvern', 'rigaku', 'anton-paar',
   // Physical characterization instruments (v3.0)
   'jasco', 'denton-vacuum', 'micromeritics',
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  'wyatt', 'tosoh', 'renishaw', 'horiba', 'jeol',
 ] as const;
 
 export const EVIDENCE_STRENGTH_SCORES: Record<string, number> = {

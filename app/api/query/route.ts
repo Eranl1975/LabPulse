@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth';
 import type { RankingQuery } from '@/agents/ranking/types';
 import type { Technique } from '@/lib/types';
 
-const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET']);
+const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR']);
 
 export async function POST(req: NextRequest) {
   // Require authentication
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const technique = body.technique as Technique;
   if (!technique || !VALID_TECHNIQUES.has(technique)) {
     return NextResponse.json(
-      { error: 'technique is required and must be one of: LCMS, HPLC, GC, GCMS, UHPLC, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET' },
+      { error: 'technique is required and must be one of: LCMS, HPLC, GC, GCMS, UHPLC, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SECMALS, TEM, Raman, ssNMR, NMR' },
       { status: 400 },
     );
   }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     already_checked:     Array.isArray(body.already_checked) ? body.already_checked.filter((s): s is string => typeof s === 'string') : [],
   };
 
-  const AI_ONLY_TECHNIQUES = new Set<Technique>(['UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET']);
+  const AI_ONLY_TECHNIQUES = new Set<Technique>(['UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR']);
   let ranked = rankItems(query, readItems());
 
   // AI fallback: when rule-based system has no/low confidence matches, OR when

@@ -2908,5 +2908,839 @@
     "confidence_score": 0.85,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "secmals-001",
+    "technique": "SECMALS",
+    "instrument_family": "Wyatt Technology",
+    "model": "DAWN HELEOS II",
+    "issue_category": "SECMALS incorrect molecular weight",
+    "symptom": "Absolute molecular weight from SEC-MALS differs significantly from expected value; inconsistent with SDS-PAGE or mass spec data",
+    "likely_causes": [
+      "Incorrect dn/dc value entered — dn/dc error propagates directly to MW with 1:1 sensitivity",
+      "Inter-detector delay volumes miscalibrated — LS, RI, and UV peak maxima not aligned",
+      "Protein has unusual dn/dc due to glycosylation, conjugation, or post-translational modifications",
+      "RI baseline drift affecting concentration accuracy",
+      "Column overloading causing non-ideal separation and apparent mass shift"
+    ],
+    "diagnostics": [
+      "Run BSA monomer standard (66.4 kDa) — proteins in PBS have dn/dc = 0.185 mL/g",
+      "Verify inter-detector delay volumes by overlaying LS, RI, and UV peak maxima in ASTRA",
+      "Check RI baseline stability — drift > 0.5 × 10⁻⁶ RIU/min affects accuracy",
+      "Reduce injection concentration by 5× and compare MW result"
+    ],
+    "corrective_actions": [
+      "Re-determine dn/dc by offline batch measurement or use published value for the molecule class",
+      "Recalibrate inter-detector delay volumes using monodisperse BSA standard in ASTRA",
+      "Equilibrate RI detector for 1–2 h before analysis",
+      "Reduce injection concentration to 1–2 mg/mL",
+      "For glycoproteins or conjugates, use conjugate analysis module in ASTRA"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "MW error persists after dn/dc correction and delay volume recalibration — contact Wyatt Technology support for detector normalization check"
+    ],
+    "source_id": "wyatt-dawn-heleos-ii-user-manual",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "secmals-002",
+    "technique": "SECMALS",
+    "instrument_family": "Wyatt Technology",
+    "model": "DAWN HELEOS II",
+    "issue_category": "SECMALS light scattering noise",
+    "symptom": "MALS signal shows high noise, spikes, or irreproducible scattering; baseline noisy between peaks",
+    "likely_causes": [
+      "Particulates or aggregates in mobile phase scattering randomly into detectors",
+      "Air bubbles in flow path — micro-bubbles scatter light strongly",
+      "Flow cell contaminated with protein or excipient film",
+      "Temperature instability in DAWN detector housing",
+      "Mobile phase not filtered through 0.1 µm inline filter"
+    ],
+    "diagnostics": [
+      "Run mobile phase blank — if noise is present with blank, it is flow-path-related",
+      "Inspect high-angle detectors (90°, 120°) — most sensitive to particles",
+      "Degas mobile phase and check for bubbles at pump head",
+      "Check DAWN temperature log — instability > 0.1 °C correlates with LS noise"
+    ],
+    "corrective_actions": [
+      "Filter all mobile phases through 0.1 µm Durapore filter",
+      "Degas mobile phase under vacuum for 15 min before use",
+      "Clean DAWN flow cell with 0.1 µm filtered 1 M NaOH then mobile phase flush",
+      "Filter sample through 0.2 µm PVDF immediately before injection",
+      "Allow DAWN to temperature-equilibrate for 1+ hour before measurement"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Noise persists after mobile phase filtration and flow cell cleaning — contact Wyatt Technology for flow cell replacement or laser check"
+    ],
+    "source_id": "wyatt-dawn-heleos-ii-user-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "secmals-003",
+    "technique": "SECMALS",
+    "instrument_family": "Malvern Panalytical",
+    "model": "OMNISEC Tetra",
+    "issue_category": "SECMALS RI baseline drift",
+    "symptom": "RI detector baseline drifts during run; pre-peak and post-peak baselines are not flat",
+    "likely_causes": [
+      "RI detector not fully equilibrated — requires 30–60 min at stable temperature",
+      "Ambient temperature fluctuations",
+      "Mobile phase composition changing due to differential evaporation",
+      "Pump flow rate pulsing causing RI oscillation",
+      "Reference cell contaminated or not filled with fresh mobile phase"
+    ],
+    "diagnostics": [
+      "Monitor baseline for 30+ min before injection — drift should be < 1 × 10⁻⁷ RIU/min",
+      "Check column oven and detector temperature stability",
+      "Compare drift with and without pump running"
+    ],
+    "corrective_actions": [
+      "Allow RI detector to equilibrate for minimum 60 min",
+      "Position RI detector away from air vents and drafts",
+      "Use HPLC-grade solvent filtered through 0.2 µm",
+      "Flush reference cell with fresh mobile phase",
+      "Add backpressure regulator to dampen pump pulses"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Baseline drift > 5 × 10⁻⁷ RIU/min after 2+ hours equilibration — contact Malvern Panalytical service"
+    ],
+    "source_id": "malvern-omnisec-user-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "secmals-004",
+    "technique": "SECMALS",
+    "instrument_family": "Wyatt Technology",
+    "model": null,
+    "issue_category": "SECMALS aggregation artifact",
+    "symptom": "Large high-MW peak at void volume; MALS reports extremely high apparent MW for early-eluting peak",
+    "likely_causes": [
+      "Protein or biopolymer aggregating in formulation buffer",
+      "Sample concentration too high causing concentration-dependent aggregation",
+      "Aggregates not removed prior to injection",
+      "Multiple freeze-thaw cycles causing aggregation",
+      "Sample exposed to elevated temperature during preparation"
+    ],
+    "diagnostics": [
+      "Compare UV A280 and LS signals for early peak — very high LS/UV ratio indicates aggregates",
+      "Calculate apparent Rg — aggregates show Rg >> expected monomer Rg",
+      "Filter sample through 0.2 µm and compare chromatograms"
+    ],
+    "corrective_actions": [
+      "Filter sample through 0.2 µm PVDF immediately before injection",
+      "Reduce sample concentration to 1–2 mg/mL",
+      "Optimize formulation buffer pH, ionic strength, or add stabilizers",
+      "Minimize freeze-thaw cycles — use single-use aliquots"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Aggregate content > 5% in biopharmaceutical product — investigate formulation and process conditions"
+    ],
+    "source_id": "wyatt-dawn-heleos-ii-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "secmals-005",
+    "technique": "SECMALS",
+    "instrument_family": "Wyatt Technology",
+    "model": "DAWN HELEOS II",
+    "issue_category": "SECMALS detector alignment",
+    "symptom": "LS, RI, and UV detectors report different elution times for the same peak apex; MW shows systematic slope across molar mass profile",
+    "likely_causes": [
+      "Inter-detector delay volumes changed after column replacement or system reconfiguration",
+      "Flow cell replaced without re-normalization",
+      "Tubing lengths changed from last calibration",
+      "Software delay volume settings not updated after hardware modification"
+    ],
+    "diagnostics": [
+      "Overlay LS, RI, UV signals for BSA monomer — peaks should align within 0.001 min",
+      "Check molar mass profile across BSA peak — slope indicates misalignment",
+      "Use Normalize Detectors wizard in ASTRA"
+    ],
+    "corrective_actions": [
+      "Run delay volume calibration in ASTRA using BSA monomer",
+      "Re-normalize DAWN detectors using toluene or BSA following normalization procedure",
+      "Record flow path configuration and update in ASTRA method",
+      "After any hardware change, always recalibrate delay volumes"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "MW profile shows systematic slope despite recalibration — contact Wyatt Technology for detector check"
+    ],
+    "source_id": "wyatt-dawn-heleos-ii-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "tem-001",
+    "technique": "TEM",
+    "instrument_family": "Thermo Fisher",
+    "model": "Talos F200C",
+    "issue_category": "TEM poor image quality",
+    "symptom": "TEM images lack sharpness, show low contrast, or cannot resolve expected structural details",
+    "likely_causes": [
+      "Objective lens astigmatism — most common cause of blurry TEM images",
+      "Sample too thick — insufficient electron transmission for BF imaging",
+      "Insufficient or excessive staining (negative stain TEM)",
+      "Contaminated objective aperture causing aberrations",
+      "Incorrect focus — slight underfocus required for phase contrast"
+    ],
+    "diagnostics": [
+      "Check power spectrum (FFT) of amorphous region — circular Thon rings confirm good astigmatism",
+      "Measure sample thickness — thick areas appear dark; reduce for better transmission",
+      "Inspect objective aperture for contamination",
+      "Verify defocus value — optimal BF TEM uses −200 to −2000 nm underfocus"
+    ],
+    "corrective_actions": [
+      "Correct objective astigmatism using stigmator controls in TEM software",
+      "Prepare thinner specimens — dilute sample or use ion milling",
+      "Optimize negative stain concentration (2% uranyl acetate or 1% uranyl formate)",
+      "Plasma-clean or replace objective aperture",
+      "Adjust defocus to optimal underfocus"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Astigmatism cannot be corrected — contact Thermo Fisher service for objective lens alignment"
+    ],
+    "source_id": "thermo-fisher-talos-f200c-user-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "tem-002",
+    "technique": "TEM",
+    "instrument_family": "Thermo Fisher",
+    "model": null,
+    "issue_category": "TEM beam damage",
+    "symptom": "Sample visibly changes under the electron beam; holes appear; nanoparticles sinter; crystalline regions become amorphous",
+    "likely_causes": [
+      "Beam current too high for radiation-sensitive material",
+      "Accelerating voltage too high — higher kV increases radiolytic damage for organics",
+      "Long pre-exposure before image capture",
+      "Cryo samples sublimating due to warm anti-contaminator"
+    ],
+    "diagnostics": [
+      "Observe sample shrinkage rate — fast shrinkage indicates severe beam damage",
+      "Check spot size and condenser — larger spot = lower current density",
+      "For cryo-TEM: monitor ice quality for devitrification"
+    ],
+    "corrective_actions": [
+      "Reduce accelerating voltage (80 kV or lower for organic/biological materials)",
+      "Use low-dose imaging mode — minimize pre-illumination; align on remote area",
+      "Reduce beam current using larger spot size or condenser aperture",
+      "For cryo-TEM: maintain specimen below −170 °C throughout"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Sample destroyed before usable image — consider cryo-TEM to preserve native structure"
+    ],
+    "source_id": "thermo-fisher-talos-f200c-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "tem-003",
+    "technique": "TEM",
+    "instrument_family": "Thermo Fisher",
+    "model": null,
+    "issue_category": "TEM vacuum failure",
+    "symptom": "TEM column vacuum insufficient for beam activation; instrument prevents operation due to poor vacuum",
+    "likely_causes": [
+      "Sample or grid outgassing — solvent residues or staining reagent not fully dried",
+      "Gun valve or airlock O-ring damaged",
+      "Ion pump degraded — pump current too low",
+      "Anti-contaminator not at LN2 temperature",
+      "Gun tip contaminated and degassing"
+    ],
+    "diagnostics": [
+      "Monitor vacuum gauges — identify which section (gun, column, projection) is elevated",
+      "Fill anti-contaminator with LN2 and monitor vacuum improvement",
+      "Check ion pump current — below specification indicates pump failure"
+    ],
+    "corrective_actions": [
+      "Dry grids in desiccator for 30+ min before loading",
+      "Fill anti-contaminator with fresh LN2 before each session",
+      "Replace airlock O-rings on scheduled maintenance",
+      "Contact Thermo Fisher service for ion pump regeneration or replacement"
+    ],
+    "severity": "critical",
+    "escalation_conditions": [
+      "Column vacuum cannot be achieved with dry specimen — column bakeout required; contact Thermo Fisher service"
+    ],
+    "source_id": "thermo-fisher-talos-f200c-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "tem-004",
+    "technique": "TEM",
+    "instrument_family": "Thermo Fisher",
+    "model": null,
+    "issue_category": "TEM sample drift",
+    "symptom": "Specimen drifts during image acquisition; serial images show translational shift; long-exposure images appear directionally blurred",
+    "likely_causes": [
+      "Thermal drift — grid warming from beam irradiation",
+      "Mechanical vibration from building or nearby equipment",
+      "Grid not fully seated in specimen holder",
+      "Cryo holder thermal drift due to fluctuating LN2 supply"
+    ],
+    "diagnostics": [
+      "Measure drift rate in nm/s using dedicated drift tool",
+      "Pre-irradiate area at lower magnification for 30–60 s before high-mag imaging",
+      "Check for vibration sources in room"
+    ],
+    "corrective_actions": [
+      "Allow 15–30 min thermal equilibration after loading",
+      "Pre-irradiate region of interest at low magnification",
+      "Use rapid acquisition (fast camera, short exposures) to outrun drift",
+      "Clean specimen holder and replace O-ring per maintenance schedule"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Drift rate > 2 nm/s after 30 min equilibration — specimen holder service required"
+    ],
+    "source_id": "thermo-fisher-talos-f200c-user-manual",
+    "confidence_score": 0.84,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "tem-005",
+    "technique": "TEM",
+    "instrument_family": "Thermo Fisher",
+    "model": null,
+    "issue_category": "TEM astigmatism",
+    "symptom": "TEM images show directional blurring; FFT power spectrum shows elliptical Thon rings",
+    "likely_causes": [
+      "Contaminated or damaged objective aperture — most common cause",
+      "Contaminated objective lens pole piece",
+      "Incorrect stigmator settings after column vent",
+      "Sample holder introducing magnetic field near objective lens"
+    ],
+    "diagnostics": [
+      "Acquire FFT of amorphous region — elliptical rings confirm astigmatism",
+      "Remove objective aperture and recheck — if astigmatism disappears, aperture is contaminated",
+      "Compare stigmator values to reference after reboot"
+    ],
+    "corrective_actions": [
+      "Plasma-clean objective aperture for 60 s and reinsert",
+      "Re-correct astigmatism with stigmators on amorphous carbon film",
+      "Record and save corrected stigmator values",
+      "Contact Thermo Fisher service if pole piece contamination suspected"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Astigmatism cannot be corrected after aperture replacement — objective lens pole piece cleaning required"
+    ],
+    "source_id": "thermo-fisher-talos-f200c-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "raman-001",
+    "technique": "Raman",
+    "instrument_family": "Renishaw",
+    "model": "inVia Raman",
+    "issue_category": "Raman high fluorescence",
+    "symptom": "Raman spectrum dominated by a broad fluorescence background that overwhelms Raman peaks",
+    "likely_causes": [
+      "Sample intrinsically fluorescent — aromatic rings, porphyrins, dyes, pharmaceutical impurities",
+      "Surface contamination with fluorescent species (oils, fingerprints)",
+      "Short excitation wavelength (532 nm) exciting more fluorescence than 785 nm or 1064 nm",
+      "Photodegradation products are fluorescent"
+    ],
+    "diagnostics": [
+      "Identify fluorescence — Raman peaks are fixed in cm⁻¹; fluorescence shifts with excitation wavelength in nm",
+      "Try photobleaching — illuminate sample 5–30 min at reduced power",
+      "Switch to longer excitation wavelength (785 nm or 1064 nm)",
+      "Measure clean substrate — if it also fluoresces, contamination is the source"
+    ],
+    "corrective_actions": [
+      "Switch to 785 nm or 1064 nm excitation",
+      "Pre-bleach sample with low laser power for 10–30 min",
+      "Clean sample surface with appropriate solvent",
+      "Apply polynomial or spline background subtraction in software",
+      "Consider FTIR-ATR as alternative for strongly fluorescent samples"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Fluorescence saturates detector even with 1064 nm excitation — sample incompatible with Raman; use FTIR"
+    ],
+    "source_id": "renishaw-invia-user-manual",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "raman-002",
+    "technique": "Raman",
+    "instrument_family": "Renishaw",
+    "model": "inVia Raman",
+    "issue_category": "Raman cosmic ray spike",
+    "symptom": "Sharp, extremely narrow spikes at random wavenumber positions; spikes are much taller than Raman peaks and appear inconsistently",
+    "likely_causes": [
+      "High-energy cosmic ray or muon striking the CCD detector — unavoidable",
+      "Electrical noise spike on CCD read-out (usually reproducible)",
+      "Radioactive emission from sample (very rare)"
+    ],
+    "diagnostics": [
+      "Acquire two consecutive spectra of same spot — cosmic rays appear in only one spectrum",
+      "Enable cosmic ray removal in WiRE or LabSpec software",
+      "Check if spike position is consistent — if fixed, it is not a cosmic ray"
+    ],
+    "corrective_actions": [
+      "Enable automatic cosmic ray removal in Raman software (WiRE, LabSpec, OMNIC)",
+      "Use multiple short accumulations averaged — reduces cosmic ray probability",
+      "Manually delete spike in post-processing if filter missed it"
+    ],
+    "severity": "low",
+    "escalation_conditions": [
+      "Spikes appear at same position every acquisition — CCD hot pixel; contact Renishaw service"
+    ],
+    "source_id": "renishaw-invia-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "raman-003",
+    "technique": "Raman",
+    "instrument_family": "HORIBA",
+    "model": "LabRAM HR Evolution",
+    "issue_category": "Raman sample burning",
+    "symptom": "Sample physically changes under the laser; color changes, holes appear, or new broad bands indicate thermal decomposition",
+    "likely_causes": [
+      "Laser power too high for absorbing sample",
+      "Long acquisition time at high power on sensitive pharmaceutical sample",
+      "Focused beam on small particle — high power density even at moderate overall power",
+      "Sample on insulating substrate with poor heat dissipation"
+    ],
+    "diagnostics": [
+      "Inspect sample under microscope after measurement — color change or hole confirms burning",
+      "Acquire successive spectra — if spectrum changes over time, thermal degradation occurring",
+      "Reduce power to 1–10% and repeat",
+      "Monitor for D/G bands at ~1350/1580 cm⁻¹ indicating carbonization"
+    ],
+    "corrective_actions": [
+      "Reduce laser power using neutral density filters",
+      "Increase scan speed or reduce exposure time",
+      "Defocus slightly from sample surface to reduce power density",
+      "Use longer excitation wavelength with lower photon energy",
+      "Disperse sample in KBr or on inert substrate for better heat dissipation"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Sample burns at any laser power — consider ATR-FTIR or solid-state NMR as alternatives"
+    ],
+    "source_id": "horiba-labram-hr-evolution-user-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "raman-004",
+    "technique": "Raman",
+    "instrument_family": "Renishaw",
+    "model": null,
+    "issue_category": "Raman wavelength calibration",
+    "symptom": "Raman peaks appear at incorrect wavenumber positions; peak positions drift between sessions",
+    "likely_causes": [
+      "Laser wavelength drift due to temperature change",
+      "Grating position drift in spectrograph",
+      "Calibration standard not measured before session",
+      "CCD temperature not stabilized"
+    ],
+    "diagnostics": [
+      "Measure silicon wafer (520.7 cm⁻¹) or neon lamp and compare to expected values",
+      "Check if shift is consistent or wavelength-dependent",
+      "Verify laser warm-up time (minimum 30 min)"
+    ],
+    "corrective_actions": [
+      "Warm up laser for minimum 30 min before calibration",
+      "Re-calibrate with silicon wafer (520.7 ± 0.5 cm⁻¹) at start of each session",
+      "Use neon lamp for full spectral range calibration",
+      "Update calibration file in software after each re-calibration"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Wavenumber error > 2 cm⁻¹ after silicon calibration — contact Renishaw service for grating drive check"
+    ],
+    "source_id": "renishaw-invia-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "raman-005",
+    "technique": "Raman",
+    "instrument_family": "HORIBA",
+    "model": "LabRAM Odyssey",
+    "issue_category": "Raman weak signal",
+    "symptom": "Raman signal too weak to observe meaningful peaks; SNR insufficient for quantitative analysis",
+    "likely_causes": [
+      "Sample has intrinsically weak Raman cross-section",
+      "Laser power too low or ND filter engaged",
+      "Incorrect focus — objective not at sample surface",
+      "Sample too dilute for direct measurement",
+      "Wrong objective — insufficient numerical aperture"
+    ],
+    "diagnostics": [
+      "Check laser power at sample using power meter",
+      "Verify focus by observing reflected laser spot",
+      "Increase accumulation and check if SNR improves predictably"
+    ],
+    "corrective_actions": [
+      "Increase laser power and/or acquisition time",
+      "Use high-NA objective for maximum collection efficiency",
+      "Concentrate sample or use pellet press for solid pharmaceuticals",
+      "Switch to resonance Raman wavelength if chromophore present",
+      "Remove neutral density filters from beam path if inadvertently engaged"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "No signal even at maximum power with pure reference material — detector or laser failure; contact vendor service"
+    ],
+    "source_id": "horiba-labram-odyssey-user-manual",
+    "confidence_score": 0.84,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "ssnmr-001",
+    "technique": "ssNMR",
+    "instrument_family": "Bruker",
+    "model": "Avance Neo 400 MHz (ssNMR)",
+    "issue_category": "ssNMR MAS failure",
+    "symptom": "MAS rotor fails to reach or maintain target spinning speed; speed below setpoint or unstable",
+    "likely_causes": [
+      "Rotor not balanced correctly — asymmetric sample loading",
+      "Bearing gas pressure too low or contaminated",
+      "Drive gas flow insufficient for target spinning frequency",
+      "Rotor chipped or cracked",
+      "Probe MAS module turbine worn"
+    ],
+    "diagnostics": [
+      "Check bearing gas pressure (300–400 kPa) and drive gas pressure (100–200 kPa)",
+      "Inspect rotor for chips or cracks",
+      "Verify sample packing is even and symmetric",
+      "Test at lower spinning speed — if stable, gas pressure or balance is the issue",
+      "Check inline gas filter for moisture or oil contamination"
+    ],
+    "corrective_actions": [
+      "Increase bearing gas pressure to upper range",
+      "Repack rotor evenly and use rotor caps correctly",
+      "Replace damaged rotor",
+      "Purge gas lines and replace inline filter",
+      "Contact Bruker service if probe turbines are worn"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Rotor ejects during experiment — stop immediately, inspect probe and rotor; contact Bruker service before restarting"
+    ],
+    "source_id": "bruker-avance-solid-state-nmr-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "ssnmr-002",
+    "technique": "ssNMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "ssNMR probe tuning",
+    "symptom": "Probe cannot be tuned to resonance; reflection coefficient too high; poor RF power transfer",
+    "likely_causes": [
+      "High-dielectric sample (high salt, water) detuning resonance circuit",
+      "Probe circuit capacitor or coil damaged",
+      "Wrong probe for the nucleus or frequency",
+      "RF cable connection loose or damaged"
+    ],
+    "diagnostics": [
+      "Use wobble function in TopSpin — dip should be sharp and > 20 dB",
+      "Compare tuning with and without sample",
+      "Test RF cable continuity and VSWR",
+      "Try reference sample (adamantane) — if it tunes well, sample is the problem"
+    ],
+    "corrective_actions": [
+      "Adjust tune and match capacitors to compensate for dielectric loading",
+      "For high-salt samples, reduce salt or use salt-tolerant probe",
+      "Replace RF cable if failed continuity test",
+      "Contact Bruker service if probe circuit component has failed"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Probe cannot be tuned with reference sample — probe circuit fault; contact Bruker NMR service"
+    ],
+    "source_id": "bruker-avance-solid-state-nmr-user-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "ssnmr-003",
+    "technique": "ssNMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "ssNMR low sensitivity",
+    "symptom": "Poor signal-to-noise in ssNMR spectrum; excessive signal averaging required; CP efficiency lower than expected",
+    "likely_causes": [
+      "CP contact time not optimized — too short or too long reduces efficiency",
+      "Hartmann-Hahn mismatch between ¹H and X channels",
+      "Smaller rotor than maximum available for the probe",
+      "Recycle delay too short — ¹H T1 not complete between scans"
+    ],
+    "diagnostics": [
+      "Record CP contact time array — find maximum signal",
+      "Run Hartmann-Hahn check with adamantane",
+      "Measure ¹H T1 with saturation recovery — use delay of 3–5 × T1",
+      "Verify sample fully packed in rotor"
+    ],
+    "corrective_actions": [
+      "Optimize CP contact time with variable contact time experiment",
+      "Recalibrate Hartmann-Hahn match using adamantane",
+      "Increase recycle delay for full ¹H T1 recovery",
+      "Pack rotor fully using funnel and packing tool",
+      "Use larger rotor format if probe supports it"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Sensitivity unacceptable even after optimization — sample may require isotope labeling"
+    ],
+    "source_id": "bruker-avance-solid-state-nmr-user-manual",
+    "confidence_score": 0.84,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "ssnmr-004",
+    "technique": "ssNMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "ssNMR arcing",
+    "symptom": "Audible clicking from probe during experiment; RF artifacts in data; probe protection circuit trips",
+    "likely_causes": [
+      "RF voltage exceeds dielectric breakdown threshold at high power",
+      "Moisture inside probe lowering breakdown threshold",
+      "Damaged probe capacitor or coil",
+      "Long high-power decoupling pulses"
+    ],
+    "diagnostics": [
+      "Listen for clicking during high-power pulse sequences",
+      "Reduce RF power — if arcing stops, power-dependent arcing confirmed",
+      "Check probe for moisture — condition in dry nitrogen",
+      "Examine probe protection circuit logs in TopSpin"
+    ],
+    "corrective_actions": [
+      "Reduce RF power to minimum required for experiment",
+      "Dry probe with nitrogen purge overnight",
+      "Use TPPM or SPINAL decoupling instead of high-power CW decoupling",
+      "Contact Bruker NMR service — arcing can permanently damage probe"
+    ],
+    "severity": "critical",
+    "escalation_conditions": [
+      "Arcing recurs after power reduction and drying — probe requires professional inspection before further use"
+    ],
+    "source_id": "bruker-avance-solid-state-nmr-user-manual",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "nmr-001",
+    "technique": "NMR",
+    "instrument_family": "Bruker",
+    "model": "Avance Neo 400 MHz",
+    "issue_category": "NMR lock failure",
+    "symptom": "NMR field lock lost or cannot be established; field stability poor; spectrum shows broadened or shifted peaks",
+    "likely_causes": [
+      "Insufficient deuterium signal — wrong solvent or non-deuterated solvent",
+      "Severely degraded shimming preventing lock",
+      "Sample tube not centered in spinner",
+      "Incorrect lock channel parameters",
+      "Lock amplifier or channel hardware fault"
+    ],
+    "diagnostics": [
+      "Check lock display — observe signal level and correction output",
+      "Verify sample solvent is deuterated (> 99.5% D)",
+      "Center tube in spinner gauge before insertion",
+      "Try automatic lock search in TopSpin — if found but unstable, shimming is the issue"
+    ],
+    "corrective_actions": [
+      "Use correct deuterated solvent (D₂O, CDCl₃, DMSO-d6)",
+      "Align sample depth with spinner gauge reference mark",
+      "Run automatic shim (topshim or sampleshim) to restore lock stability",
+      "Re-set lock phase using lock display panel",
+      "Contact Bruker service if lock channel hardware fault suspected"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Lock cannot be obtained with standard CDCl₃ — lock channel hardware fault; contact Bruker NMR service"
+    ],
+    "source_id": "bruker-avance-neo-user-manual",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "nmr-002",
+    "technique": "NMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "NMR poor shimming",
+    "symptom": "NMR peaks broader than expected; asymmetric lineshape; reference peak (TMS/DSS) has poor shape",
+    "likely_causes": [
+      "Paramagnetic contaminants in sample — trace metals",
+      "Low-quality or damaged NMR tube",
+      "Shim settings not optimized for current sample",
+      "Temperature gradient in sample volume",
+      "Dissolved oxygen (paramagnetic)"
+    ],
+    "diagnostics": [
+      "Measure ¹H linewidth of TMS or DSS — should be < 1 Hz for good shimming",
+      "Inspect tube for scratches or deformation",
+      "Check for paramagnetic contamination",
+      "Run gradient shimming (topshim 3D)"
+    ],
+    "corrective_actions": [
+      "Run gradient shim (topshim 3D) to optimize shim map",
+      "Use high-quality precision NMR tubes (Wilmad 528-PP or equivalent)",
+      "Degas sample or sparge with nitrogen to remove dissolved oxygen",
+      "Chelate metal ions with 1–5 mM EDTA if paramagnetic contamination suspected"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Cannot achieve < 5 Hz linewidth with standard sample — magnet shim coil fault; contact Bruker service immediately"
+    ],
+    "source_id": "bruker-avance-neo-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "nmr-003",
+    "technique": "NMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "NMR solvent suppression failure",
+    "symptom": "Solvent peak not adequately suppressed; residual solvent overwhelms analyte peaks or creates baseline artifacts",
+    "likely_causes": [
+      "Presaturation frequency not exactly on solvent resonance",
+      "Water T1 too long for presaturation to achieve > 99% saturation",
+      "Analyte concentration too low relative to partially suppressed solvent",
+      "WATERGATE or excitation sculpting 90° pulse miscalibrated",
+      "Temperature drift shifting solvent frequency"
+    ],
+    "diagnostics": [
+      "Confirm O1 is exactly on solvent frequency using 1D ¹H spectrum",
+      "Check presaturation power — too high causes radiation damping, too low is ineffective",
+      "Verify 90° pulse calibration is current for WATERGATE experiments"
+    ],
+    "corrective_actions": [
+      "Set O1 exactly to solvent frequency using 1D spectrum",
+      "Increase presaturation duration (2–5 s for water)",
+      "Optimize presaturation power with array experiment",
+      "Switch to WATERGATE W5 or excitation sculpting for better bandwidth",
+      "Recalibrate 90° pulse before solvent-suppressed experiments"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Solvent suppression failure across all schemes — receiver dynamic range limitation; consider deuterated solvent"
+    ],
+    "source_id": "bruker-avance-neo-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "nmr-004",
+    "technique": "NMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "NMR broad peaks",
+    "symptom": "NMR peaks broader than expected; insufficient resolution to observe multiplicity or coupling constants",
+    "likely_causes": [
+      "Paramagnetic contamination — trace metal ions cause dramatic broadening",
+      "High molecular weight — slow tumbling broadens peaks",
+      "Chemical exchange at intermediate rate on NMR timescale",
+      "Poor shimming",
+      "Protein or oligonucleotide aggregation"
+    ],
+    "diagnostics": [
+      "Measure ¹H linewidth on TMS or DSS reference — distinguishes shimming from sample issues",
+      "Add EDTA chelator — if peaks sharpen, paramagnetic metals present",
+      "Measure at different temperatures — peaks sharpen at higher T if slow-tumbling or exchange",
+      "Check sample by DLS for aggregation"
+    ],
+    "corrective_actions": [
+      "Add 1–5 mM EDTA to chelate trace metals",
+      "Prepare samples in metal-free water with HNO3-cleaned tubes",
+      "Measure at higher temperature (310 K) for macromolecules",
+      "Degas sample to remove dissolved oxygen",
+      "Re-shim before measurement"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Peaks remain broad after EDTA and temperature optimization — consider isotope labeling or cryoprobe"
+    ],
+    "source_id": "bruker-avance-neo-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "nmr-005",
+    "technique": "NMR",
+    "instrument_family": "Bruker",
+    "model": null,
+    "issue_category": "NMR gradient failure",
+    "symptom": "Gradient-based experiments (HSQC, HMBC, diffusion NMR) fail to produce expected correlations; artifacts in 2D spectra",
+    "likely_causes": [
+      "Gradient amplifier fault or not connected",
+      "Gradient calibration outdated",
+      "Incorrect gradient pulse amplitude in pulse program",
+      "Metallic NMR tube accessories near gradient coil"
+    ],
+    "diagnostics": [
+      "Run gradcal in TopSpin — measure diffusion of doped water standard",
+      "Check gradient amplifier status in hardware check window",
+      "Verify gradient cable connection at probe head",
+      "Test HSQC on standard compound"
+    ],
+    "corrective_actions": [
+      "Recalibrate gradient using diffusion measurement of water standard",
+      "Reseat gradient cable connections at probe",
+      "Power cycle gradient amplifier",
+      "Use standard glass NMR tubes only near gradient coil",
+      "Contact Bruker service if amplifier hardware fault confirmed"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Gradient calibration fails on standard — gradient amplifier or coil fault; contact Bruker service"
+    ],
+    "source_id": "bruker-avance-neo-user-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
   }
 ]
