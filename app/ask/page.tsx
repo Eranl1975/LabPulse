@@ -4,7 +4,7 @@ import QueryForm from '@/components/QueryForm';
 
 export const metadata = {
   title: 'Ask a Question — LabPulse',
-  description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, and KFO instruments.',
+  description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, and NMR instruments.',
 };
 
 export default async function AskPage() {
@@ -61,8 +61,9 @@ export default async function AskPage() {
           }}>
             Describe the issue and your instrument details. LabPulse analyses known
             failure patterns for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA,
-            DSC, FPLC, SPPS, XRD, DLS, Titration, KF, and KFO — powered by vendor
-            documentation and scientific literature.
+            DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET,
+            SEC-MALS, TEM, Raman, ssNMR, and NMR — powered by vendor documentation
+            and scientific literature.
           </p>
 
         </div>
