@@ -11,7 +11,7 @@ import ComboInput from './ComboInput';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
-const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO'] as const;
+const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET'] as const;
 
 const VENDOR_OPTIONS = [
   'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
@@ -19,6 +19,8 @@ const VENDOR_OPTIONS = [
   'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter', 'CSBio', 'CEM Corporation',
   'Biotage', 'Gyros Protein Technologies',
   'Metrohm', 'Malvern Panalytical', 'Rigaku',
+  // Physical characterization (v3.0)
+  'JASCO', 'Denton Vacuum', 'Micromeritics',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -127,6 +129,19 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Metrohm':        ['874 Oven Sample Processor', '885 Compact Oven Sample Processor', 'KF Oven 703 Sample Processor'],
     'Mettler Toledo': ['DO308 Drying Oven KF', 'DO308M Drying Oven'],
   },
+  // ── Physical Characterization (v3.0) ───────────────────────────────────────
+  CD: {
+    'JASCO': ['J-1500 CD Spectrometer', 'J-1700 CD Spectrometer', 'J-815 CD Spectrometer', 'J-1100 CD Spectrometer', 'J-810 CD Spectrometer', 'J-820 CD Spectrometer'],
+  },
+  SEM: {
+    'Thermo Fisher': ['Phenom Pro', 'Phenom ProX', 'Phenom XL', 'Phenom XL G2', 'Phenom Pharos', 'Phenom Essentis'],
+  },
+  Sputter: {
+    'Denton Vacuum': ['Desk V', 'Desk VI HP', 'Desk VI BTD', 'Turbo-Desk', 'Explorer'],
+  },
+  BET: {
+    'Micromeritics': ['Gemini VII 2390', 'Gemini VII 2385', 'TriStar II Plus', 'ASAP 2020', 'ASAP 2460', 'ASAP 2020 Plus', 'Flowsorb III'],
+  },
 };
 
 function getFilteredVendors(technique: string): string[] {
@@ -161,6 +176,11 @@ const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
   Titration: ['endpoint not detected', 'titration high drift', 'wrong titre volume', 'electrode sluggish response', 'titration carryover', 'reagent instability', 'burette calibration error', 'blank too high'],
   KF:    ['KF endpoint drift', 'KF low water recovery', 'KF negative reading', 'KF high blank', 'KF reagent decomposition', 'KF cell conditioning failure', 'KF coulometric error'],
   KFO:   ['KFO incomplete water transfer', 'KFO high blank', 'KFO sample charring', 'KFO low recovery', 'KFO condensation in transfer line', 'KFO oven temperature error'],
+  // Physical Characterization (v3.0)
+  CD:      ['CD high HT voltage', 'CD excessive noise below 200 nm', 'CD baseline drift', 'CD duplicate spectra differ', 'CD signal inversion', 'CD buffer incompatibility', 'CD lamp aging', 'CD thermal melt artifact'],
+  SEM:     ['SEM blurry image', 'SEM charging artifacts', 'SEM poor contrast', 'SEM vacuum failure', 'SEM focus instability', 'SEM detector error', 'SEM stage movement failure', 'SEM beam alignment issue'],
+  Sputter: ['Sputter non-uniform coating', 'Sputter arcing', 'Sputter poor film adhesion', 'Sputter excessive grain size', 'Sputter vacuum instability', 'Sputter plasma ignition failure'],
+  BET:     ['BET negative constant', 'BET poor linearity', 'BET low reproducibility', 'BET degassing failure', 'BET leak', 'BET unexpected surface area', 'BET outlier adsorption points'],
 };
 
 const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
@@ -194,6 +214,11 @@ const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
   Titration: ['no endpoint detected', 'drifting endpoint', 'wrong volume', 'sluggish electrode', 'high blank', 'inconsistent results'],
   KF:    ['high drift', 'low water result', 'negative reading', 'no endpoint', 'unstable baseline', 'reagent failure'],
   KFO:   ['incomplete water transfer', 'high blank', 'charring', 'low recovery', 'condensation', 'temperature error'],
+  // Physical Characterization (v3.0)
+  CD:      ['HT voltage too high', 'excessive noise', 'baseline drift', 'signal inversion', 'poor reproducibility', 'buffer interference', 'lamp intensity low', 'thermal melt artifact'],
+  SEM:     ['blurry image', 'charging artifacts', 'poor contrast', 'vacuum failure', 'focus drift', 'detector error', 'stage stuck', 'beam alignment issue'],
+  Sputter: ['non-uniform coating', 'arcing', 'poor film adhesion', 'excessive grain size', 'vacuum instability', 'plasma not igniting'],
+  BET:     ['negative BET constant', 'poor linearity', 'low reproducibility', 'degassing incomplete', 'gas leak', 'unexpected surface area', 'outlier adsorption points'],
 };
 
 const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
@@ -220,6 +245,11 @@ const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
   Titration: ['replaced pH/ISE electrode', 'recalibrated burette', 'replaced titrant reagent', 'cleaned electrode junction', 'recalibrated with buffer standard', 'checked for CO2 absorption'],
   KF:    ['reconditioned KF cell', 'replaced KF reagent', 'dried cell with blank titration', 'refreshed working medium', 'replaced electrode', 'checked for moisture ingress'],
   KFO:   ['cleaned transfer line', 'replaced septum/seal', 'recalibrated oven temperature', 'replaced drying tube', 'checked carrier gas flow', 'purged transfer lines'],
+  // Physical Characterization (v3.0)
+  CD:      ['checked nitrogen purge flow', 'replaced cuvette', 're-ran baseline correction', 'checked buffer blank', 'checked HT voltage limit', 'cleaned cuvette holder', 'restarted JASCO Spectra Manager'],
+  SEM:     ['cleaned SEM chamber', 'reseated sample stub', 'applied sputter coating', 'checked vacuum status', 'realigned beam', 'replaced detector', 'restarted Phenom software'],
+  Sputter: ['cleaned sputter chamber', 'replaced target material', 'checked argon gas supply', 'verified vacuum pump operation', 'cleaned substrate', 'replaced O-ring seals'],
+  BET:     ['degassed sample at higher temperature', 'cleaned sample tube', 'checked nitrogen gas supply', 'leak tested manifold', 'replaced sample tube O-ring', 'restarted Gemini software', 'ran blank tube analysis'],
 };
 
 const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];

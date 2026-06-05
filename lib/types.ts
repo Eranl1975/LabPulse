@@ -1,6 +1,6 @@
 // Core shared types derived from docs/output-schemas.md
 
-export type Technique = 'LCMS' | 'HPLC' | 'GC' | 'GCMS' | 'UHPLC' | 'IC' | 'CE' | 'SFC' | 'TGA' | 'DSC' | 'FPLC' | 'SPPS' | 'XRD' | 'DLS' | 'Titration' | 'KF' | 'KFO';
+export type Technique = 'LCMS' | 'HPLC' | 'GC' | 'GCMS' | 'UHPLC' | 'IC' | 'CE' | 'SFC' | 'TGA' | 'DSC' | 'FPLC' | 'SPPS' | 'XRD' | 'DLS' | 'Titration' | 'KF' | 'KFO' | 'CD' | 'SEM' | 'Sputter' | 'BET';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type EvidenceStrength = 'strong' | 'moderate' | 'weak' | 'anecdotal';
 

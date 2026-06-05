@@ -2043,5 +2043,870 @@
     "confidence_score": 0.80,
     "evidence_strength": "moderate",
     "updated_at": "2025-05-06T00:00:00Z"
+  },
+
+  {
+    "id": "cd-001",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": "J-1500 CD Spectrometer",
+    "issue_category": "CD high HT voltage",
+    "symptom": "HT voltage exceeds 600–700 V; spectrum becomes unreliable or is cut off by software",
+    "likely_causes": [
+      "Sample absorbance too high — buffer or chromophore concentration too elevated",
+      "Incorrect cell pathlength selected for the sample concentration",
+      "Buffer with high UV-absorbing components (e.g., DTT, glycerol, imidazole, HEPES > 5 mM)",
+      "Dirty or scratched quartz cuvette increasing scatter",
+      "Xenon lamp aging — insufficient output to maintain low HT at desired wavelength"
+    ],
+    "diagnostics": [
+      "Check HT voltage trace alongside CD signal — values > 600 V indicate unreliable CD data",
+      "Run a buffer-only baseline and inspect HT voltage profile",
+      "Dilute sample 2–5× and re-measure; if HT drops, concentration was the cause",
+      "Switch to shorter pathlength cell (e.g., 0.1 mm or 0.01 mm) for far-UV measurements",
+      "Verify buffer composition — swap to phosphate or borate buffer transparent below 200 nm",
+      "Check lamp hours in Spectra Manager software (File > Lamp Information)"
+    ],
+    "corrective_actions": [
+      "Dilute sample or use shorter pathlength cell to reduce absorbance",
+      "Replace buffer with low-UV-absorbing alternative (10 mM sodium phosphate pH 7.4)",
+      "Clean cuvette with 1 M HCl, then rinse extensively with Milli-Q water",
+      "Replace xenon lamp if hours exceed manufacturer recommendation (typically 500–1000 h)",
+      "Restrict wavelength scan to range where HT < 600 V"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "HT voltage > 700 V across the entire spectral range even after sample and buffer optimization",
+      "Lamp replacement does not resolve elevated HT — contact JASCO service"
+    ],
+    "source_id": "jasco-j-1500-operation-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-002",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": "J-1500 CD Spectrometer",
+    "issue_category": "CD noise below 200 nm",
+    "symptom": "Excessive noise and signal loss in far-UV region (below 200 nm), making secondary structure analysis unreliable",
+    "likely_causes": [
+      "Insufficient nitrogen purge — residual oxygen absorbs far-UV light strongly",
+      "Buffer contains UV-absorbing components (chloride ions, NaCl > 10 mM, trifluoroethanol)",
+      "Water vapor in the optical bench due to inadequate purge time",
+      "Lamp aging — reduced photon output at short wavelengths",
+      "Pathlength too long for the solvent system used"
+    ],
+    "diagnostics": [
+      "Monitor nitrogen flow rate — minimum 4 L/min required, 10–15 L/min recommended for far-UV",
+      "Allow at least 20–30 min nitrogen purge before scanning below 200 nm",
+      "Run buffer blank to identify UV cutoff of solvent system",
+      "Compare noise level with fresh instrument using standard camphorsulfonic acid (CSA) sample",
+      "Check oxygen sensor reading if available on the instrument"
+    ],
+    "corrective_actions": [
+      "Increase nitrogen purge flow rate and extend purge time before measurement",
+      "Replace buffer with low-UV-absorbing alternative — fluoride salts absorb less than chloride",
+      "Use shorter pathlength cell (0.1 mm) for samples in high-absorbing buffers",
+      "Replace xenon lamp if lamp hours are high",
+      "Ensure all optical bench access panels are sealed during measurement"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Noise persists after full nitrogen purge and buffer exchange — optical bench contamination suspected",
+      "Signal-to-noise ratio unacceptable even with CSA standard — service calibration required"
+    ],
+    "source_id": "jasco-cd-spectroscopy-application-note",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-003",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": "J-1500 CD Spectrometer",
+    "issue_category": "CD baseline drift",
+    "symptom": "CD baseline drifts over time during thermal melt or long kinetic experiments",
+    "likely_causes": [
+      "Thermal equilibration incomplete — instrument or cuvette temperature not fully stabilized",
+      "Protein aggregation during thermal scan contributing time-dependent scatter",
+      "Lamp output instability during warm-up period",
+      "Sample evaporation during long experiments — meniscus changes light path",
+      "Thermoelectric cuvette holder condensation above ambient temperature"
+    ],
+    "diagnostics": [
+      "Allow 30+ min lamp warm-up before measurement",
+      "Monitor HT voltage during drift — increasing HT indicates increasing sample absorption or scatter",
+      "Run a buffer-only baseline scan and subtract from sample to identify contribution",
+      "Check for protein aggregation by monitoring absorbance at 320 nm (scattering wavelength)",
+      "Inspect cuvette for condensation or evaporation at temperature extremes"
+    ],
+    "corrective_actions": [
+      "Allow full lamp warm-up (minimum 30 min) before acquiring data",
+      "Add 0.01–0.1% Tween-20 or glycerol to suppress aggregation during thermal scans",
+      "Seal cuvette top with PTFE cap to prevent evaporation during long experiments",
+      "Subtract a matching buffer thermal scan from all sample data",
+      "Use Peltier-controlled cuvette holder and allow 5 min equilibration per temperature step"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Drift continues after full lamp warm-up and buffer subtraction — contact JASCO service for lamp or optical alignment check"
+    ],
+    "source_id": "jasco-j-1500-operation-manual",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-004",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": null,
+    "issue_category": "CD duplicate spectra differ",
+    "symptom": "Replicate CD spectra of the same sample show significant differences in mdeg or molar ellipticity",
+    "likely_causes": [
+      "Protein concentration error — inaccurate A280 or molar extinction coefficient",
+      "Sample aggregation between injections — large particles scatter differently",
+      "Cuvette contamination or scratches introducing variable baseline offset",
+      "Temperature variation between replicates",
+      "Bubbles trapped in cuvette path"
+    ],
+    "diagnostics": [
+      "Verify protein concentration by A280, BCA, or amino acid analysis",
+      "Spin sample at 10,000×g for 10 min and re-measure",
+      "Inspect cuvette under UV lamp for scratches or residue",
+      "Ensure temperature is identical and equilibrated for all replicates",
+      "Check for bubbles by tilting cuvette and observing light path"
+    ],
+    "corrective_actions": [
+      "Re-determine accurate protein concentration before calculating molar ellipticity",
+      "Centrifuge sample to remove aggregates before each injection",
+      "Clean or replace cuvette — use 1 M HCl soak followed by extensive water rinse",
+      "Use temperature-controlled holder at constant temperature for all replicates",
+      "Carefully fill cuvette to eliminate air bubbles using a syringe"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Spectra differ by > 10% after all corrective actions — sample stability or instrument calibration issue"
+    ],
+    "source_id": "jasco-cd-spectroscopy-application-note",
+    "confidence_score": 0.80,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-005",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": null,
+    "issue_category": "CD signal inversion",
+    "symptom": "CD spectrum appears inverted compared to expected (positive bands appear negative or vice versa)",
+    "likely_causes": [
+      "Cuvette inserted in wrong orientation — light passes through cuvette windows in reverse",
+      "Instrument polarity setting inverted in Spectra Manager software",
+      "Sample truly has opposite chirality — enantiomeric contamination",
+      "Wrong file loaded or data processed with sign flip"
+    ],
+    "diagnostics": [
+      "Measure camphorsulfonic acid (CSA) standard — should show positive band at 290 nm and negative at 192 nm",
+      "Re-measure standard in both cuvette orientations to identify orientation dependence",
+      "Check software polarity setting (Setup > Instrument > Detector Polarity)",
+      "Verify sample identity and chirality by orthogonal method (optical rotation, NMR)"
+    ],
+    "corrective_actions": [
+      "Rotate cuvette 180° and re-measure to confirm orientation effect",
+      "Validate instrument calibration with CSA standard and correct polarity in software if needed",
+      "Contact JASCO service if polarity inversion persists with correct orientation and CSA passes"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "CSA standard also shows inverted spectrum — instrument calibration error, contact JASCO service"
+    ],
+    "source_id": "jasco-j-1500-operation-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-006",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": null,
+    "issue_category": "CD buffer incompatibility",
+    "symptom": "CD signal is dominated by buffer absorption; sample signal cannot be reliably extracted or HT is saturated",
+    "likely_causes": [
+      "Buffer contains UV-absorbing components: HEPES, Tris (below 220 nm), NaCl > 50 mM, DTT, imidazole, SDS",
+      "Reducing agents (DTT, BME) absorb strongly in far-UV",
+      "Detergents (SDS, Triton) cause high absorbance and light scatter",
+      "Glycerol at high concentration increases solution viscosity and scatter"
+    ],
+    "diagnostics": [
+      "Measure buffer-only UV absorbance spectrum — compare against accepted UV cutoffs",
+      "Check HT voltage with buffer blank only — should be < 500 V at measurement wavelengths",
+      "Identify UV cutoff of buffer: chloride 195 nm, phosphate 195 nm, HEPES 240 nm, Tris 220 nm"
+    ],
+    "corrective_actions": [
+      "Dialyze or buffer-exchange sample into CD-compatible buffer: 10 mM sodium phosphate, 10 mM sodium fluoride, or 10 mM potassium fluoride",
+      "Reduce NaCl concentration below 50 mM; substitute NaF if ionic strength is critical",
+      "Reduce DTT concentration to < 0.5 mM or replace with TCEP (lower UV absorbance)",
+      "Limit glycerol to < 5% for far-UV measurements",
+      "Shorten pathlength (0.1 mm) to reduce absolute buffer absorbance"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Sample cannot be transferred to compatible buffer without denaturation — consider near-UV CD (250–320 nm) instead"
+    ],
+    "source_id": "jasco-cd-spectroscopy-application-note",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "cd-007",
+    "technique": "CD",
+    "instrument_family": "JASCO",
+    "model": "J-1500 CD Spectrometer",
+    "issue_category": "CD lamp aging",
+    "symptom": "Gradual decrease in signal-to-noise ratio across the UV spectrum; HT voltage progressively increasing over months",
+    "likely_causes": [
+      "Xenon lamp reaching end of rated lifetime (typically 500–1500 h depending on model)",
+      "Lamp output degradation reducing photon flux at detector",
+      "Contamination of lamp optics from improper purge or chemical exposure"
+    ],
+    "diagnostics": [
+      "Check lamp hour counter in Spectra Manager (Help > About Lamp or File > Lamp Information)",
+      "Measure CSA standard and compare signal magnitude to historical data",
+      "Compare HT voltage at 250 nm with water blank versus historical baseline — HT increase > 50 V indicates lamp aging"
+    ],
+    "corrective_actions": [
+      "Replace xenon lamp if hours exceed manufacturer threshold",
+      "Run post-replacement calibration with CSA standard to confirm correct polarity and amplitude",
+      "Ensure nitrogen purge is maintained during lamp operation to extend lamp lifetime",
+      "Contact JASCO service for lamp replacement and optical alignment verification"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Signal-to-noise ratio does not improve after lamp replacement — optical bench contamination or detector issue, contact JASCO service"
+    ],
+    "source_id": "jasco-j-1500-operation-manual",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "sem-001",
+    "technique": "SEM",
+    "instrument_family": "Thermo Fisher",
+    "model": "Phenom Pro",
+    "issue_category": "SEM blurry image",
+    "symptom": "SEM image is out of focus or blurry; structures appear indistinct even after autofocus",
+    "likely_causes": [
+      "Sample Z-height outside autofocus range — sample mounted too high or too low on stub",
+      "Sample contamination or charge buildup causing beam deflection",
+      "Incorrect accelerating voltage for sample type — too low voltage on dense sample",
+      "Sample holder not fully seated in the stage",
+      "Particle or debris on the BSD detector window"
+    ],
+    "diagnostics": [
+      "Use the Phenom software navigation view to confirm sample is within focal range",
+      "Try manual focus adjustment using fine focus wheel",
+      "Check sample stub height — Phenom Pro requires stubs ≤ 12.5 mm (standard) or ≤ 25 mm (extended range)",
+      "Inspect BSD detector window for visible debris",
+      "Run autofocus on a sharp feature at the edge of the sample"
+    ],
+    "corrective_actions": [
+      "Remount sample on appropriate stub height; use spacers if needed",
+      "Apply sputter coating (Au, Pd, or Pt) to improve conductivity and reduce charging-related blur",
+      "Clean BSD detector window gently with compressed air or lens tissue",
+      "Increase accelerating voltage for highly absorbing pharmaceutical powders (use 10–15 kV)",
+      "Reseat sample holder firmly until audible click"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Focus cannot be achieved at any Z-position or voltage — contact Thermo Fisher Phenom service for beam alignment or aperture check"
+    ],
+    "source_id": "thermo-fisher-phenom-pro-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sem-002",
+    "technique": "SEM",
+    "instrument_family": "Thermo Fisher",
+    "model": "Phenom Pro",
+    "issue_category": "SEM charging artifacts",
+    "symptom": "Bright patches, streaks, or unstable image areas — sample appears to glow or shift during imaging",
+    "likely_causes": [
+      "Non-conductive sample causing electrostatic charge buildup under electron beam",
+      "Insufficient or absent sputter coating",
+      "Sample mounted with non-conductive adhesive (double-sided tape instead of carbon adhesive)",
+      "High accelerating voltage on a poorly conductive material",
+      "Bulk insulator material (polymer, ceramic, pharmaceutical excipient)"
+    ],
+    "diagnostics": [
+      "Reduce accelerating voltage — lower kV reduces charge deposition rate",
+      "Switch from SE to BSE detector — BSE is less sensitive to surface charging",
+      "Observe if bright areas shift or bloom over time — classic charging signature",
+      "Check if sample was sputter coated before loading"
+    ],
+    "corrective_actions": [
+      "Apply gold, gold-palladium, or platinum sputter coating (3–10 nm) before imaging",
+      "Mount sample using carbon adhesive tabs instead of standard double-sided tape",
+      "Reduce accelerating voltage to minimum needed for adequate contrast (e.g., 5 kV for polymers)",
+      "Image in low-vacuum mode if Phenom ProX or XL — environmental mode reduces surface charge",
+      "Ground sample edges to stub with conductive silver paint"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Charging persists after sputter coating and voltage reduction — beam current too high for sample; contact applications support"
+    ],
+    "source_id": "thermo-fisher-phenom-pro-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sem-003",
+    "technique": "SEM",
+    "instrument_family": "Thermo Fisher",
+    "model": "Phenom Pro",
+    "issue_category": "SEM vacuum failure",
+    "symptom": "Instrument fails to reach target vacuum; error message about vacuum or pumping time exceeded",
+    "likely_causes": [
+      "Sample or stub outgassing — volatile or wet sample releasing gas",
+      "Sample chamber door not fully sealed",
+      "O-ring on chamber door damaged or contaminated",
+      "Turbo pump fault or backing pump reaching end of service life",
+      "Sample stub exceeds height limit — physically blocking chamber closure"
+    ],
+    "diagnostics": [
+      "Check Phenom software vacuum status display for current pressure readings",
+      "Verify chamber door is fully closed and latched",
+      "Inspect chamber door O-ring for damage, hair, or debris",
+      "Remove sample and attempt vacuum with empty chamber — isolates sample vs. system issue",
+      "Check pump maintenance log for last service date"
+    ],
+    "corrective_actions": [
+      "Dry sample prior to loading — place in desiccator or oven at 40 °C if compatible",
+      "Clean chamber O-ring with IPA and lint-free wipe; replace if damaged",
+      "Ensure sample stub height is within instrument specification (≤ 12.5 mm standard)",
+      "Contact Thermo Fisher service if vacuum issue persists with empty chamber — pump or turbo service required"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Vacuum failure persists with empty chamber — turbo pump or scroll pump service required",
+      "Error codes related to turbo pump failure — immediate service required"
+    ],
+    "source_id": "thermo-fisher-phenom-pro-user-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sem-004",
+    "technique": "SEM",
+    "instrument_family": "Thermo Fisher",
+    "model": null,
+    "issue_category": "SEM poor contrast",
+    "symptom": "SEM image lacks contrast — all features appear similar grey level; particles are difficult to distinguish from background",
+    "likely_causes": [
+      "Wrong detector mode — secondary electron (SE) imaging used on low-Z material where BSE gives better contrast",
+      "Accelerating voltage too low for BSE atomic number contrast",
+      "Sample mounting substrate Z-number similar to sample (carbon tape on carbon-based particles)",
+      "Image brightness/contrast settings mis-adjusted in software"
+    ],
+    "diagnostics": [
+      "Switch between SE and BSE detector modes and compare images",
+      "Increase accelerating voltage (10–15 kV) to improve BSE atomic number contrast",
+      "Check if sample and substrate have similar average atomic number",
+      "Reset image brightness and contrast to auto-optimize"
+    ],
+    "corrective_actions": [
+      "Use BSD (backscattered electron) detector for atomic number contrast — heavier elements appear brighter",
+      "Mount sample on aluminum stub with carbon tape for better contrast with pharmaceutical materials",
+      "Increase accelerating voltage to 10–15 kV for BSE contrast applications",
+      "Apply manual brightness/contrast correction in Phenom software"
+    ],
+    "severity": "low",
+    "escalation_conditions": [
+      "No contrast improvement across all detector modes and voltages — contact Thermo Fisher service for detector or beam calibration check"
+    ],
+    "source_id": "thermo-fisher-phenom-pro-user-manual",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sem-005",
+    "technique": "SEM",
+    "instrument_family": "Thermo Fisher",
+    "model": "Phenom Pro",
+    "issue_category": "SEM focus instability",
+    "symptom": "Image drifts out of focus during imaging session; autofocus gives inconsistent results",
+    "likely_causes": [
+      "Sample thermally drifting — electron beam heating low thermal conductivity sample",
+      "Sample not fully cured or adhesive still outgassing",
+      "Stage mechanical drift — vibration from building or nearby equipment",
+      "Magnetic sample causing beam deflection as beam position changes"
+    ],
+    "diagnostics": [
+      "Wait 2–5 min after loading to allow thermal equilibration before imaging",
+      "Image inorganic reference standard on same stub — if reference is stable, sample is drifting",
+      "Check instrument placement for vibration sources (compressors, foot traffic)",
+      "Identify if sample is magnetic (iron oxide, steel particles)"
+    ],
+    "corrective_actions": [
+      "Allow thermal equilibration time before acquisition",
+      "Reduce beam current or accelerating voltage to reduce thermal input to sample",
+      "Use carbon adhesive with good thermal contact to stub",
+      "Position instrument away from vibration sources; use anti-vibration table if available",
+      "For magnetic samples, use BSE detector and limit beam dwell time"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Drift continues on inorganic reference sample — stage or electronics issue, contact Thermo Fisher service"
+    ],
+    "source_id": "thermo-fisher-phenom-pro-user-manual",
+    "confidence_score": 0.80,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "sputter-001",
+    "technique": "Sputter",
+    "instrument_family": "Denton Vacuum",
+    "model": "Desk V",
+    "issue_category": "Sputter non-uniform coating",
+    "symptom": "SEM images show uneven brightness across the coated sample, suggesting variable film thickness",
+    "likely_causes": [
+      "Sample stage rotation motor not functioning — static sample receives non-uniform flux",
+      "Target partially depleted or contaminated — asymmetric sputtering yield",
+      "Sample positioned too close to target — angular flux variation",
+      "Gas pressure too high — increased scattering reduces mean free path and uniformity",
+      "Multiple samples with very different heights on the same stub — shadow effects"
+    ],
+    "diagnostics": [
+      "Verify sample stage is rotating during sputter cycle (visible through viewport if equipped)",
+      "Inspect gold/platinum target surface for depletion craters or contamination",
+      "Check argon pressure on system gauge — optimal is typically 0.05–0.1 mbar",
+      "Examine sample stub for height variation between samples"
+    ],
+    "corrective_actions": [
+      "Ensure rotation motor is operational; clean motor contact ring if intermittent",
+      "Increase sputter time or reduce current to allow uniform coverage",
+      "Replace or rotate target if depletion crater is near edge",
+      "Reduce argon pressure to improve mean free path and coating uniformity",
+      "Mount samples at uniform height using spacers; separate tall and flat samples"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Non-uniformity persists after target replacement and pressure optimization — contact Denton Vacuum service for magnetron head inspection"
+    ],
+    "source_id": "denton-vacuum-desk-series-user-manual",
+    "confidence_score": 0.84,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sputter-002",
+    "technique": "Sputter",
+    "instrument_family": "Denton Vacuum",
+    "model": "Desk V",
+    "issue_category": "Sputter arcing",
+    "symptom": "Visible sparking in chamber during sputtering; current display fluctuates wildly or protection circuit trips",
+    "likely_causes": [
+      "Residual water vapor or contamination on target surface",
+      "Argon pressure too low — insufficient plasma support leading to unstable discharge",
+      "Target contaminated with insulating residue from previous coating",
+      "Target partially oxidized (gold-palladium target) if stored improperly",
+      "Sputter current set too high for chamber pressure conditions"
+    ],
+    "diagnostics": [
+      "Inspect target surface for visible contamination or oxidation",
+      "Check argon pressure — too low (< 0.02 mbar) causes arc instability",
+      "Run a pre-sputter conditioning cycle (5 min sputter with shutter closed over samples) to clean target surface",
+      "Check if arcing disappears after a few minutes of pre-sputtering (indicates target contamination)"
+    ],
+    "corrective_actions": [
+      "Pre-sputter target for 3–5 min before opening shutter to sample",
+      "Increase argon pressure slightly to stabilize plasma",
+      "Clean target with isopropanol, allow to fully dry, then re-install",
+      "Replace target if heavily contaminated or showing deep depletion craters",
+      "Reduce sputter current and increase time to maintain same deposition rate"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Arcing continues after target cleaning and pressure adjustment — high-voltage power supply instability, contact Denton Vacuum service"
+    ],
+    "source_id": "denton-vacuum-desk-series-user-manual",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sputter-003",
+    "technique": "Sputter",
+    "instrument_family": "Denton Vacuum",
+    "model": null,
+    "issue_category": "Sputter plasma ignition failure",
+    "symptom": "Plasma does not ignite when sputtering cycle is started; no glow visible in chamber viewport",
+    "likely_causes": [
+      "Argon gas supply empty or valve closed",
+      "Chamber vacuum too low — pressure too low for plasma initiation (needs 0.03–0.15 mbar for ignition)",
+      "Target or chamber contamination preventing plasma strike",
+      "High-voltage power supply fault",
+      "Argon inlet valve or MFC malfunction"
+    ],
+    "diagnostics": [
+      "Check argon gas cylinder pressure and open cylinder valve fully",
+      "Verify chamber pressure on system gauge — should be in 0.03–0.15 mbar range for ignition",
+      "Try increasing target current setpoint slightly during ignition phase",
+      "Check that all chamber connections are leak-free (proper seal after last sample load)"
+    ],
+    "corrective_actions": [
+      "Replace or open argon gas supply",
+      "Adjust argon inlet needle valve or MFC to achieve correct pressure range",
+      "Pre-clean target with brief high-current pre-sputter",
+      "Contact Denton Vacuum service if power supply fault — do not attempt internal repair"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Plasma does not ignite after gas and pressure verification — HV power supply or controller fault, contact Denton Vacuum service"
+    ],
+    "source_id": "denton-vacuum-desk-series-user-manual",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "sputter-004",
+    "technique": "Sputter",
+    "instrument_family": "Denton Vacuum",
+    "model": null,
+    "issue_category": "Sputter vacuum instability",
+    "symptom": "Chamber pressure fluctuates during sputter cycle or fails to reach base vacuum before sputtering",
+    "likely_causes": [
+      "Sample or adhesive tape outgassing under vacuum",
+      "O-ring on chamber lid contaminated or damaged",
+      "Rotary vane pump oil level low or oil contaminated",
+      "Argon inlet leak — pressure measurement affected by unintended gas ingress",
+      "Previous sputter session left residual volatile materials in chamber"
+    ],
+    "diagnostics": [
+      "Pump chamber with no sample — if vacuum achieves target, sample is outgassing",
+      "Inspect chamber O-ring for debris, hair, or damage",
+      "Check rotary pump oil level and color (dark = contaminated)",
+      "Perform a leak check by closing argon inlet and monitoring pressure rise rate"
+    ],
+    "corrective_actions": [
+      "Use carbon tape or conductive adhesive with low outgassing — avoid foam tape",
+      "Clean chamber O-ring and reseat carefully",
+      "Change rotary pump oil if discolored or overdue",
+      "Allow longer pump-down time for samples with moderate outgassing",
+      "Clean interior chamber walls with IPA if contamination suspected"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Base vacuum cannot be achieved even with empty chamber after O-ring and pump service — contact Denton Vacuum for system leak test"
+    ],
+    "source_id": "denton-vacuum-desk-series-user-manual",
+    "confidence_score": 0.80,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "bet-001",
+    "technique": "BET",
+    "instrument_family": "Micromeritics",
+    "model": "Gemini VII",
+    "issue_category": "BET negative constant",
+    "symptom": "BET analysis reports a negative C constant; BET plot intercept is negative indicating non-physical result",
+    "likely_causes": [
+      "Insufficient adsorption — surface area too low (< 0.1 m²/g) for reliable BET analysis",
+      "Wrong P/P0 range selected — data points outside the valid BET linear range (0.05–0.35)",
+      "Incomplete degassing — residual physisorbed moisture or solvent blocking active surface sites",
+      "Sample decomposition at degassing temperature producing surface changes"
+    ],
+    "diagnostics": [
+      "Review BET plot linearity and R² value — should be > 0.9999 for valid analysis",
+      "Check that P/P0 range is restricted to 0.05–0.35 for multi-point BET",
+      "Verify degassing conditions — temperature, time, and vacuum level achieved",
+      "Check if Vm (monolayer volume) is physically reasonable for the sample type"
+    ],
+    "corrective_actions": [
+      "Restrict data points to P/P0 0.05–0.35 linear BET range",
+      "Increase degassing temperature if thermally stable (follow USP <846> or manufacturer guidance)",
+      "Extend degassing time — minimum 1–2 hours at temperature for most pharmaceutical powders",
+      "For very low surface area samples, use krypton adsorption instead of nitrogen",
+      "Increase sample mass to increase total surface area and improve signal"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Negative C constant persists after degassing optimization and P/P0 range correction — sample may be incompatible with N2 BET; use krypton or mercury intrusion"
+    ],
+    "source_id": "micromeritics-gemini-vii-operator-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "bet-002",
+    "technique": "BET",
+    "instrument_family": "Micromeritics",
+    "model": "Gemini VII",
+    "issue_category": "BET low reproducibility",
+    "symptom": "Replicate BET measurements of the same powder give surface area values with > 5% RSD",
+    "likely_causes": [
+      "Inconsistent degassing — different residual moisture levels between replicates",
+      "Variable sample mass — small mass inaccuracies amplified for low surface area samples",
+      "Sample particle size variation between aliquots — powder segregation in bulk container",
+      "Nitrogen gas purity insufficient — trace moisture affecting adsorption",
+      "Leak in sample tube assembly between measurements"
+    ],
+    "diagnostics": [
+      "Confirm degassing conditions are identical for all replicates (temperature, time, final vacuum pressure)",
+      "Weigh sample tubes before and after degassing to confirm sample mass",
+      "Run blank tube analysis before and after sample to confirm zero reading",
+      "Check N2 gas cylinder purity — minimum 99.999% (5N) required",
+      "Inspect sample tube frits for blockage or damage"
+    ],
+    "corrective_actions": [
+      "Standardize degassing protocol — same temperature, same duration, same vacuum endpoint",
+      "Use larger sample mass (1–3 g for low surface area powders) to reduce relative weighing error",
+      "Mix powder thoroughly before sampling to avoid particle segregation",
+      "Replace nitrogen cylinder if purity cannot be confirmed",
+      "Replace sample tube frit if blocked"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "RSD > 10% persists after full protocol standardization — instrument leak test or detector calibration needed"
+    ],
+    "source_id": "micromeritics-gemini-vii-operator-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "bet-003",
+    "technique": "BET",
+    "instrument_family": "Micromeritics",
+    "model": "Gemini VII",
+    "issue_category": "BET degassing failure",
+    "symptom": "Gemini software reports degassing failed or sample tube pressure does not reach target vacuum during degas step",
+    "likely_causes": [
+      "Sample contains highly volatile components — solvent residue, crystallization water, low-melting excipient",
+      "Degas temperature too high causing sample decomposition and gas evolution",
+      "Vacuum pump fault — pump not achieving target base pressure",
+      "Sample tube O-ring or ferrule leak",
+      "Excessive sample mass blocking degas flow through narrow tube"
+    ],
+    "diagnostics": [
+      "Monitor vacuum gauge during degassing — target < 6.7 Pa (50 mTorr) before analysis",
+      "Check for excessive sample temperature or discoloration after degassing",
+      "Run empty tube degassing — if vacuum achieved, issue is sample-related",
+      "Inspect sample tube O-ring and ferrule for damage"
+    ],
+    "corrective_actions": [
+      "Pre-dry sample at lower temperature (e.g., 40 °C for humidity-sensitive powders) before raising to final degas temperature",
+      "Use flow degassing with nitrogen purge rather than vacuum for samples with volatile components",
+      "Reduce sample mass by 50% and retry",
+      "Replace sample tube O-ring or ferrule",
+      "Check vacuum pump oil and replace if degraded"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Vacuum pump cannot achieve target vacuum even with empty manifold — pump service required"
+    ],
+    "source_id": "micromeritics-gemini-vii-operator-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "bet-004",
+    "technique": "BET",
+    "instrument_family": "Micromeritics",
+    "model": "Gemini VII",
+    "issue_category": "BET poor linearity",
+    "symptom": "BET plot shows curvature rather than a straight line; R² value is below 0.999",
+    "likely_causes": [
+      "P/P0 range includes points outside valid BET region — Type II or Type IV isotherm with knee outside 0.05–0.35",
+      "Microporous sample — BET is not directly applicable to micropores; Langmuir model preferred",
+      "Chemical heterogeneity of surface — multiple adsorption energy sites",
+      "Insufficient equilibration time per pressure point — non-equilibrium adsorption data"
+    ],
+    "diagnostics": [
+      "Plot full adsorption isotherm — classify as Type I (microporous), II, III, IV, V, or VI",
+      "Test different P/P0 ranges within 0.05–0.35 to find best linear segment",
+      "Check equilibration time setting — minimum 15–30 s per point for many powders",
+      "Check if sample has significant microporosity by comparing BET and Langmuir surface areas"
+    ],
+    "corrective_actions": [
+      "Narrow the P/P0 range to the most linear segment within 0.05–0.35",
+      "For microporous samples, apply Langmuir analysis or t-plot method instead of standard BET",
+      "Increase equilibration time per pressure point in method settings",
+      "Report surface area with appropriate caveats regarding model applicability"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "No linear BET region found for any P/P0 range — consult specialist for advanced porosity model (DR, DFT)"
+    ],
+    "source_id": "micromeritics-gemini-vii-operator-manual",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "bet-005",
+    "technique": "BET",
+    "instrument_family": "Micromeritics",
+    "model": "Gemini VII",
+    "issue_category": "BET unexpected surface area",
+    "symptom": "BET surface area result is significantly higher or lower than expected based on particle size or previous measurements",
+    "likely_causes": [
+      "Incomplete degassing left physisorbed species blocking surface",
+      "Sample degradation during storage — amorphous content increase, deliquescence, or sintering",
+      "Wrong sample — incorrect aliquot or mix-up",
+      "Scale zero drift — balance or instrument not tared correctly",
+      "Nitrogen purity insufficient — trace impurities block active surface sites"
+    ],
+    "diagnostics": [
+      "Re-measure reference material (certified BET standard) to verify instrument calibration",
+      "Check sample physical appearance — color change, caking, or particle size change",
+      "Repeat measurement with freshly degassed sample",
+      "Verify balance calibration with NIST-traceable weight set"
+    ],
+    "corrective_actions": [
+      "Re-degas sample at correct temperature and time before repeat analysis",
+      "Use fresh sample from well-sealed, desiccated container",
+      "Run certified reference standard to confirm instrument performance",
+      "Replace nitrogen gas if purity is uncertain",
+      "Recalibrate balance and verify sample tube tare weight"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Reference standard result out of certified range — instrument calibration required; contact Micromeritics service"
+    ],
+    "source_id": "micromeritics-gemini-vii-operator-manual",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+
+  {
+    "id": "dls-ext-001",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": "Zetasizer Lab",
+    "issue_category": "DLS high PDI",
+    "symptom": "PDI > 0.25 indicating a broad or polydisperse particle size distribution; multiple peaks may appear",
+    "likely_causes": [
+      "Sample is genuinely polydisperse — multiple particle populations (liposomes, aggregates, excipient particles)",
+      "Sample not filtered before measurement — dust particles dominating large-particle autocorrelation",
+      "Cuvette or cell contaminated with residue from previous sample",
+      "Inadequate sample equilibration time — temperature gradients causing convection",
+      "Protein or LNP aggregation during formulation or handling"
+    ],
+    "diagnostics": [
+      "Run intensity PSD — distinguish large artifact peaks from genuine distribution",
+      "Filter sample through 0.2 µm PVDF filter and repeat — if PDI drops, dust was the cause",
+      "Clean cell with 0.2 µm filtered ethanol and water, repeat",
+      "Allow 2–5 min equilibration at measurement temperature before acquisition",
+      "Check count rate stability — large fluctuations indicate large particles or aggregates"
+    ],
+    "corrective_actions": [
+      "Filter sample through 0.2 µm membrane to remove dust and aggregates",
+      "Clean measurement cell with filtered solvent between samples",
+      "Centrifuge sample at 1,000–3,000×g for 5 min to sediment large aggregates before DLS",
+      "Optimize formulation conditions (pH, ionic strength, storage temperature) to prevent aggregation",
+      "Use NTA (NanoSight) to resolve multimodal distributions that DLS cannot resolve"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "PDI > 0.5 after all optimization steps — sample is not suitable for cumulant DLS analysis; use size exclusion chromatography with MALS"
+    ],
+    "source_id": "malvern-zetasizer-lab-user-manual",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "dls-ext-002",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": "Zetasizer Lab",
+    "issue_category": "DLS unreliable zeta potential",
+    "symptom": "Zeta potential measurement gives inconsistent results, large error bars, or physically unreasonable values",
+    "likely_causes": [
+      "Incorrect ionic strength — very high salt concentration screens charge, compressing double layer",
+      "Sample aggregating in the cell during electrophoresis — electroosmotic flow artifacts",
+      "Air bubbles in the folded capillary cell (DTS1070)",
+      "Sample concentration too high — multiple scattering invalidating electrophoretic light scattering",
+      "Electrode fouling in the DTS1070 cell from protein or lipid adsorption"
+    ],
+    "diagnostics": [
+      "Check conductivity of sample — should be < 200 mS/m for reliable zeta potential",
+      "Inspect DTS1070 cell for visible bubbles before measurement",
+      "Dilute sample to 0.1–1 mg/mL range and repeat",
+      "Run reference latex standard (e.g., Malvern DTS1235) to verify instrument performance",
+      "Check electrode wires in the DTS1070 — breaks or fouling cause erratic results"
+    ],
+    "corrective_actions": [
+      "Dilute sample in low-conductivity buffer (1–10 mM) to reduce ionic strength",
+      "Fill DTS1070 cell carefully avoiding bubbles — slow syringe injection",
+      "Clean DTS1070 cell with 1% SDS, then flush with filtered water",
+      "Replace DTS1070 cell if electrode fouling cannot be removed",
+      "Reduce sample concentration to minimize multiple scattering"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Reference standard out of specification — contact Malvern Panalytical service for laser alignment or detector check"
+    ],
+    "source_id": "malvern-zetasizer-lab-user-manual",
+    "confidence_score": 0.86,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "dls-ext-003",
+    "technique": "DLS",
+    "instrument_family": "Malvern Panalytical",
+    "model": "Zetasizer Lab",
+    "issue_category": "DLS flat correlogram",
+    "symptom": "Correlation function is flat (no decay); count rate is at background level; no size result obtained",
+    "likely_causes": [
+      "Sample concentration too low — insufficient scatterers for autocorrelation",
+      "Sample completely transparent at 633 nm (He-Ne) or 532 nm laser — low refractive index contrast",
+      "Incorrect solvent refractive index or viscosity settings causing miscalculation",
+      "Laser power reduced due to attenuation (too high absorbing sample) or optical misalignment",
+      "Wrong measurement position — beam not centered in sample volume for the cell type"
+    ],
+    "diagnostics": [
+      "Check count rate (kcps) — below 10 kcps typically too low for reliable measurement",
+      "Verify sample concentration — DLS requires particles in the range of 0.1–10 mg/mL typically",
+      "Confirm correct cell type selected in Zetasizer software",
+      "Increase sample concentration 5–10× and repeat",
+      "Run water as blank to confirm baseline count rate"
+    ],
+    "corrective_actions": [
+      "Increase sample concentration to 0.5–5 mg/mL for proteins, 0.01–1 mg/mL for nanoparticles",
+      "Verify correct measurement position is selected for the cell type (cuvette vs. capillary vs. back scatter)",
+      "Set correct material refractive index in software (1.45 for proteins, 1.59 for polystyrene, 1.5 for liposomes)",
+      "Check laser shutter is open and laser is operating normally"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Count rate is zero even with a known scattering standard — laser or detector failure, contact Malvern Panalytical service"
+    ],
+    "source_id": "malvern-zetasizer-lab-user-manual",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-05T00:00:00Z"
   }
 ]

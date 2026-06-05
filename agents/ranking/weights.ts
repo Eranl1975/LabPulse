@@ -23,6 +23,8 @@ export const VENDOR_SOURCE_PREFIXES = [
   'ta-instruments', 'cytiva', 'csbio', 'cem-corporation', 'biotage',
   'netzsch', 'mettler', 'bruker', 'dionex',
   'metrohm', 'malvern', 'rigaku', 'anton-paar',
+  // Physical characterization instruments (v3.0)
+  'jasco', 'denton-vacuum', 'micromeritics',
 ] as const;
 
 export const EVIDENCE_STRENGTH_SCORES: Record<string, number> = {
