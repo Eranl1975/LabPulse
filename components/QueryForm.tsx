@@ -23,6 +23,8 @@ const VENDOR_OPTIONS = [
   'JASCO', 'Denton Vacuum', 'Micromeritics',
   // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
   'Wyatt Technology', 'Tosoh Bioscience', 'Renishaw', 'HORIBA', 'JEOL',
+  // KNAUER LC (v3.3)
+  'KNAUER',
 ] as const;
 
 const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
@@ -31,12 +33,14 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Waters':        ['Alliance 2695', 'Alliance e2695', 'Alliance HPLC', 'Arc Premier', 'Breeze HPLC', 'ACQUITY ARC', 'ACQUITY ARC Bio'],
     'Shimadzu':      ['Prominence HPLC', 'Nexera HPLC'],
     'Thermo Fisher': ['UltiMate 3000 HPLC', 'UltiMate 3000 SD'],
+    'KNAUER':        ['AZURA P 2.1S Pump (400 bar)', 'AZURA P 4.1S Pump (150 bar)', 'AZURA UVD 2.1L UV Detector', 'AZURA DAD 2.1L Diode Array Detector', 'AZURA RID 2.1L Refractive Index Detector', 'AZURA FLD 2.1L Fluorescence Detector', 'AZURA AS 6.1L Autosampler', 'AZURA CT 2.1 Column Thermostat', 'AZURA Analytical HPLC System (862 bar)', 'AZURA Educational HPLC System'],
   },
   UHPLC: {
     'Agilent':       ['1290 Bio LC', '1290 Infinity UHPLC', '1290 Infinity II', '1290 Infinity II Bio LC', '1290 Infinity II Flexible Pump System', '1290 Infinity II Multisampler', '1290 Infinity II UHPLC'],
     'Waters':        ['ACQUITY Premier UPLC', 'ACQUITY UPLC', 'ACQUITY UPLC H-Class', 'ACQUITY UPLC H-Class PLUS', 'ACQUITY UPLC I-Class', 'ACQUITY UPLC I-Class PLUS'],
     'Thermo Fisher': ['Vanquish UHPLC', 'Vanquish Core UHPLC', 'Vanquish Flex UHPLC', 'Vanquish Horizon UHPLC'],
     'Shimadzu':      ['Nexera X2', 'Nexera XR', 'Nexera X3'],
+    'KNAUER':        ['AZURA P 2.1L UHPLC Pump (1000 bar)', 'AZURA UHPLC System (1240 bar)', 'AZURA HTQC UHPLC System (High-Throughput QC)'],
   },
   LCMS: {
     'Agilent':       [
@@ -99,6 +103,7 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
   FPLC: {
     'Cytiva':  ['ÄKTA avant 25', 'ÄKTA avant 150', 'ÄKTA OligoPilot 10 Plus', 'ÄKTA OligoPilot 100 Plus', 'ÄKTA pure 25', 'ÄKTA pure 150', 'ÄKTA start', 'ÄKTA go'],
     'Bio-Rad': ['NGC Quest 10 Plus', 'NGC Quest 100 Plus', 'NGC Chromatography System'],
+    'KNAUER':  ['AZURA Bio Lab FPLC System (240 bar)', 'AZURA Bio AC FPLC System', 'AZURA Bio SEC System (50 bar)', 'AZURA Bio Compact FPLC System'],
   },
   SPPS: {
     'CSBio':                    ['CS136X', 'CS336X', 'CS536X', 'CS136XT', 'CS336XT', 'CS536XT', 'CS336Xi', 'CSBio 6200', 'CSBio 396'],
@@ -170,6 +175,14 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Bruker': ['Avance Neo 300 MHz', 'Avance Neo 400 MHz', 'Avance Neo 500 MHz', 'Avance Neo 600 MHz', 'Avance Neo 800 MHz', 'Avance Neo 1 GHz', 'Fourier 300', 'Avance III HD 400'],
     'JEOL':   ['ECZL 400', 'ECZL 500', 'ECZL 600', 'ECZS 600', 'ECZL 800', 'ECX 400'],
   },
+  // ── Preparative LC (v3.3) ─────────────────────────────────────────────────
+  PrepLC: {
+    'KNAUER':        ['AZURA Lab Prep System (50 mL/min, 200 bar)', 'AZURA Compact Prep System', 'AZURA Pilot Prep System (1000 mL/min)', 'AZURA P 6.1L Semi-Prep Pump (50 mL/min, 400 bar)', 'AZURA P 2.1L Prep Pump (500 mL/min, 100 bar)', 'AZURA P 4.1S Prep Pump (50 mL/min, 150 bar)'],
+    'Waters':        ['Delta Prep 4000', 'Prep-LC 2000 System', 'PrepLC/MS System'],
+    'Agilent':       ['1290 Infinity II Prep LC/MS System', '1260 Infinity II Prep-Scale LC/MS System'],
+    'Shimadzu':      ['LC-20AP Prep LC System', 'LC-20AR Prep Pump'],
+    'Thermo Fisher': ['Dionex UltiMate 3000 Preparative LC'],
+  },
 };
 
 function getFilteredVendors(technique: string): string[] {
@@ -215,6 +228,8 @@ const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
   Raman:   ['Raman high fluorescence', 'Raman weak signal', 'Raman cosmic ray spike', 'Raman baseline drift', 'Raman sample burning', 'Raman peak shift', 'Raman wavelength calibration failure'],
   ssNMR:   ['ssNMR MAS failure', 'ssNMR rotor instability', 'ssNMR probe tuning failure', 'ssNMR low sensitivity', 'ssNMR peak broadening', 'ssNMR arcing', 'ssNMR probe overheating'],
   NMR:     ['NMR lock failure', 'NMR poor shimming', 'NMR broad peaks', 'NMR solvent suppression failure', 'NMR baseline distortion', 'NMR low sensitivity', 'NMR probe failure', 'NMR gradient failure'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['PrepLC high backpressure', 'PrepLC poor peak resolution', 'PrepLC fraction contamination', 'PrepLC pump flow instability', 'PrepLC solvent recycling failure', 'PrepLC UV detector overload', 'PrepLC air bubble'],
 };
 
 const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
@@ -259,6 +274,8 @@ const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
   Raman:   ['high fluorescence background', 'weak signal', 'cosmic ray spike', 'baseline drift', 'sample burning', 'peak shift', 'wavelength calibration failure'],
   ssNMR:   ['MAS spinning failure', 'rotor instability', 'probe tuning failure', 'low sensitivity', 'broad peaks', 'arcing', 'probe overheating'],
   NMR:     ['lock failure', 'poor shimming', 'broad peaks', 'solvent suppression failure', 'baseline distortion', 'low sensitivity', 'probe failure', 'gradient failure'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['high backpressure', 'poor peak resolution', 'fraction contamination', 'pump flow instability', 'solvent recycling failure', 'UV detector overload', 'air bubbles in pump'],
 };
 
 const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
@@ -296,6 +313,8 @@ const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
   Raman:   ['adjusted laser power', 'replaced calibration standard', 're-calibrated wavenumber axis', 'cleaned sample stage', 'changed excitation wavelength', 'applied baseline correction', 'used cosmic ray filter'],
   ssNMR:   ['replaced rotor', 'retuned probe', 're-optimized MAS speed', 'recalibrated magic angle', 'reduced RF power', 'replaced probe', 'cooled probe with nitrogen'],
   NMR:     ['re-locked on deuterium solvent', 'reshimmed manually', 'retuned probe', 'increased NS (number of scans)', 'optimized solvent suppression parameters', 'replaced NMR tube', 'recalibrated gradient coil'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['replaced prep column', 'cleaned guard column', 'flushed pump heads', 'checked pump seals and pistons', 'replaced check valves', 'degassed solvents', 're-optimised gradient', 'cleaned UV flow cell', 'checked fraction collector tubing'],
 };
 
 const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];
@@ -578,7 +597,6 @@ export default function QueryForm() {
       };
       addReport(report);
       setPendingReportId(reportId);
-      setShowModal(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed.');
     } finally {
@@ -760,6 +778,28 @@ export default function QueryForm() {
             confidence={result.ranked_answer.confidence}
             selected={mode}
           />
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                padding: '0.5rem 1.25rem',
+                background: 'transparent',
+                border: '1.5px solid var(--color-slate-300)',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.875rem', fontWeight: 600,
+                color: 'var(--color-slate-500)',
+                cursor: 'pointer',
+                transition: 'border-color .15s, color .15s',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-teal-500)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-teal-600)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-slate-300)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-slate-500)'; }}
+            >
+              ✓ Update Outcome
+            </button>
+          </div>
         </div>
       )}
     </>
