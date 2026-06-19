@@ -35,7 +35,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'LabPulse — Instrument Troubleshooting Intelligence',
   description:
-    'Rule-based diagnostic platform for 26 analytical techniques including LCMS, HPLC, GC, GCMS, NMR, Raman, TEM, SEC-MALS, and more. Evidence-ranked answers traced to verified vendor and scientific sources.',
+    'Rule-based diagnostic platform for 27 analytical techniques including LCMS, HPLC, GC, GCMS, PrepLC, NMR, Raman, TEM, SEC-MALS, and more. Evidence-ranked answers traced to verified vendor and scientific sources.',
   icons: {
     icon: '/icon.svg',
     apple: '/icon.svg',

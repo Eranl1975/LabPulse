@@ -29,7 +29,7 @@ export default async function UpgradePage() {
           <p style={{ color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
             {trialExpired
               ? 'Your 14-day trial has ended. Subscribe to continue using LabPulse.'
-              : 'Unlock unlimited diagnostics across all 26 analytical techniques.'}
+              : 'Unlock unlimited diagnostics across all 27 analytical techniques.'}
           </p>
           <div style={{ background: '#f0fdf4', border: '1.5px solid #86efac', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -37,7 +37,7 @@ export default async function UpgradePage() {
               <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '1.25rem', color: '#15803d' }}>$49/mo</span>
             </div>
             {[
-              'All 26 analytical techniques (LCMS, HPLC, GC, GC-MS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, NMR + more)',
+              'All 27 analytical techniques (LCMS, HPLC, GC, GC-MS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, NMR, PrepLC + more)',
               'Evidence-ranked AI-assisted diagnosis',
               'Unlimited troubleshooting queries',
               'Full audit history and reports',

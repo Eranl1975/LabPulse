@@ -3742,5 +3742,721 @@
     "confidence_score": 0.85,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-001",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA P 2.1S / P 4.1S",
+    "issue_category": "high backpressure",
+    "symptom": "System pressure alarm — pump unable to reach target flow rate; pressure rapidly increases to cutoff",
+    "likely_causes": [
+      "blocked inline filter on the pressure sensor (KNAUER proprietary part)",
+      "clogged HPLC column or guard column",
+      "worn or swollen pump head seals causing reduced bore diameter",
+      "faulty check valves (KNAUER dual-piston: inlet or outlet check valve)",
+      "blocked frit in solvent filter or inlet tubing",
+      "mobile phase precipitation at low temperature"
+    ],
+    "diagnostics": [
+      "Disconnect column and measure pressure at same flow rate — high pressure without column indicates pump or tubing issue",
+      "Replace the inline pressure sensor filter (KNAUER part) every 3–6 months as routine maintenance",
+      "Open KNAUER ServiceTool (or ClarityChrom diagnostics) and record pump pressure profile to identify check valve malfunction",
+      "Inspect inlet solvent filter under the solvent reservoir — replace if discoloured or >6 months old",
+      "Inspect tubing for kinks, blockages, or incorrect fitting compression"
+    ],
+    "corrective_actions": [
+      "Replace inline pressure sensor filter (Part No. A4949); reset pressure before restarting",
+      "Flush column or replace guard column; if unresolved, replace analytical column",
+      "Replace check valves (inlet and outlet) for the affected pump head",
+      "Replace pump head seals (piston seals + back-piston seals) per KNAUER seal replacement procedure",
+      "Use fresh-filtered, degassed mobile phase; warm solvents to room temperature before use",
+      "If issue persists after all above, run KNAUER Pump P 2.1S/P 4.1S Instructions (V6870) leak pressure test"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Pressure alarm persists after column removal and filter replacement — seal or check valve replacement required",
+      "ServiceTool shows irregular pressure profile in both pistons — pump head replacement needed"
+    ],
+    "source_id": "knauer-azura-pump-v6870-instructions",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-002",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA UVD 2.1L / DAD 2.1L",
+    "issue_category": "low sensitivity",
+    "symptom": "Detector signal weak or absent; baseline unusually high; lamp intensity warning in ClarityChrom/knauerOS",
+    "likely_causes": [
+      "aging deuterium lamp (> 1500 hours or > 2 years)",
+      "dirty or contaminated UV flow cell (salt deposits, UV-absorbing residue)",
+      "incorrect wavelength programmed or wrong flow cell selected in software",
+      "damaged optical fiber or loose fiber connector in DAD 2.1L",
+      "mobile phase highly UV-absorbing at selected wavelength"
+    ],
+    "diagnostics": [
+      "Check lamp hours in knauerOS or ClarityChrom diagnostics panel — KNAUER recommends replacement after 1500–2000 hours",
+      "Run a solvent blank: compare absorbance baseline to expected value for your mobile phase at selected wavelength",
+      "Inspect flow cell for visible deposits; check if cleaning with 0.1 M HNO3 flush improves signal",
+      "For DAD 2.1L: perform wavelength calibration check using holmium oxide standard built into the instrument"
+    ],
+    "corrective_actions": [
+      "Replace deuterium lamp (KNAUER Part No. A4290) and run lamp burn-in procedure per V6872 manual",
+      "Clean UV flow cell: flush with 50% MeOH / 50% 0.1 M HNO3 for 10 min, then flush with water, then MeOH",
+      "Verify detector wavelength settings match your analyte absorption maximum",
+      "If DAD 2.1L: reseat fiber connectors and re-run holmium calibration",
+      "Switch to a mobile phase with lower UV background (e.g., LC-MS grade or lower acetate concentration)"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Signal does not recover after lamp replacement and flow cell cleaning — fiber or detector optics damage; contact KNAUER service"
+    ],
+    "source_id": "knauer-azura-uvd-dad-user-guide",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-003",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA AS 6.1L",
+    "issue_category": "carryover",
+    "symptom": "Residual peaks from previous injection appear in blank runs; carryover > 0.1% of peak area",
+    "likely_causes": [
+      "insufficient needle wash volume or wash solvent too weak for analyte",
+      "blocked or partially clogged needle wash port",
+      "injection valve internal leakage (rotor seal wear)",
+      "inadequate flush of sample loop between injections",
+      "sample adsorption onto stainless steel needle or loop"
+    ],
+    "diagnostics": [
+      "Run blank injection immediately after high-concentration sample and calculate carryover %",
+      "Check needle wash program in ClarityChrom/knauerOS — verify wash volume (> 3x loop volume) and wash solvent polarity",
+      "Inspect needle wash port for blockage or residue",
+      "Run needle wash step with stronger solvent (100% organic) and monitor if carryover decreases"
+    ],
+    "corrective_actions": [
+      "Increase needle wash volume to 5x sample loop volume",
+      "Use a two-step wash: strong organic solvent then weak aqueous solvent (matches mobile phase start conditions)",
+      "Replace injection valve rotor seal (KNAUER rotor seal kit for AS 6.1L) if leakage is suspected",
+      "For basic compounds: add 0.1% ammonium hydroxide to needle wash solvent to prevent adsorption",
+      "Switch to PEEK needle/loop for biological samples if stainless steel adsorption is suspected"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Carryover > 1% after wash optimisation — rotor seal replacement required; contact KNAUER service if issue persists"
+    ],
+    "source_id": "knauer-azura-as61l-instructions",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-004",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA CT 2.1",
+    "issue_category": "retention time shift",
+    "symptom": "Retention times drifting or shifting over multiple runs despite identical method conditions",
+    "likely_causes": [
+      "column thermostat not equilibrated — CT 2.1 requires ~15 min at target temperature",
+      "laboratory ambient temperature fluctuation affecting un-thermostated pre-column tubing",
+      "Peltier element malfunction or temperature setpoint not reached (CT 2.1 range: 5–85 °C)",
+      "column aging or silanol activity changes",
+      "mobile phase composition drift (improper mixing or degassing)"
+    ],
+    "diagnostics": [
+      "Monitor CT 2.1 actual temperature readout in knauerOS before starting batch — confirm setpoint is reached",
+      "Check retention time stability over 6–10 isocratic injections at the start of each day",
+      "Verify mobile phase is freshly prepared and degassed — compare pH and composition to previous batch",
+      "Run column equilibration with at least 10 column volumes at start conditions before any injection"
+    ],
+    "corrective_actions": [
+      "Allow CT 2.1 to equilibrate for minimum 20 min before starting analysis",
+      "Insulate pre-column tubing from ambient temperature changes",
+      "Verify temperature setpoint is not exceeding column stationary phase specification (e.g., max 60 °C for standard silica)",
+      "If Peltier malfunction suspected: run temperature verification test in knauerOS diagnostics",
+      "Prepare fresh mobile phase; verify pH is within ±0.05 of method specification"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Temperature setpoint not reached after equilibration — Peltier module fault; contact KNAUER service"
+    ],
+    "source_id": "knauer-azura-ct21-instructions",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-005",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Analytical HPLC (400 / 862 bar)",
+    "issue_category": "noisy baseline",
+    "symptom": "Irregular baseline noise during UV detection — spikes or oscillation at UV detector output",
+    "likely_causes": [
+      "air microbubbles in flow cell caused by dissolved gas in mobile phase",
+      "pressure pulsation from pump at low flow rates",
+      "loose electrical connection on detector or interface box (IFU 2.1)",
+      "contaminated UV flow cell (particulates or film)",
+      "mobile phase solvent impurity or UV-absorbing contamination"
+    ],
+    "diagnostics": [
+      "Switch to degassed HPLC-grade water at 1 mL/min and check if noise disappears — confirms mobile phase origin",
+      "Check pump pressure trace: if pulsation is visible, check piston seal and pump damper",
+      "Inspect all electrical connections between detector and IFU 2.1 interface box",
+      "Flush flow cell with 50% methanol/water for 5 min and reassess baseline"
+    ],
+    "corrective_actions": [
+      "Use online degasser — ensure all channels are active",
+      "Replace mobile phase with freshly degassed HPLC-grade solvents",
+      "Clean UV flow cell per KNAUER UVD maintenance procedure (flush with dilute HNO3 then methanol)",
+      "Check and reseat detector-to-IFU 2.1 cable connection",
+      "At low flow rates (< 0.3 mL/min): enable pulsation damper if available"
+    ],
+    "severity": "low",
+    "escalation_conditions": [
+      "Noise spike pattern is systematic (every N seconds) — piston seal or check valve failure; replace seals"
+    ],
+    "source_id": "knauer-gmi-troubleshooting-guide",
+    "confidence_score": 0.80,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-hplc-006",
+    "technique": "HPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA (all models) / ClarityChrom / knauerOS",
+    "issue_category": "instrument communication fault",
+    "symptom": "ClarityChrom or knauerOS cannot detect or communicate with AZURA instrument modules on LAN or RS-232",
+    "likely_causes": [
+      "incorrect IP address assignment — AZURA modules default to DHCP; fixed IP required for stable ClarityChrom communication",
+      "network switch or firewall blocking KNAUER communication port 10001",
+      "incompatible ClarityChrom driver version for the installed AZURA firmware version",
+      "IFU 2.1 interface box USB driver not installed or not recognised by Windows",
+      "RS-232 cable connected to wrong COM port or baud rate mismatch"
+    ],
+    "diagnostics": [
+      "Ping the AZURA module IP address from the ClarityChrom PC — if no response, check network/cable",
+      "Open KNAUER Configuration Manager and check if module is listed and shows green status",
+      "Check AZURA front display for IP address and compare with ClarityChrom configuration",
+      "Check Windows Device Manager for IFU 2.1 USB device — yellow warning icon indicates driver issue"
+    ],
+    "corrective_actions": [
+      "Assign fixed static IP to each AZURA module via the front panel menu",
+      "Allow KNAUER communication port 10001 (TCP/UDP) through Windows Firewall",
+      "Update ClarityChrom KNAUER driver pack to match AZURA module firmware version",
+      "Reinstall IFU 2.1 USB driver from KNAUER website",
+      "Restart all AZURA modules and relaunch ClarityChrom after network configuration changes"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Module shows IP conflict or cannot be configured via front panel — factory reset required per KNAUER service"
+    ],
+    "source_id": "knauer-claritychrom-configuration-guide",
+    "confidence_score": 0.82,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-uhplc-001",
+    "technique": "UHPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA P 2.1L (UHPLC, 1000 bar)",
+    "issue_category": "UHPLC high backpressure",
+    "symptom": "Pressure alarm at 1000 bar cutoff; system stops mid-run on AZURA UHPLC platform",
+    "likely_causes": [
+      "sub-2 µm column frit clogging from sample matrix particulates",
+      "mobile phase precipitation at high pressure",
+      "inadequate sample filtration (particles > 0.2 µm entering column)",
+      "pump seal deterioration causing high-pressure fluctuations",
+      "column temperature too low — increasing mobile phase viscosity"
+    ],
+    "diagnostics": [
+      "Remove column and measure system pressure at same flow rate; > 50 bar without column indicates pump/tubing issue",
+      "Replace guard column first and retest before replacing analytical column",
+      "Verify sample is filtered through 0.2 µm filter or centrifuged at > 13 000 rpm",
+      "Check column temperature setting — 40–60 °C reduces backpressure significantly"
+    ],
+    "corrective_actions": [
+      "Replace guard column frit or cartridge first; if pressure persists, replace analytical column",
+      "Filter all samples through 0.2 µm syringe filter before injection",
+      "Increase column temperature to 40 °C to reduce mobile phase viscosity",
+      "Reduce flow rate by 10–20% and reassess peak performance",
+      "Replace UHPLC pump seals annually or every 5000 hours per KNAUER P 2.1L schedule"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Pressure exceeds cutoff within first column volume of any new column — column failure; contact KNAUER"
+    ],
+    "source_id": "knauer-azura-p21l-prep-instructions",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-uhplc-002",
+    "technique": "UHPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA UHPLC System (1240 bar)",
+    "issue_category": "peak broadening",
+    "symptom": "Peak efficiency significantly below specification for sub-2 µm columns on KNAUER UHPLC",
+    "likely_causes": [
+      "extra-column band broadening from overlong or large-bore connecting tubing (must use < 0.1 mm ID for UHPLC)",
+      "large injection volume exceeding 10% of first peak volume for sub-2 µm columns",
+      "strong sample solvent (stronger than mobile phase A) causing peak distortion",
+      "poor column equilibration — UHPLC columns require > 20 column volumes"
+    ],
+    "diagnostics": [
+      "Inject a standard compound with known plate count and compare against vendor datasheet",
+      "Check tubing ID from injector to column inlet — must be 0.075–0.12 mm ID for UHPLC",
+      "Reduce injection volume to 1–2 µL and compare peak shape",
+      "Check sample solvent strength — should be at or below mobile phase A composition"
+    ],
+    "corrective_actions": [
+      "Replace all post-injector tubing with 0.075 mm ID PEEK or stainless steel tubing",
+      "Reduce injection volume to ≤ 5 µL for a 2.1 mm ID column",
+      "Dissolve sample in weak solvent (mobile phase A or more aqueous)",
+      "Equilibrate column with ≥ 20 column volumes at initial gradient conditions before injection"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Column plates below 50% of specification after tubing and volume optimisation — column contamination; replace column"
+    ],
+    "source_id": "knauer-azura-uhplc-1240bar-system-guide",
+    "confidence_score": 0.82,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-uhplc-003",
+    "technique": "UHPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA HTQC UHPLC",
+    "issue_category": "retention time shift",
+    "symptom": "Retention times drifting cycle-to-cycle on high-throughput QC workflow; precision RSD > 0.5%",
+    "likely_causes": [
+      "rapid column cycling without adequate re-equilibration between gradients",
+      "flow rate accuracy drift at high throughput due to pump wear",
+      "temperature equilibration lag between rapid sequential injections",
+      "sample carryover from previous injection affecting gradient start"
+    ],
+    "diagnostics": [
+      "Run 20 consecutive injections of a standard compound and calculate RT RSD",
+      "Check pump flow rate accuracy using gravimetric method at the specified QC flow rate",
+      "Verify post-gradient re-equilibration time (minimum 2–3 column volumes) before each injection"
+    ],
+    "corrective_actions": [
+      "Increase post-gradient re-equilibration to at least 3 column volumes",
+      "Run pump qualification (flow rate accuracy) test in knauerOS — recalibrate if > ±0.5% deviation",
+      "Increase column thermostat equilibration time or switch to isothermal method",
+      "Add needle wash between every injection to minimise carryover effects on gradient start"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "RT RSD > 2% despite re-equilibration — pump seal wear; schedule preventive maintenance"
+    ],
+    "source_id": "knauer-htqc-uhplc-guide",
+    "confidence_score": 0.78,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-fplc-001",
+    "technique": "FPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Bio Lab System",
+    "issue_category": "high system pressure",
+    "symptom": "AZURA Bio system pressure exceeds column specification (max 240 bar); run aborted",
+    "likely_causes": [
+      "air in biocompatible pump head causing pressure spikes",
+      "clogged column frit from precipitated protein or aggregated sample",
+      "incorrect tubing ID for high-flow bio applications",
+      "buffer salt precipitation in capillaries at low temperature",
+      "pump seal contamination from sample matrix"
+    ],
+    "diagnostics": [
+      "Prime AZURA Bio pump with degassed buffer (minimum 5 mL) before connecting column",
+      "Disconnect column and measure system dead volume pressure at target flow rate in PurityChrom",
+      "Inspect all PEEK/titanium fittings for blockages",
+      "Check column pressure log — identify whether pressure rises from run start or during gradient"
+    ],
+    "corrective_actions": [
+      "Prime both pump channels thoroughly with degassed buffer before each use",
+      "Wash column with 5 column volumes of 20% ethanol/water to dissolve protein aggregates on frit",
+      "Replace column inlet frit if pressure remains high after wash",
+      "Use 0.75–1.0 mm ID tubing for flows > 10 mL/min",
+      "Filter all samples through 0.22 µm membrane before loading onto column"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Column pressure does not decrease after washing — column frit or column replacement required"
+    ],
+    "source_id": "knauer-azura-bio-lab-user-guide",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-fplc-002",
+    "technique": "FPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Bio Lab / Bio AC",
+    "issue_category": "FPLC UV baseline noise",
+    "symptom": "Noisy UV baseline at 280 nm during protein purification run on AZURA Bio system",
+    "likely_causes": [
+      "air microbubbles in biocompatible UV flow cell when switching between high-salt and low-salt buffers",
+      "refractive index change during gradient causing apparent UV signal change",
+      "protein aggregates passing through flow cell",
+      "incorrect reference wavelength setting",
+      "buffer gradient composition causing UV-absorbing baseline"
+    ],
+    "diagnostics": [
+      "Run UV baseline scan in PurityChrom with column bypassed and buffer flowing",
+      "Check reference wavelength: set to 360 nm when measuring at 280 nm to compensate refractive index changes",
+      "Degas both buffer A and buffer B before use",
+      "Compare UV trace at 280 nm vs 254 nm — if both noisy, likely flow cell contamination"
+    ],
+    "corrective_actions": [
+      "Degas all buffers by vacuum filtration (0.22 µm membrane + vacuum) before use",
+      "Set UV reference wavelength to 360 nm to compensate gradient refractive index changes",
+      "Flush UV flow cell with 50% ethanol / 50% water for 5 min, then equilibrate with buffer A",
+      "Filter sample through 0.22 µm before loading to remove aggregates",
+      "Reduce gradient slope to minimise refractive index change rate"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Baseline noise > 5 mAU after degassing and flow cell flush — UV cell contamination; clean with 0.1 M NaOH flush"
+    ],
+    "source_id": "knauer-azura-bio-lab-user-guide",
+    "confidence_score": 0.80,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-fplc-003",
+    "technique": "FPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Bio SEC System",
+    "issue_category": "FPLC poor peak resolution",
+    "symptom": "Protein peaks poorly resolved in SEC run; aggregate and monomer peaks overlapping",
+    "likely_causes": [
+      "flow rate too high for SEC column (SEC resolution decreases above 0.5 mL/min for 300 mm columns)",
+      "injection volume too large — > 2% of column volume causes peak broadening in SEC",
+      "column void volume increased (column settling or void at top)",
+      "sample protein concentration too high causing viscous fingering",
+      "incorrect mobile phase ionic strength (< 50 mM salt causes non-specific ionic interactions)"
+    ],
+    "diagnostics": [
+      "Check injection volume as percentage of column volume — should be < 1.5% for optimal SEC resolution",
+      "Run molecular weight standards at half the method flow rate and compare resolution",
+      "Inspect column chromatogram for void volume peak to detect packing issues",
+      "Verify mobile phase contains 100–150 mM NaCl or equivalent ionic strength"
+    ],
+    "corrective_actions": [
+      "Reduce flow rate to 0.3–0.5 mL/min for 300 mm SEC columns",
+      "Reduce injection volume to < 1% of column volume",
+      "Dilute sample to < 5 mg/mL protein concentration",
+      "Prepare mobile phase with 100–150 mM NaCl + 20 mM phosphate pH 7.4 (standard SEC buffer)",
+      "If void volume detected: replace SEC column"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Resolution does not improve after volume and flow rate reduction — column aging or void; replace column"
+    ],
+    "source_id": "knauer-azura-bio-sec-system-guide",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-fplc-004",
+    "technique": "FPLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Bio Lab / Bio AC",
+    "issue_category": "FPLC gradient inaccuracy",
+    "symptom": "Gradient elution profile inconsistent between runs; protein elution shifts or step gradient not accurate in PurityChrom",
+    "likely_causes": [
+      "air in gradient mixing chamber or pump head affecting composition accuracy",
+      "buffer A or B inlet filter blocked — causing suction instability",
+      "pump channel flow rate deviation > 1% causing composition error",
+      "delay volume miscalculation in PurityChrom gradient method",
+      "PurityChrom method step gradient programmed without hold time at transition"
+    ],
+    "diagnostics": [
+      "Run conductivity baseline profile only (no column) to verify gradient accuracy",
+      "Prime both pump channels individually and check volumetric flow accuracy by gravimetric measurement",
+      "Check buffer A and B inlet filter cartridges — replace if > 3 months old",
+      "Verify delay volume setting in PurityChrom accounts for mixer volume + column inlet tubing"
+    ],
+    "corrective_actions": [
+      "Prime both AZURA Bio pump channels with 5 mL of respective buffer before gradient run",
+      "Replace buffer inlet filter cartridges (KNAUER biocompatible filters) if blocked",
+      "Run pump flow rate calibration in PurityChrom diagnostics panel",
+      "Add 0.5–1 min hold at each gradient step to allow accurate mixing",
+      "Correct delay volume in PurityChrom method (system delay volume typically 1–3 mL for AZURA Bio)"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Gradient deviation > 5% after priming — pump seal or check valve failure; schedule KNAUER service"
+    ],
+    "source_id": "knauer-puritychrom-user-guide",
+    "confidence_score": 0.82,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-001",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System / AZURA P 6.1L",
+    "issue_category": "PrepLC high backpressure",
+    "symptom": "Prep system pressure exceeds 200 bar (Lab Prep limit) or 400 bar (P 6.1L limit) during purification run",
+    "likely_causes": [
+      "prep column fritted disc blocked by sample particulates or silica fines",
+      "mobile phase precipitation at preparative concentrations",
+      "incorrect pump head installed for the target flow rate",
+      "excessive injection volume causing sample overloading and column blocking",
+      "guard column not installed or frit exhausted"
+    ],
+    "diagnostics": [
+      "Remove column and measure system dead-volume pressure at same flow rate in PurityChrom",
+      "Check prep column back-pressure vs initial certificate from column vendor",
+      "Check pump head volume vs method flow rate: AZURA P 6.1L 50 mL head optimal range 5–40 mL/min",
+      "Reduce sample load by 50% and retry — if pressure drops, overloading was the cause"
+    ],
+    "corrective_actions": [
+      "Install or replace guard column (prep guard with matching chemistry and 4–10 mm ID)",
+      "Reduce sample concentration and increase injection volume to maintain same mass load at lower concentration",
+      "Filter sample through 0.45 µm Millipore filter before injection",
+      "Flush prep column at 5 mL/min with 100% organic solvent for 30 min to dissolve precipitated sample",
+      "Replace pump head with correct size for target flow rate range"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Column pressure > 150% of initial after washing — column frit damaged; replace prep column"
+    ],
+    "source_id": "knauer-azura-p61l-user-manual-v6890",
+    "confidence_score": 0.87,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-002",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System",
+    "issue_category": "PrepLC poor peak resolution",
+    "symptom": "Target compound and close-eluting impurities not resolved in preparative run; fraction purity insufficient",
+    "likely_causes": [
+      "sample overload exceeding column dynamic binding capacity",
+      "gradient not optimised for prep scale (analytical-to-prep scale transfer requires gradient adjustment)",
+      "column particle size or length not appropriate for target resolution",
+      "injection solvent too strong causing initial peak broadening",
+      "fraction collection timing offset from actual peak apex"
+    ],
+    "diagnostics": [
+      "Run the same method analytically to verify baseline resolution exists at analytical scale",
+      "Reduce injection mass by 10-fold and check if resolution improves — confirms overload",
+      "Check fraction collector timing offset: verify UV detector-to-collector delay volume in PurityChrom",
+      "Compare gradient start/end concentrations with analytical method"
+    ],
+    "corrective_actions": [
+      "Reduce mass load per injection by 50%; increase number of injections instead",
+      "Recalculate gradient delay volume for preparative system (prep systems have > 5 mL system volume vs < 1 mL analytical)",
+      "Calibrate fraction collector delay volume in PurityChrom using a visible dye standard",
+      "Optimise gradient steepness: flatten gradient over critical resolution pair by 30–50%",
+      "If peak tailing: increase injection solvent aqueous content (use < 50% organic in sample diluent)"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Resolution Rs < 1.0 at 50% mass load — method re-development required at analytical scale first"
+    ],
+    "source_id": "knauer-preparative-hplc-guide",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-003",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System",
+    "issue_category": "PrepLC UV detector overload",
+    "symptom": "UV detector saturated (reads full-scale or flat-top peaks) during high-mass load preparative run",
+    "likely_causes": [
+      "high UV-absorbing analyte at excessive concentration passing through the UV flow cell",
+      "incompatible flow cell pathlength — prep UV cells typically 0.5 mm to prevent overload",
+      "incorrect UV wavelength selected — monitoring at absorption maximum during high-load run",
+      "high background absorption from sample matrix or mobile phase modifier"
+    ],
+    "diagnostics": [
+      "Check UV absorbance reading during blank injection — any baseline > 2.0 AU indicates UV absorption issue",
+      "Compare peak height at analytical load vs prep load: saturation occurs when peak > 2.5 AU",
+      "Verify flow cell pathlength installed in AZURA UVD/DAD (prep: 0.5 mm; standard: 10 mm)"
+    ],
+    "corrective_actions": [
+      "Switch to 0.5 mm pathlength preparative flow cell to reduce detector overload",
+      "Monitor at a less-absorbing wavelength (e.g., 254 nm when 210 nm saturates)",
+      "Set UV detector range to extended scale (e.g., 3.0 AU range) in knauerOS/ClarityChrom",
+      "Dilute sample loading concentration by 50% and increase number of injections",
+      "Use post-column 1:100 splitter before UV detector for very high-load runs"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Detector flat-top peaks cause fraction collection trigger failure — use conductivity or ELSD as fraction trigger instead"
+    ],
+    "source_id": "knauer-azura-prep-uvd-guide",
+    "confidence_score": 0.80,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-004",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA P 6.1L / Lab Prep System",
+    "issue_category": "PrepLC pump flow instability",
+    "symptom": "Pump flow rate oscillates ±5% or more during prep run; gradient composition deviates from PurityChrom program",
+    "likely_causes": [
+      "air entrainment in large-volume pump head (50 mL head is sensitive to air)",
+      "check valve wear or fouling at preparative flow rates",
+      "solvent inlet filter partially blocked causing suction cavitation",
+      "pump head seal wear at flow rates > 30 mL/min",
+      "mobile phase viscosity too high for pump head specification"
+    ],
+    "diagnostics": [
+      "Listen for clicking or rattling during pump operation — indicates cavitation or check valve failure",
+      "Gravimetrically measure actual flow rate vs set flow rate at 10, 25, and 50 mL/min",
+      "Prime pump at low flow (2 mL/min) for 5 min and check if instability disappears — confirms air in pump head",
+      "Replace inlet solvent filter and re-test"
+    ],
+    "corrective_actions": [
+      "Prime 50 mL pump head with 50 mL of mobile phase at 5 mL/min before use — removes all air",
+      "Replace inlet filter cartridge (KNAUER prep inlet filter)",
+      "Replace check valves (inlet + outlet) for AZURA P 6.1L — clean with isopropanol first",
+      "Replace pump seals per KNAUER P 6.1L seal maintenance schedule (every 12 months or 2000 hours)",
+      "Ensure mobile phase viscosity is within pump head specification"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Flow rate deviation > 10% at rated speed after seal replacement — pump head inspection required; contact KNAUER service"
+    ],
+    "source_id": "knauer-azura-p61l-user-manual-v6890",
+    "confidence_score": 0.85,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-005",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System",
+    "issue_category": "PrepLC fraction contamination",
+    "symptom": "Collected fractions show unexpected impurity peaks on analytical HPLC despite clean baseline in prep run",
+    "likely_causes": [
+      "fraction collector tubing contaminated from previous purification campaign",
+      "carryover in prep UV flow cell — previous compound not fully washed out",
+      "prep column bleed — stationary phase degradation releasing UV-absorbing fragments",
+      "fraction collection delay time miscalibrated causing wrong fractions collected",
+      "splitter ratio drift causing incorrect trigger signal"
+    ],
+    "diagnostics": [
+      "Run blank injection (100% mobile phase A) and collect fractions — analyse by analytical HPLC to confirm clean fractions",
+      "Run a standard compound and check fraction collector timing by correlating UV trigger with analytically confirmed fraction content",
+      "Inspect fraction collector tubing for residue or deposits"
+    ],
+    "corrective_actions": [
+      "Clean fraction collector tubing and collection nozzle with 10% methanol/0.1% TFA, then 100% methanol, then mobile phase A",
+      "Flush prep UV flow cell with 100% methanol for 15 min between campaigns",
+      "Recalibrate fraction collector delay volume in PurityChrom using a coloured dye",
+      "If column bleed suspected: run blank gradient and analyse by LCMS — replace column if confirmed",
+      "Replace prep column if column bleed is confirmed by LCMS analysis"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Contamination persists after cleaning — column bleed or system contamination requiring full system flush and column replacement"
+    ],
+    "source_id": "knauer-preparative-hplc-guide",
+    "confidence_score": 0.82,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-006",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System",
+    "issue_category": "PrepLC air bubble",
+    "symptom": "Air bubbles visible in prep pump or tubing; erratic flow rate; UV baseline spikes during run",
+    "likely_causes": [
+      "insufficient priming of large-volume pump head before use",
+      "solvent reservoir running empty mid-run",
+      "solvent inlet filter above liquid level (tubing too short for reservoir)",
+      "mobile phase not degassed — dissolved gas released at low pressure after pump",
+      "cracked or loose inlet fitting on pump head allowing air ingress"
+    ],
+    "diagnostics": [
+      "Visually inspect inlet tubing from solvent reservoir to pump — check for air gaps",
+      "Prime pump manually at 5 mL/min for 5 min and observe if bubbles clear",
+      "Check solvent reservoir level — inlet filter must be fully submerged at all times",
+      "Inspect inlet fitting for cracks or loose compression nut"
+    ],
+    "corrective_actions": [
+      "Prime both pump channels at 5–10 mL/min with fresh degassed mobile phase until all air is expelled",
+      "Refill solvent reservoirs — never allow < 20% volume during run",
+      "Extend or replace inlet tubing so filter is always fully submerged at reservoir bottom",
+      "Degas mobile phase by vacuum filtration or use KNAUER inline degasser",
+      "Tighten or replace cracked inlet fitting (KNAUER PEEK or titanium fittings for biocompatible applications)"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Air bubbles persist after priming — check valve failure; replace pump check valves"
+    ],
+    "source_id": "knauer-azura-p61l-user-manual-v6890",
+    "confidence_score": 0.83,
+    "evidence_strength": "strong",
+    "updated_at": "2026-06-14T00:00:00Z"
+  },
+  {
+    "id": "knauer-preplc-007",
+    "technique": "PrepLC",
+    "instrument_family": "KNAUER",
+    "model": "AZURA Lab Prep System",
+    "issue_category": "PrepLC solvent recycling failure",
+    "symptom": "Solvent recycling valve not diverting waste fractions correctly; non-target fractions sent to collection",
+    "likely_causes": [
+      "incorrect delay volume calibration for recycling valve in PurityChrom",
+      "UV threshold for recycling trigger set too low — collecting baseline noise as product",
+      "recycling valve actuator failure (mechanical or electronic)",
+      "peak shape distortion causing wrong trigger timing",
+      "solvent recycling tubing blocked or kinked"
+    ],
+    "diagnostics": [
+      "Run a standard compound with UV monitoring and manually verify when recycling valve switches vs peak apex timing",
+      "Check PurityChrom recycling trigger settings: UV threshold, delay volume, valve switching time",
+      "Manually test recycling valve by triggering from PurityChrom control panel — listen for audible click",
+      "Check recycling tubing for kinks or blockages"
+    ],
+    "corrective_actions": [
+      "Recalibrate recycling valve delay volume using a dye standard: measure time from UV peak apex to valve switch in PurityChrom",
+      "Increase UV trigger threshold above baseline noise level (typically 10–20 mAU above baseline)",
+      "Replace recycling valve actuator if manual trigger fails",
+      "Unblock or replace recycling tubing — ensure minimum bend radius is maintained",
+      "Consider time-based fraction collection as alternative to UV-triggered recycling"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Valve does not respond to PurityChrom trigger commands — electronic or actuator failure; contact KNAUER service"
+    ],
+    "source_id": "knauer-puritychrom-user-guide",
+    "confidence_score": 0.78,
+    "evidence_strength": "moderate",
+    "updated_at": "2026-06-14T00:00:00Z"
   }
 ]

@@ -120,6 +120,15 @@ const ISSUE_KEYWORDS: Record<string, string[]> = {
   'NMR baseline distortion':          ['nmr baseline', 'baseline distort nmr', 'nmr baseline roll', 'phase distort nmr', 'nmr baseline correct', 'baseline artifact nmr'],
   'NMR low sensitivity':              ['nmr sensitivity', 'low nmr signal', 'nmr weak signal', 'nmr snr', 'nmr signal to noise', 'nmr sensitivity low'],
   'NMR probe failure':                ['nmr probe', 'probe fail nmr', 'probe damage nmr', 'nmr probe tune', 'probe arcing nmr', 'probe overload nmr'],
+
+  // ── Preparative LC (PrepLC) ──────────────────────────────────────────────
+  'PrepLC high backpressure':         ['preplc pressure', 'prep hplc pressure', 'preparative pressure', 'prep column block', 'prep pump alarm', 'prep pressure rise', 'fritted disc blocked', 'prep column clogged'],
+  'PrepLC poor peak resolution':      ['prep resolution', 'preparative resolution', 'preplc peak resolution', 'prep peak overlap', 'co-elution prep', 'prep separation poor', 'prep fraction contaminated'],
+  'PrepLC fraction contamination':    ['fraction contaminated', 'prep fraction impure', 'prep carryover', 'prep fraction purity', 'fraction crosscontam', 'prep impurity', 'preplc fraction purity'],
+  'PrepLC pump flow instability':     ['prep pump flow', 'preplc flow unstable', 'prep gradient inaccuracy', 'prep flow rate error', 'prep gradient error', 'prep binary pump', 'prep lpg instability'],
+  'PrepLC solvent recycling failure': ['solvent recycling', 'solvent recycle prep', 'prep recycling valve', 'recycle prep hplc', 'prep solvent recovery', 'recycling peak overlap'],
+  'PrepLC UV detector overload':      ['prep uv overload', 'uv detector overload prep', 'prep detector saturation', 'prep absorbance too high', 'prep detector full scale', 'prep uv saturated'],
+  'PrepLC air bubble':                ['prep air bubble', 'preplc bubble', 'air in prep pump', 'bubble prep column', 'prep degassing', 'air bubble preparative'],
   'NMR gradient failure':             ['nmr gradient', 'gradient fail nmr', 'gradient coil nmr', 'diffusion nmr fail', 'pulsed field gradient fail', 'pfg nmr fail'],
 };
 

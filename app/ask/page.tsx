@@ -4,7 +4,7 @@ import QueryForm from '@/components/QueryForm';
 
 export const metadata = {
   title: 'Ask a Question — LabPulse',
-  description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, and NMR instruments.',
+  description: 'Rule-based diagnostic assistant for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA, DSC, FPLC, PrepLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, and NMR instruments.',
 };
 
 export default async function AskPage() {

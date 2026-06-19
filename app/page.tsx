@@ -173,7 +173,7 @@ export default function HomePage() {
             {/* Text column */}
             <div>
               <span className="lab-eyebrow" style={{ display: 'block', marginBottom: '1rem' }}>
-                Instrument Diagnostics · HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR
+                Instrument Diagnostics · HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · PrepLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR
               </span>
 
               <h1 style={{
@@ -437,10 +437,10 @@ export default function HomePage() {
             Lab<span style={{ color: 'var(--color-teal-500)' }}>Pulse</span>
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.35)' }}>
-            HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR · Rule-based diagnostics
+            HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · PrepLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR · Rule-based diagnostics
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.3)' }}>
-            v3.2.0 · 26 techniques
+            v3.3.0 · 27 techniques
           </span>
         </div>
       </footer>
