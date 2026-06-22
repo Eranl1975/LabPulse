@@ -222,7 +222,7 @@ export default function HomePage() {
                 display: 'flex', flexWrap: 'wrap', gap: '.5rem',
                 marginTop: '1.75rem',
               }}>
-                {['Agilent', 'Waters', 'Thermo', 'Restek', 'Shimadzu'].map(v => (
+                {['Agilent', 'Waters', 'Thermo', 'KNAUER', 'Shimadzu', 'Restek'].map(v => (
                   <span key={v} style={{
                     padding: '.1875rem .5625rem',
                     background: 'var(--color-slate-50)',
@@ -242,7 +242,7 @@ export default function HomePage() {
                   fontSize: '.6875rem',
                   fontWeight: 600,
                   color: 'var(--color-slate-400)',
-                }}>+5 more</span>
+                }}>+24 more</span>
               </div>
             </div>
 
@@ -440,7 +440,7 @@ export default function HomePage() {
             HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · PrepLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR · Rule-based diagnostics
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.3)' }}>
-            v3.3.0 · 27 techniques
+            v3.3.1 · 27 techniques
           </span>
         </div>
       </footer>

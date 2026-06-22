@@ -61,9 +61,10 @@ export default async function AskPage() {
           }}>
             Describe the issue and your instrument details. LabPulse analyses known
             failure patterns for HPLC, UHPLC, LCMS, GC, GCMS, IC, CE, SFC, TGA,
-            DSC, FPLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM, Sputter, BET,
-            SEC-MALS, TEM, Raman, ssNMR, and NMR — powered by vendor documentation
-            and scientific literature.
+            DSC, FPLC, PrepLC, SPPS, XRD, DLS, Titration, KF, KFO, CD, SEM,
+            Sputter, BET, SEC-MALS, TEM, Raman, ssNMR, and NMR — powered by vendor
+            documentation and scientific literature. Vendors include Agilent, Waters,
+            Thermo Fisher, Shimadzu, KNAUER, and 25 more.
           </p>
 
         </div>
