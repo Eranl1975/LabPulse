@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 type Stage = 'verifying' | 'ready' | 'invalid' | 'expired';
@@ -31,7 +32,7 @@ export default function ResetPasswordPage() {
     // 1. Subscribe to auth state — fires for both PKCE (SIGNED_IN) and
     //    implicit flow (PASSWORD_RECOVERY) once Supabase processes the URL tokens.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         if (
           event === 'PASSWORD_RECOVERY' ||
           (event === 'SIGNED_IN' && session)
@@ -43,8 +44,8 @@ export default function ResetPasswordPage() {
 
     // 2. Immediate session check — handles the case where the server-side
     //    /api/auth/callback already set the session before redirecting here.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setStage('ready');
+    supabase.auth.getSession().then((res: { data: { session: Session | null }; error: unknown }) => {
+      if (res.data.session) setStage('ready');
     });
 
     // 3. Timeout — if no session within 10 s the link is expired/invalid.
