@@ -14,6 +14,7 @@ function LoginForm() {
   const params = useSearchParams();
   const redirect = params.get('redirect') ?? '/ask';
   const errorParam = params.get('error');
+  const messageParam = params.get('message');
 
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -48,6 +49,12 @@ function LoginForm() {
     <div style={CARD}>
       <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.375rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>Sign in</h1>
       <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>Access your LabPulse diagnostics</p>
+
+      {messageParam === 'password_updated' && (
+        <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '0.75rem 1rem', color: '#15803d', fontSize: '0.875rem', marginBottom: '1rem' }}>
+          Password updated successfully. Please sign in with your new password.
+        </div>
+      )}
 
       {error && (
         <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', padding: '0.75rem 1rem', color: '#b91c1c', fontSize: '0.875rem', marginBottom: '1rem' }}>
