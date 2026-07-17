@@ -22,8 +22,9 @@ function LoginForm() {
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
-    if (errorParam === 'blocked') setError('Your account has been blocked. Contact support.');
-    if (errorParam === 'locked')  setError('Account temporarily locked after too many failed attempts.');
+    if (errorParam === 'blocked')  setError('Your account has been blocked. Contact support.');
+    if (errorParam === 'locked')   setError('Account temporarily locked after too many failed attempts.');
+    if (errorParam === 'callback') setError('Something went wrong verifying your link. Please try again or request a new one.');
   }, [errorParam]);
 
   async function handleSubmit(e: React.FormEvent) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
@@ -18,8 +18,9 @@ const INPUT: React.CSSProperties = {
   outline: 'none', fontFamily: 'inherit',
 };
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [stage, setStage]       = useState<Stage>('verifying');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm]   = useState('');
@@ -28,11 +29,29 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
+    let cancelled = false;
 
-    // 1. Subscribe to auth state — fires for both PKCE (SIGNED_IN) and
+    // 1. If there's a `code` query param (direct PKCE redirect), exchange it
+    const code = searchParams.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then((result: { error: unknown }) => {
+        if (cancelled) return;
+        if (!result.error) {
+          setStage('ready');
+          // Clean URL
+          window.history.replaceState({}, '', '/reset-password');
+        } else {
+          setStage('invalid');
+        }
+      });
+      return () => { cancelled = true; };
+    }
+
+    // 2. Subscribe to auth state — fires for both PKCE (SIGNED_IN) and
     //    implicit flow (PASSWORD_RECOVERY) once Supabase processes the URL tokens.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
+        if (cancelled) return;
         if (
           event === 'PASSWORD_RECOVERY' ||
           (event === 'SIGNED_IN' && session)
@@ -42,22 +61,24 @@ export default function ResetPasswordPage() {
       }
     );
 
-    // 2. Immediate session check — handles the case where the server-side
+    // 3. Immediate session check — handles the case where the server-side
     //    /api/auth/callback already set the session before redirecting here.
     supabase.auth.getSession().then((res: { data: { session: Session | null }; error: unknown }) => {
+      if (cancelled) return;
       if (res.data.session) setStage('ready');
     });
 
-    // 3. Timeout — if no session within 10 s the link is expired/invalid.
+    // 4. Timeout — if no session within 10 s the link is expired/invalid.
     const timer = setTimeout(() => {
       setStage(prev => (prev === 'verifying' ? 'expired' : prev));
     }, 10_000);
 
     return () => {
+      cancelled = true;
       subscription.unsubscribe();
       clearTimeout(timer);
     };
-  }, []);
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,7 +120,7 @@ export default function ResetPasswordPage() {
     router.push('/login?message=password_updated');
   }
 
-  // ── Verifying ───────────────────────────────────────────────────────────────
+  // -- Verifying ---------------------------------------------------------------
   if (stage === 'verifying') {
     return (
       <div style={CARD}>
@@ -111,7 +132,7 @@ export default function ResetPasswordPage() {
             animation: 'spin .8s linear infinite',
           }} />
           <p style={{ color: '#64748b', fontSize: '0.9375rem', margin: 0 }}>
-            Verifying your reset link…
+            Verifying your reset link&hellip;
           </p>
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
         </div>
@@ -119,12 +140,12 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // ── Expired / Invalid ───────────────────────────────────────────────────────
+  // -- Expired / Invalid -------------------------------------------------------
   if (stage === 'expired' || stage === 'invalid') {
     return (
       <div style={CARD}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>⚠️</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>&#9888;&#65039;</div>
           <h2 style={{
             fontFamily: 'var(--font-display)', fontWeight: 800,
             color: '#0f172a', marginBottom: '0.5rem',
@@ -158,7 +179,7 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // ── Ready: password form ────────────────────────────────────────────────────
+  // -- Ready: password form ----------------------------------------------------
   return (
     <div style={CARD}>
       <h1 style={{
@@ -198,7 +219,7 @@ export default function ResetPasswordPage() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
             required
             autoComplete="new-password"
             style={INPUT}
@@ -221,7 +242,7 @@ export default function ResetPasswordPage() {
             type="password"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}
-            placeholder="••••••••"
+            placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
             required
             autoComplete="new-password"
             style={INPUT}
@@ -229,7 +250,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-          Minimum 8 characters · at least one uppercase letter · at least one number
+          Minimum 8 characters &middot; at least one uppercase letter &middot; at least one number
         </p>
 
         <button
@@ -244,9 +265,26 @@ export default function ResetPasswordPage() {
             opacity: loading ? 0.6 : 1, fontFamily: 'inherit',
           }}
         >
-          {loading ? 'Saving…' : 'Save new password'}
+          {loading ? 'Saving\u2026' : 'Save new password'}
         </button>
       </form>
     </div>
+  );
+}
+
+// Wrap in Suspense because useSearchParams requires it in Next.js 15
+import { Suspense } from 'react';
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div style={CARD}>
+        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+          <p style={{ color: '#64748b', fontSize: '0.9375rem', margin: 0 }}>Loading&hellip;</p>
+        </div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
