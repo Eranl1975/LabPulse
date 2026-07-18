@@ -47,6 +47,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Let API routes through — they handle their own auth
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   // Build response that will carry refreshed session cookies
   let response = NextResponse.next({ request: { headers: request.headers } });
 
