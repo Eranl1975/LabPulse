@@ -27,15 +27,26 @@ function ResetPasswordForm() {
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
-    // getSupabaseBrowserClient() creates the client with flowType:'implicit'
-    // and detectSessionInUrl:true. On first creation it auto-processes any
-    // #access_token hash fragments from the Supabase redirect and fires
-    // the PASSWORD_RECOVERY auth event.
     const supabase = getSupabaseBrowserClient();
     let cancelled = false;
 
-    // 1. Subscribe to auth state — catches PASSWORD_RECOVERY from implicit
-    //    flow hash fragments and SIGNED_IN from any existing session.
+    // Manual hash fragment parsing — @supabase/ssr may ignore implicit tokens
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+          .then(({ error }) => {
+            if (!cancelled && !error) setStage('ready');
+          });
+        // Clear hash from URL
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+
+    // Subscribe to auth state — catches PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
         if (cancelled) return;
@@ -48,14 +59,13 @@ function ResetPasswordForm() {
       }
     );
 
-    // 2. Immediate session check — handles edge case where session is
-    //    already established before the listener is attached.
+    // Immediate session check as fallback
     supabase.auth.getSession().then((res: { data: { session: Session | null }; error: unknown }) => {
       if (cancelled) return;
       if (res.data.session) setStage('ready');
     });
 
-    // 3. Timeout — if no session within 10 s the link is expired/invalid.
+    // Timeout — if no session within 10 s the link is expired/invalid.
     const timer = setTimeout(() => {
       setStage(prev => (prev === 'verifying' ? 'expired' : prev));
     }, 10_000);

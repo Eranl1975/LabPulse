@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 const CARD: React.CSSProperties = { background: '#fff', borderRadius: '16px', padding: '2rem', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' };
 const INPUT: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '0.75rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '1rem', outline: 'none', fontFamily: 'inherit' };
@@ -18,12 +17,25 @@ export default function ForgotPasswordPage() {
     if (!email.trim()) { setError('Email is required.'); return; }
     setLoading(true);
     setError(null);
-    const supabase = getSupabaseBrowserClient();
-    const { error: authError } = await supabase.auth.resetPasswordForEmail(
-      email.trim().toLowerCase(),
-      { redirectTo: `${window.location.origin}/reset-password` }
-    );
-    if (authError) { setError(authError.message ?? 'Failed to send reset email.'); setLoading(false); return; }
+
+    try {
+      const res = await fetch('/api/auth/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? 'Failed to send reset email.');
+        setLoading(false);
+        return;
+      }
+    } catch {
+      setError('Network error. Please try again.');
+      setLoading(false);
+      return;
+    }
+
     setSent(true);
     setLoading(false);
   }
