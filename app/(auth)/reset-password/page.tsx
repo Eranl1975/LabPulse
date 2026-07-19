@@ -38,8 +38,8 @@ function ResetPasswordForm() {
       const refreshToken = params.get('refresh_token');
       if (accessToken && refreshToken) {
         supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-          .then(({ error }) => {
-            if (!cancelled && !error) setStage('ready');
+          .then(({ error: sessError }: { error: unknown }) => {
+            if (!cancelled && !sessError) setStage('ready');
           });
         // Clear hash from URL
         window.history.replaceState(null, '', window.location.pathname);
