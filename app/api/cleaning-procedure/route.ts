@@ -100,31 +100,37 @@ export async function POST(req: NextRequest) {
       const { createSupabaseServerClient } = await import('@/lib/supabase-server');
       const supabase = await createSupabaseServerClient();
 
-      await supabase.from('cleaning_procedures').upsert(
-        {
-          technique,
-          manufacturer:       vendor,
-          model:              model,
-          instrument_type:    technique,
-          procedure_json:     content,
-          source_type:        content.source_type,
-          source_url:         content.source_url,
-          source_title:       content.source_title,
-          what_not_to_do:     content.what_not_to_do,
-          materials:          content.materials_needed.map(m => m.name),
-          cleaning_frequency: content.cleaning_frequency.routine,
-          ai_model_used:      modelUsed,
-          ai_confidence:      content.confidence,
-          retrieval_date:     new Date().toISOString(),
-          validation_status:  'unverified',
-          expires_at:         new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at:         new Date().toISOString(),
-        },
-        {
-          onConflict: 'technique,coalesce(manufacturer,\'__generic__\'),coalesce(model,\'__generic__\')',
-          ignoreDuplicates: false,
-        },
-      );
+      // Delete existing cache entry (expression-based unique index can't be used with JS upsert)
+      let deleteQuery = supabase
+        .from('cleaning_procedures')
+        .delete()
+        .eq('technique', technique);
+      if (vendor) { deleteQuery = deleteQuery.eq('manufacturer', vendor); }
+      else        { deleteQuery = deleteQuery.is('manufacturer', null); }
+      if (model)  { deleteQuery = deleteQuery.eq('model', model); }
+      else        { deleteQuery = deleteQuery.is('model', null); }
+      await deleteQuery;
+
+      // Insert new cache entry
+      await supabase.from('cleaning_procedures').insert({
+        technique,
+        manufacturer:       vendor,
+        model:              model,
+        instrument_type:    technique,
+        procedure_json:     content,
+        source_type:        content.source_type,
+        source_url:         content.source_url,
+        source_title:       content.source_title,
+        what_not_to_do:     content.what_not_to_do,
+        materials:          content.materials_needed.map(m => m.name),
+        cleaning_frequency: content.cleaning_frequency.routine,
+        ai_model_used:      modelUsed,
+        ai_confidence:      content.confidence,
+        retrieval_date:     new Date().toISOString(),
+        validation_status:  'unverified',
+        expires_at:         new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at:         new Date().toISOString(),
+      });
     } catch (err) {
       // Cache upsert failure is non-fatal — return the AI result anyway
       console.error('[cleaning-procedure] cache upsert error:', err);

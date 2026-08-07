@@ -106,10 +106,31 @@ async function callModel(
 
   let parsed: Partial<CleaningProcedureContent> = {};
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON object found in response');
-    parsed = JSON.parse(jsonMatch[0]);
-  } catch {
+    // Strip markdown code fences if present
+    let cleaned = text.replace(/^```(?:json)?\s*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+
+    // Find the outermost balanced JSON object
+    const startIdx = cleaned.indexOf('{');
+    if (startIdx === -1) throw new Error('No JSON object found in response');
+
+    let depth = 0;
+    let endIdx = -1;
+    let inString = false;
+    let escape = false;
+    for (let i = startIdx; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+      if (escape) { escape = false; continue; }
+      if (ch === '\\' && inString) { escape = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === '{') depth++;
+      else if (ch === '}') { depth--; if (depth === 0) { endIdx = i; break; } }
+    }
+
+    if (endIdx === -1) throw new Error('Unbalanced JSON in response');
+    parsed = JSON.parse(cleaned.slice(startIdx, endIdx + 1));
+  } catch (parseErr) {
+    console.error('[ai-cleaning] JSON parse error:', parseErr, 'Raw text (first 500 chars):', text.slice(0, 500));
     parsed = {
       confidence: 0.3,
       confidence_note: 'AI response could not be parsed. Please try again.',
