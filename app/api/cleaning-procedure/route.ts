@@ -10,6 +10,9 @@ const VALID_TECHNIQUES = new Set<Technique>([
   'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC',
 ]);
 
+// Allow up to 60 seconds for Claude API call (default Vercel timeout is 10s)
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   // Require authentication (same pattern as /api/query)
   const user = await getUser();
@@ -145,9 +148,10 @@ export async function POST(req: NextRequest) {
     };
     return NextResponse.json(response);
   } catch (err) {
-    console.error('[cleaning-procedure] AI generation error:', err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error('[cleaning-procedure] AI generation error:', errMsg);
     return NextResponse.json(
-      { error: 'Unable to generate cleaning procedure. Please try again.' },
+      { error: `Unable to generate cleaning procedure: ${errMsg}` },
       { status: 500 },
     );
   }

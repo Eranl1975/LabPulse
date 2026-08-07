@@ -1,7 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { CleaningProcedureContent } from './cleaning-types';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Lazy client — avoid instantiation at module load when env var may be missing
+let _client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!_client) {
+    _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return _client;
+}
 
 const SYSTEM_PROMPT = `You are an expert analytical instrument maintenance specialist with deep knowledge of cleaning procedures for all major laboratory instruments.
 
@@ -59,7 +66,9 @@ CRITICAL RULES:
 5. The "what_not_to_do" section must contain 3-8 instrument-specific warnings.
    - These must be real, meaningful hazards — not generic filler.
 
-Return ONLY a raw JSON object matching this exact schema:
+Return ONLY a raw JSON object — no markdown code fences, no explanation before or after, JUST the JSON object starting with { and ending with }.
+
+Schema:
 
 {
   "instrument": string,
@@ -71,9 +80,9 @@ Return ONLY a raw JSON object matching this exact schema:
   "source_title": string | null,
   "confidence": number,
   "confidence_note": string,
-  "materials_needed": [{ "name": string, "specification": string?, "purpose": string }],
+  "materials_needed": [{ "name": string, "specification": string or null, "purpose": string }],
   "before_cleaning": [string],
-  "cleaning_steps": [{ "step_number": number, "title": string, "description": string, "duration": string?, "warnings": [string]? }],
+  "cleaning_steps": [{ "step_number": number, "title": string, "description": string, "duration": string or null, "warnings": [string] or null }],
   "after_cleaning": [string],
   "what_not_to_do": [string],
   "cleaning_frequency": { "routine": string, "after_contamination": string, "preventive": string },
@@ -86,14 +95,14 @@ source_label values:
 - "Manufacturer Documentation - Procedure Extracted or Summarized" for manufacturer_documentation
 - "AI-Generated Cleaning Procedure" for ai_generated`;
 
-const OPUS_ESCALATION_THRESHOLD = 0.5;
-
 async function callModel(
-  model: string,
+  modelId: string,
   userMessage: string,
 ): Promise<{ parsed: Partial<CleaningProcedureContent>; modelUsed: string }> {
-  const message = await client.messages.create({
-    model,
+  console.log(`[ai-cleaning] Calling ${modelId}...`);
+
+  const message = await getClient().messages.create({
+    model: modelId,
     max_tokens: 4096,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
@@ -104,10 +113,15 @@ async function callModel(
     .map(b => (b as { type: 'text'; text: string }).text)
     .join('');
 
+  console.log(`[ai-cleaning] ${modelId} responded, length=${text.length}`);
+
   let parsed: Partial<CleaningProcedureContent> = {};
   try {
     // Strip markdown code fences if present
-    let cleaned = text.replace(/^```(?:json)?\s*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+    const cleaned = text
+      .replace(/^```(?:json)?\s*\n?/gm, '')
+      .replace(/\n?```\s*$/gm, '')
+      .trim();
 
     // Find the outermost balanced JSON object
     const startIdx = cleaned.indexOf('{');
@@ -129,8 +143,10 @@ async function callModel(
 
     if (endIdx === -1) throw new Error('Unbalanced JSON in response');
     parsed = JSON.parse(cleaned.slice(startIdx, endIdx + 1));
+    console.log(`[ai-cleaning] Parsed OK, source_type=${parsed.source_type}, confidence=${parsed.confidence}`);
   } catch (parseErr) {
-    console.error('[ai-cleaning] JSON parse error:', parseErr, 'Raw text (first 500 chars):', text.slice(0, 500));
+    console.error('[ai-cleaning] JSON parse error:', parseErr);
+    console.error('[ai-cleaning] Raw response (first 800 chars):', text.slice(0, 800));
     parsed = {
       confidence: 0.3,
       confidence_note: 'AI response could not be parsed. Please try again.',
@@ -138,7 +154,7 @@ async function callModel(
     };
   }
 
-  return { parsed, modelUsed: model };
+  return { parsed, modelUsed: modelId };
 }
 
 export async function generateCleaningProcedure(
@@ -159,19 +175,8 @@ export async function generateCleaningProcedure(
 
   const userMessage = lines.join('\n');
 
-  // Default: Sonnet (fast, cost-efficient)
-  let { parsed, modelUsed } = await callModel('claude-sonnet-4-6', userMessage);
-
-  // Escalate to Opus if confidence is low
-  const sonnetConfidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0.5;
-  if (sonnetConfidence < OPUS_ESCALATION_THRESHOLD) {
-    const opusResult = await callModel('claude-opus-4-6', userMessage);
-    const opusConfidence = typeof opusResult.parsed.confidence === 'number' ? opusResult.parsed.confidence : 0.5;
-    if (opusConfidence >= sonnetConfidence) {
-      parsed = opusResult.parsed;
-      modelUsed = opusResult.modelUsed;
-    }
-  }
+  // Use Sonnet only (no Opus escalation — avoids doubling the request time)
+  const { parsed, modelUsed } = await callModel('claude-sonnet-4-6', userMessage);
 
   const arr = (v: unknown): string[] =>
     Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === 'string') : [];
