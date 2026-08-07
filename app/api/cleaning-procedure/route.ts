@@ -11,7 +11,7 @@ const VALID_TECHNIQUES = new Set<Technique>([
 ]);
 
 // Allow up to 60 seconds for Claude API call (default Vercel timeout is 10s)
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   // Require authentication (same pattern as /api/query)

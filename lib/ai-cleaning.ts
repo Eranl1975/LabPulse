@@ -66,6 +66,15 @@ CRITICAL RULES:
 5. The "what_not_to_do" section must contain 3-8 instrument-specific warnings.
    - These must be real, meaningful hazards — not generic filler.
 
+CONCISENESS RULES:
+- Keep each step description to 1-3 sentences maximum.
+- Limit cleaning_steps to 8-12 steps.
+- Keep materials_needed to 6-10 items.
+- Keep what_not_to_do to 3-6 items.
+- Keep safety_warnings to 3-5 items.
+- Keep notes to 2-4 items.
+- Total JSON response MUST be under 5000 characters.
+
 Return ONLY a raw JSON object — no markdown code fences, no explanation before or after, JUST the JSON object starting with { and ending with }.
 
 Schema:
@@ -103,7 +112,7 @@ async function callModel(
 
   const message = await getClient().messages.create({
     model: modelId,
-    max_tokens: 4096,
+    max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
   });
@@ -113,7 +122,12 @@ async function callModel(
     .map(b => (b as { type: 'text'; text: string }).text)
     .join('');
 
-  console.log(`[ai-cleaning] ${modelId} responded, length=${text.length}`);
+  console.log(`[ai-cleaning] ${modelId} responded, length=${text.length}, stop_reason=${message.stop_reason}`);
+
+  // Detect truncated response
+  if (message.stop_reason === 'max_tokens') {
+    console.warn(`[ai-cleaning] WARNING: Response was truncated at max_tokens. Length=${text.length}`);
+  }
 
   let parsed: Partial<CleaningProcedureContent> = {};
   try {
