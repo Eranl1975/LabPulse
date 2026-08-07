@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${request.headers.get('host')}`;
   const { error: resetError } = await supabase.auth.resetPasswordForEmail(body.email, {
-    redirectTo: `${siteUrl}/api/auth/callback?next=/reset-password`,
+    redirectTo: `${siteUrl}/reset-password`,
   });
   if (resetError) return NextResponse.json({ error: resetError.message }, { status: 500 });
 

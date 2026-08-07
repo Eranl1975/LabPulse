@@ -4,6 +4,7 @@ import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/NavBar';
 import { Analytics } from '@vercel/analytics/next';
+import AuthRedirect from '@/components/AuthRedirect';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}>
       <body>
+        <AuthRedirect />
         <NavBar />
         <div style={{ paddingTop: '64px' }}>{children}</div>
         <Analytics />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
@@ -20,7 +20,6 @@ const INPUT: React.CSSProperties = {
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [stage, setStage]       = useState<Stage>('verifying');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm]   = useState('');
@@ -31,24 +30,23 @@ function ResetPasswordForm() {
     const supabase = getSupabaseBrowserClient();
     let cancelled = false;
 
-    // 1. If there's a `code` query param (direct PKCE redirect), exchange it
-    const code = searchParams.get('code');
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then((result: { error: unknown }) => {
-        if (cancelled) return;
-        if (!result.error) {
-          setStage('ready');
-          // Clean URL
-          window.history.replaceState({}, '', '/reset-password');
-        } else {
-          setStage('invalid');
-        }
-      });
-      return () => { cancelled = true; };
+    // Manual hash fragment parsing — @supabase/ssr may ignore implicit tokens
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+          .then(({ error: sessError }: { error: unknown }) => {
+            if (!cancelled && !sessError) setStage('ready');
+          });
+        // Clear hash from URL
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     }
 
-    // 2. Subscribe to auth state — fires for both PKCE (SIGNED_IN) and
-    //    implicit flow (PASSWORD_RECOVERY) once Supabase processes the URL tokens.
+    // Subscribe to auth state — catches PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
         if (cancelled) return;
@@ -61,14 +59,13 @@ function ResetPasswordForm() {
       }
     );
 
-    // 3. Immediate session check — handles the case where the server-side
-    //    /api/auth/callback already set the session before redirecting here.
+    // Immediate session check as fallback
     supabase.auth.getSession().then((res: { data: { session: Session | null }; error: unknown }) => {
       if (cancelled) return;
       if (res.data.session) setStage('ready');
     });
 
-    // 4. Timeout — if no session within 10 s the link is expired/invalid.
+    // Timeout — if no session within 10 s the link is expired/invalid.
     const timer = setTimeout(() => {
       setStage(prev => (prev === 'verifying' ? 'expired' : prev));
     }, 10_000);
@@ -78,7 +75,7 @@ function ResetPasswordForm() {
       subscription.unsubscribe();
       clearTimeout(timer);
     };
-  }, [searchParams]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -272,19 +269,6 @@ function ResetPasswordForm() {
   );
 }
 
-// Wrap in Suspense because useSearchParams requires it in Next.js 15
-import { Suspense } from 'react';
-
 export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={
-      <div style={CARD}>
-        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-          <p style={{ color: '#64748b', fontSize: '0.9375rem', margin: 0 }}>Loading&hellip;</p>
-        </div>
-      </div>
-    }>
-      <ResetPasswordForm />
-    </Suspense>
-  );
+  return <ResetPasswordForm />;
 }

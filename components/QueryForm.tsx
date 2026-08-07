@@ -8,6 +8,7 @@ import ReportModal from './ReportModal';
 import ModeSwitcher, { type DisplayMode } from './ModeSwitcher';
 import AnswerDisplay from './AnswerDisplay';
 import ComboInput from './ComboInput';
+import CleaningProcedureButton from './CleaningProcedureButton';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
@@ -638,6 +639,17 @@ export default function QueryForm() {
               />
             </Field>
           </div>
+
+          {/* Cleaning Procedure — visible when technique is selected */}
+          {technique.trim() && (
+            <div style={{ marginTop: '0.75rem' }}>
+              <CleaningProcedureButton
+                technique={technique}
+                vendor={vendor}
+                model={model}
+              />
+            </div>
+          )}
         </div>
 
         {/* ── Step 2: Problem ───────────────────────────────────────────── */}
