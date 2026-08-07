@@ -110,12 +110,23 @@ async function callModel(
 ): Promise<{ parsed: Partial<CleaningProcedureContent>; modelUsed: string }> {
   console.log(`[ai-cleaning] Calling ${modelId}...`);
 
-  const message = await getClient().messages.create({
-    model: modelId,
-    max_tokens: 8192,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userMessage }],
-  });
+  let message;
+  try {
+    message = await getClient().messages.create({
+      model: modelId,
+      max_tokens: 8192,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+  } catch (apiErr: unknown) {
+    const errMsg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+    console.error(`[ai-cleaning] API call failed: ${errMsg}`);
+    // Re-throw with a clearer message for billing/auth issues
+    if (errMsg.includes('credit balance') || errMsg.includes('billing')) {
+      throw new Error('Anthropic API credits exhausted. Please add credits at console.anthropic.com.');
+    }
+    throw apiErr;
+  }
 
   const text = message.content
     .filter(b => b.type === 'text')
@@ -161,11 +172,7 @@ async function callModel(
   } catch (parseErr) {
     console.error('[ai-cleaning] JSON parse error:', parseErr);
     console.error('[ai-cleaning] Raw response (first 800 chars):', text.slice(0, 800));
-    parsed = {
-      confidence: 0.3,
-      confidence_note: 'AI response could not be parsed. Please try again.',
-      notes: ['The cleaning procedure could not be generated. Please retry or consult the manufacturer manual directly.'],
-    };
+    throw new Error('AI response could not be parsed as valid JSON. Please try again.');
   }
 
   return { parsed, modelUsed: modelId };
