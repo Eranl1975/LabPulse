@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/NavBar';
+import { Analytics } from '@vercel/analytics/next';
 import AuthRedirect from '@/components/AuthRedirect';
 
 const syne = Syne({
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthRedirect />
         <NavBar />
         <div style={{ paddingTop: '64px' }}>{children}</div>
+        <Analytics />
       </body>
     </html>
   );
