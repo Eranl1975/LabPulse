@@ -1,0 +1,1604 @@
+[
+  {
+    "technique": "HPLC",
+    "instrument": "High Performance Liquid Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on established HPLC maintenance best practices from major manufacturers (Agilent, Waters, Shimadzu).",
+    "materials_needed": [
+      {"name": "HPLC-grade isopropanol", "specification": "≥99.9%", "purpose": "Flushing solvent lines and pump heads"},
+      {"name": "HPLC-grade methanol", "specification": "≥99.9%", "purpose": "General system flush"},
+      {"name": "HPLC-grade water", "specification": "18.2 MΩ·cm", "purpose": "Aqueous flush"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning external surfaces and spills"},
+      {"name": "0.2 µm inline filter frits", "specification": null, "purpose": "Replacing worn inlet filters"},
+      {"name": "Needle wash solution", "specification": "50:50 MeOH:H₂O", "purpose": "Autosampler needle cleaning"}
+    ],
+    "before_cleaning": [
+      "Allow system to finish any running sequence and return to idle state.",
+      "Reduce flow rate to 0 mL/min and turn off column oven.",
+      "Remove the analytical column and replace with a union or restriction capillary.",
+      "Note the current method parameters for restoration after cleaning."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush with water", "description": "Pump 100% HPLC-grade water through the system at 0.5 mL/min for 15 minutes to remove buffer salts.", "duration": "15 min", "warnings": null},
+      {"step_number": 2, "title": "Flush with methanol", "description": "Switch to 100% methanol and flush at 0.5 mL/min for 15 minutes.", "duration": "15 min", "warnings": null},
+      {"step_number": 3, "title": "Flush with isopropanol", "description": "Switch to 100% isopropanol and flush at 0.3 mL/min for 10 minutes to remove hydrophobic contaminants.", "duration": "10 min", "warnings": ["Reduce flow rate for IPA due to higher viscosity."]},
+      {"step_number": 4, "title": "Clean autosampler needle", "description": "Run the needle wash cycle 3–5 times with 50:50 MeOH:H₂O. Inspect needle for bends or burrs.", "duration": "5 min", "warnings": null},
+      {"step_number": 5, "title": "Inspect and replace inlet frits", "description": "Check solvent inlet frits for discoloration or blockage. Replace if flow is restricted.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Clean detector flow cell", "description": "Flush the UV/DAD flow cell with methanol for 10 minutes. For stubborn contamination, use 1N NaOH (avoid with certain cell types).", "duration": "10 min", "warnings": ["Do not use NaOH on stainless steel flow cells without checking manufacturer compatibility."]},
+      {"step_number": 7, "title": "Purge and degas", "description": "Purge all solvent lines and run the degasser for at least 5 minutes with the final mobile phase.", "duration": "5 min", "warnings": null},
+      {"step_number": 8, "title": "Restore system", "description": "Reconnect the column, set flow to operating conditions, and equilibrate for 20–30 minutes before running samples.", "duration": "25 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a blank injection to verify baseline stability.",
+      "Check for leaks at all fittings.",
+      "Verify retention time and peak shape with a system suitability standard.",
+      "Log cleaning date and activities in the instrument logbook."
+    ],
+    "what_not_to_do": [
+      "Never run buffers through the system without flushing with water first — salt precipitation will block capillaries.",
+      "Do not use acetone in PEEK-based systems — it can swell and damage PEEK tubing and fittings.",
+      "Never exceed the column's maximum pressure rating during flushing.",
+      "Do not leave the system filled with pure water for extended periods — microbial growth will occur.",
+      "Never use abrasive materials to clean the autosampler needle."
+    ],
+    "cleaning_frequency": {
+      "routine": "Flush with organic solvent at end of each day. Full system cleaning weekly or after 500 injections.",
+      "after_contamination": "Immediately flush with appropriate solvent series (water → methanol → IPA → methanol → mobile phase).",
+      "preventive": "Replace inlet frits monthly. Replace pump seals every 6–12 months or per manufacturer schedule."
+    },
+    "safety_warnings": [
+      "Wear nitrile gloves and safety glasses when handling organic solvents.",
+      "Ensure adequate ventilation — methanol and IPA vapors are flammable.",
+      "Dispose of waste solvents in designated waste containers according to local regulations.",
+      "Allow the column oven to cool before handling."
+    ],
+    "notes": [
+      "If using phosphate buffers, always flush with water before switching to organic solvents.",
+      "For reversed-phase systems, the flush sequence is: water → methanol → IPA → methanol → mobile phase."
+    ]
+  },
+  {
+    "technique": "UHPLC",
+    "instrument": "Ultra High Performance Liquid Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.78,
+    "confidence_note": "Based on UHPLC maintenance practices from Agilent 1290, Waters ACQUITY, and Thermo Vanquish documentation.",
+    "materials_needed": [
+      {"name": "UHPLC-grade methanol", "specification": "≥99.9%, filtered 0.1 µm", "purpose": "System flush"},
+      {"name": "UHPLC-grade water", "specification": "18.2 MΩ·cm, filtered", "purpose": "Salt removal flush"},
+      {"name": "UHPLC-grade isopropanol", "specification": "≥99.9%", "purpose": "Hydrophobic contaminant removal"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External surface cleaning"},
+      {"name": "0.2 µm stainless steel frits", "specification": null, "purpose": "Inlet frit replacement"},
+      {"name": "Needle wash solution", "specification": "50:50 MeOH:H₂O", "purpose": "Autosampler needle wash"}
+    ],
+    "before_cleaning": [
+      "Complete any running sequence and return system to standby.",
+      "Reduce flow to 0 mL/min and turn off column thermostat.",
+      "Remove the UHPLC column — replace with a zero-dead-volume union.",
+      "Record current method parameters."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Low-pressure water flush", "description": "Flush with UHPLC-grade water at 0.3 mL/min for 15 minutes to remove all buffer salts.", "duration": "15 min", "warnings": ["Use low flow rate to avoid pressure spikes without column."]},
+      {"step_number": 2, "title": "Methanol flush", "description": "Switch to 100% methanol at 0.3 mL/min for 15 minutes.", "duration": "15 min", "warnings": null},
+      {"step_number": 3, "title": "IPA flush", "description": "Flush with isopropanol at 0.2 mL/min for 10 minutes for deep cleaning.", "duration": "10 min", "warnings": ["Use reduced flow — IPA viscosity generates high backpressure in UHPLC systems."]},
+      {"step_number": 4, "title": "Clean injection system", "description": "Run automated needle wash cycles. Inspect needle seat and rotor seal for wear.", "duration": "5 min", "warnings": null},
+      {"step_number": 5, "title": "Inspect inline filters", "description": "Check and replace 0.2 µm inline filters if pressure has increased above baseline.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Flush detector cell", "description": "Flush UV/DAD cell with methanol for 10 minutes at low flow.", "duration": "10 min", "warnings": null},
+      {"step_number": 7, "title": "Return to mobile phase", "description": "Flush back through methanol to water (if aqueous method) or directly to mobile phase composition.", "duration": "10 min", "warnings": null},
+      {"step_number": 8, "title": "Reconnect column and equilibrate", "description": "Install column, ramp flow to operating rate, equilibrate for 30 minutes.", "duration": "30 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a blank gradient to verify baseline and pressure stability.",
+      "Check all fittings for leaks — UHPLC pressures amplify small leaks.",
+      "Run system suitability test with a reference standard.",
+      "Record cleaning in instrument logbook."
+    ],
+    "what_not_to_do": [
+      "Never use unfiltered solvents — particulates will instantly block sub-2 µm column frits.",
+      "Do not exceed 0.3 mL/min when flushing without a column — overpressure may damage the detector cell.",
+      "Never switch directly from high-salt buffers to high-organic without an intermediate water flush.",
+      "Do not use acetone in systems with PEEK components.",
+      "Never overtighten UHPLC fittings — finger-tight plus 1/4 turn maximum."
+    ],
+    "cleaning_frequency": {
+      "routine": "Daily flush at end of run sequence. Full cleaning weekly.",
+      "after_contamination": "Immediate flush sequence: water → MeOH → IPA → MeOH → mobile phase.",
+      "preventive": "Replace needle seal and rotor seal every 3–6 months. Replace inlet frits monthly."
+    },
+    "safety_warnings": [
+      "UHPLC systems operate at very high pressures (up to 1300 bar). Never open fittings while pressurized.",
+      "Wear gloves and safety glasses when handling solvents.",
+      "Ensure waste lines are properly routed to waste containers."
+    ],
+    "notes": [
+      "UHPLC systems are more sensitive to particulates than standard HPLC — always use pre-filtered solvents.",
+      "Keep a log of system pressure readings to detect gradual blockage trends."
+    ]
+  },
+  {
+    "technique": "LCMS",
+    "instrument": "Liquid Chromatograph Mass Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.82,
+    "confidence_note": "Based on LCMS maintenance practices from Agilent 6100/6400 series, Waters Xevo/QDa, and Thermo ISQ/TSQ documentation.",
+    "materials_needed": [
+      {"name": "LC-MS grade methanol", "specification": "≥99.9%, LC-MS grade", "purpose": "LC and source flushing"},
+      {"name": "LC-MS grade water", "specification": "18.2 MΩ·cm", "purpose": "Salt removal"},
+      {"name": "LC-MS grade isopropanol", "specification": null, "purpose": "Source cleaning solvent"},
+      {"name": "Lint-free cleanroom wipes", "specification": null, "purpose": "Cleaning ESI source components"},
+      {"name": "Cotton swabs", "specification": "Non-shedding", "purpose": "Cleaning spray shield and cone"},
+      {"name": "Sonication bath", "specification": null, "purpose": "Sonicating source components"},
+      {"name": "50:50 MeOH:H₂O with 0.1% formic acid", "specification": null, "purpose": "Calibrant / tuning solution flush"}
+    ],
+    "before_cleaning": [
+      "Allow the MS source to cool completely (wait at least 30 minutes after turning off).",
+      "Vent the MS vacuum system following the manufacturer's vent procedure.",
+      "Set the LC to standby with 0 mL/min flow.",
+      "Wear nitrile gloves — skin oils contaminate MS source components."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush LC system", "description": "Flush the LC with water for 15 min, then methanol for 15 min (same as HPLC cleaning).", "duration": "30 min", "warnings": null},
+      {"step_number": 2, "title": "Remove ESI source components", "description": "Remove spray shield (cone), sampling cone / capillary cap, and ion transfer capillary according to manufacturer instructions.", "duration": "5 min", "warnings": ["Handle components with gloved hands only. Note orientation for reassembly."]},
+      {"step_number": 3, "title": "Sonicate source parts", "description": "Place removable metal parts in 50:50 MeOH:H₂O and sonicate for 10–15 minutes.", "duration": "15 min", "warnings": ["Do not sonicate plastic or PEEK parts."]},
+      {"step_number": 4, "title": "Wipe source housing", "description": "Wipe the interior of the source housing with lint-free wipes dampened with IPA. Remove visible deposits.", "duration": "10 min", "warnings": ["Do not spray solvent directly into the MS vacuum inlet."]},
+      {"step_number": 5, "title": "Clean ion transfer capillary", "description": "If removable, soak in IPA or sonicate. If fixed, flush with IPA using a syringe. Let dry completely.", "duration": "10 min", "warnings": ["Ensure capillary is completely dry before reinstalling."]},
+      {"step_number": 6, "title": "Reassemble source", "description": "Reinstall all components in reverse order. Ensure proper alignment and seating.", "duration": "5 min", "warnings": null},
+      {"step_number": 7, "title": "Pump down and stabilize", "description": "Close the source door, allow the vacuum to pump down to operating pressure. Wait for stable vacuum readings.", "duration": "20-30 min", "warnings": null},
+      {"step_number": 8, "title": "Verify performance", "description": "Run an autotune or system check with calibrant solution. Verify signal intensity meets specifications.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Compare autotune results to previous values — sensitivity should be restored.",
+      "Run a system suitability injection to verify chromatographic and MS performance.",
+      "Check for leaks at all LC and MS connections.",
+      "Log cleaning date, components cleaned, and tune results."
+    ],
+    "what_not_to_do": [
+      "Never use non-LC-MS grade solvents — additives cause ion suppression and contaminate the source.",
+      "Never touch source components with bare hands — fingerprint oils cause persistent background ions.",
+      "Do not use abrasive materials on any MS source surface.",
+      "Never spray solvent directly into the vacuum inlet or mass analyzer.",
+      "Do not operate the MS with a dirty source — it will contaminate deeper (harder to clean) components."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean ESI source every 1–2 weeks or when sensitivity drops >30%.",
+      "after_contamination": "Immediately clean source and flush LC if non-volatile buffers or detergents were accidentally introduced.",
+      "preventive": "Monthly source inspection. Replace ESI needle/capillary per manufacturer schedule (typically every 6 months)."
+    },
+    "safety_warnings": [
+      "Allow source to cool completely before handling — temperatures can exceed 300°C.",
+      "The MS vacuum system contains high voltage — never open covers beyond the source area.",
+      "Use proper PPE: nitrile gloves, safety glasses, lab coat.",
+      "Some MS systems use radioactive ion sources — check your specific instrument."
+    ],
+    "notes": [
+      "Keep a 'tune history' log to track sensitivity trends — gradual decline indicates source contamination.",
+      "For APCI or APPI sources, cleaning procedures differ — consult the specific source manual."
+    ]
+  },
+  {
+    "technique": "GC",
+    "instrument": "Gas Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.82,
+    "confidence_note": "Based on GC maintenance practices from Agilent 7890/8890, Shimadzu GC-2030, and Thermo TRACE series documentation.",
+    "materials_needed": [
+      {"name": "GC-grade methanol", "specification": "≥99.9%", "purpose": "Cleaning inlet liner and syringe"},
+      {"name": "GC-grade hexane or dichloromethane", "specification": null, "purpose": "Deactivation residue removal"},
+      {"name": "Deactivated inlet liners", "specification": "Match your injection mode (split/splitless)", "purpose": "Liner replacement"},
+      {"name": "Inlet septum", "specification": "Low-bleed, correct diameter", "purpose": "Septum replacement"},
+      {"name": "Ceramic column cutter", "specification": null, "purpose": "Trimming column inlet end"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning external surfaces"},
+      {"name": "Ferrules", "specification": "Correct ID for column", "purpose": "Replacing worn ferrules"}
+    ],
+    "before_cleaning": [
+      "Cool the inlet and oven to room temperature.",
+      "Turn off carrier gas flow and detector gases (H₂, air).",
+      "Allow FID or other detector to cool completely.",
+      "Remove the analytical column from the inlet (note insertion depth)."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Replace inlet septum", "description": "Remove the old septum and install a new low-bleed septum. Ensure proper seating.", "duration": "2 min", "warnings": null},
+      {"step_number": 2, "title": "Remove and clean/replace inlet liner", "description": "Remove the liner. For reusable liners, sonicate in methanol for 15 min, then bake at 250°C. Or install a new deactivated liner.", "duration": "20 min", "warnings": ["Always use deactivated liners — active surfaces cause peak tailing for polar compounds."]},
+      {"step_number": 3, "title": "Clean inlet body", "description": "With liner removed, use a lint-free swab dampened with methanol to clean the inlet body interior.", "duration": "5 min", "warnings": ["Never use metal tools that could scratch the inlet bore."]},
+      {"step_number": 4, "title": "Trim column end", "description": "Using a ceramic cutter, trim 5–10 cm from the column inlet end to remove any contaminated or damaged stationary phase.", "duration": "3 min", "warnings": ["Always score and snap — never use scissors or metal blades on fused silica."]},
+      {"step_number": 5, "title": "Reinstall column", "description": "Insert column into inlet at the correct depth (per manufacturer specs), tighten ferrule, restore carrier gas flow, and leak-check.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Clean FID jet and collector", "description": "If FID sensitivity has decreased, remove and sonicate the jet in methanol. Clean collector with a soft brush.", "duration": "15 min", "warnings": ["The FID jet is fragile — handle carefully."]},
+      {"step_number": 7, "title": "Bake out column", "description": "Heat the column 20°C above normal operating temperature (but below max column temp) for 30–60 min with carrier gas flowing.", "duration": "60 min", "warnings": ["Do not exceed the column's maximum temperature rating."]},
+      {"step_number": 8, "title": "Verify performance", "description": "Run a blank injection to check baseline. Then run a test mix to verify peak shape and retention times.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Leak-check all connections with an electronic leak detector or soap solution.",
+      "Verify baseline stability and absence of ghost peaks with blank runs.",
+      "Run a system suitability standard.",
+      "Record maintenance in the instrument logbook."
+    ],
+    "what_not_to_do": [
+      "Never use ungloved hands to handle liners, columns, or ferrules — skin oils cause ghost peaks.",
+      "Do not use metal tools inside the inlet bore — scratches create active sites.",
+      "Never exceed the column's maximum temperature during bakeout.",
+      "Do not forget to turn off hydrogen gas before opening the FID.",
+      "Never cut fused silica columns with metal blades — use ceramic cutters only."
+    ],
+    "cleaning_frequency": {
+      "routine": "Replace septum every 50–100 injections. Replace liner every 100–200 injections or when active-compound tailing appears.",
+      "after_contamination": "Trim column end, replace liner and septum, bake out column.",
+      "preventive": "Replace O-ring and gold seal annually. Clean FID jet every 6 months."
+    },
+    "safety_warnings": [
+      "GC inlets operate at high temperatures (up to 400°C) — allow complete cooling before maintenance.",
+      "Hydrogen carrier gas is explosive — turn off H₂ and verify no leaks before any maintenance.",
+      "Fused silica column fragments are sharp — handle with care and dispose properly.",
+      "Ensure adequate ventilation when using hexane or dichloromethane."
+    ],
+    "notes": [
+      "Keep a septum and liner replacement log to track injection count vs. maintenance intervals.",
+      "If ghost peaks persist after cleaning, the column may need replacement."
+    ]
+  },
+  {
+    "technique": "GCMS",
+    "instrument": "Gas Chromatograph Mass Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on GCMS maintenance from Agilent 5977/7000 series, Shimadzu GCMS-QP series, and Thermo ISQ documentation.",
+    "materials_needed": [
+      {"name": "GC-MS grade methanol", "specification": "≥99.9%", "purpose": "Cleaning ion source"},
+      {"name": "GC-MS grade hexane", "specification": null, "purpose": "Source part cleaning"},
+      {"name": "Alumina polishing powder", "specification": "0.05 µm", "purpose": "Polishing ion source surfaces"},
+      {"name": "Lint-free wipes and swabs", "specification": null, "purpose": "Cleaning source components"},
+      {"name": "Deactivated inlet liners", "specification": null, "purpose": "Liner replacement"},
+      {"name": "Inlet septa", "specification": "Low-bleed", "purpose": "Septum replacement"},
+      {"name": "Sonication bath", "specification": null, "purpose": "Cleaning source parts"}
+    ],
+    "before_cleaning": [
+      "Perform all GC inlet maintenance first (septum, liner, column trim — see GC procedure).",
+      "Vent the MS vacuum system using the manufacturer's vent procedure.",
+      "Allow the ion source to cool completely.",
+      "Wear nitrile gloves for all source handling."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "GC inlet maintenance", "description": "Replace septum, clean/replace liner, trim column end. Follow the standard GC cleaning procedure.", "duration": "30 min", "warnings": null},
+      {"step_number": 2, "title": "Vent MS and remove source", "description": "Follow the vent procedure, then carefully remove the EI/CI ion source assembly.", "duration": "10 min", "warnings": ["Note the orientation and order of components for reassembly."]},
+      {"step_number": 3, "title": "Disassemble ion source", "description": "Separate repeller, ion volume, lenses, and other removable parts per manufacturer instructions.", "duration": "5 min", "warnings": null},
+      {"step_number": 4, "title": "Sonicate source parts", "description": "Sonicate all metal parts in methanol for 15 min, then in hexane for 10 min. For heavily contaminated sources, gently polish with alumina slurry.", "duration": "25 min", "warnings": ["Do not polish filaments or electron multiplier. Only polish designated metal surfaces."]},
+      {"step_number": 5, "title": "Dry components", "description": "Air dry on lint-free wipes, then bake in a clean oven at 100°C for 30 min (if available).", "duration": "30 min", "warnings": null},
+      {"step_number": 6, "title": "Reassemble and install source", "description": "Reassemble in correct order and orientation. Install source and ensure proper seating.", "duration": "10 min", "warnings": null},
+      {"step_number": 7, "title": "Pump down", "description": "Close the vent valve and allow the system to reach operating vacuum (typically <5 × 10⁻⁵ Torr).", "duration": "30-60 min", "warnings": null},
+      {"step_number": 8, "title": "Autotune and verify", "description": "Run an autotune with PFTBA or other tuning compound. Compare to previous tune reports.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Verify tune values are within specification (compare to factory tune).",
+      "Run a blank to check for background contamination.",
+      "Run a sensitivity check standard at the method detection limit.",
+      "Record all maintenance, tune values, and cleaning details."
+    ],
+    "what_not_to_do": [
+      "Never touch ion source parts with bare hands — fingerprints cause persistent m/z background peaks.",
+      "Do not polish the filament or electron multiplier — these are delicate and easily damaged.",
+      "Never use non-GC-MS grade solvents for source cleaning.",
+      "Do not rush the pump-down — operating at poor vacuum damages the filament and detector.",
+      "Never open the MS vacuum chamber without following the proper vent procedure."
+    ],
+    "cleaning_frequency": {
+      "routine": "GC inlet: septum/liner per GC schedule. MS source: every 3–6 months or when tune values degrade.",
+      "after_contamination": "Immediately vent and clean source if non-volatile matrix was injected without proper sample prep.",
+      "preventive": "Replace filament annually. Replace electron multiplier when gain exceeds manufacturer threshold."
+    },
+    "safety_warnings": [
+      "The MS ion source operates at high voltage — always vent and power down before maintenance.",
+      "Allow complete cooling before handling source components.",
+      "Hydrogen carrier gas is explosive — follow GC hydrogen safety protocols.",
+      "Dispose of cleaning solvents in designated waste."
+    ],
+    "notes": [
+      "Track autotune EM voltage over time — steadily increasing voltage indicates detector aging.",
+      "A properly cleaned source should restore sensitivity to within 80% of factory specifications."
+    ]
+  },
+  {
+    "technique": "IC",
+    "instrument": "Ion Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on IC maintenance from Thermo Dionex ICS series and Metrohm IC documentation.",
+    "materials_needed": [
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm", "purpose": "Flushing eluent lines"},
+      {"name": "IC-grade sodium hydroxide or carbonate", "specification": "Trace analysis grade", "purpose": "Eluent preparation"},
+      {"name": "IC-grade methanesulfonic acid (MSA)", "specification": null, "purpose": "Cation eluent"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External cleaning"},
+      {"name": "Peristaltic pump tubing", "specification": "Match pump model", "purpose": "Tubing replacement"},
+      {"name": "Suppressor regenerant", "specification": "Per suppressor type", "purpose": "Suppressor maintenance"}
+    ],
+    "before_cleaning": [
+      "Set flow to 0 mL/min and stop the pump.",
+      "Remove the analytical column and suppressor.",
+      "Prepare fresh eluent — old eluent absorbs CO₂ and degrades.",
+      "Note current operating parameters."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush system with DI water", "description": "Flush all eluent lines with fresh 18.2 MΩ DI water for 15 minutes at operating flow rate.", "duration": "15 min", "warnings": null},
+      {"step_number": 2, "title": "Clean eluent reservoir", "description": "Rinse eluent bottles with DI water 3 times. Prepare fresh eluent using IC-grade reagents.", "duration": "10 min", "warnings": ["NaOH eluents absorb atmospheric CO₂ rapidly — minimize exposure time."]},
+      {"step_number": 3, "title": "Clean or replace pump tubing", "description": "Inspect peristaltic pump tubing for wear. Replace if flattened or cracked.", "duration": "5 min", "warnings": null},
+      {"step_number": 4, "title": "Regenerate suppressor", "description": "Follow the manufacturer's suppressor regeneration procedure. For electrolytic suppressors, run the recommended regeneration cycle.", "duration": "15 min", "warnings": ["Do not use organic solvents with suppressors."]},
+      {"step_number": 5, "title": "Clean conductivity cell", "description": "Flush the conductivity cell with DI water for 10 minutes. Check cell constant is within spec.", "duration": "10 min", "warnings": null},
+      {"step_number": 6, "title": "Reassemble and equilibrate", "description": "Reconnect column and suppressor, start flow with fresh eluent, equilibrate until baseline is stable.", "duration": "30 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Check baseline conductivity — should be low and stable.",
+      "Run a multi-ion standard to verify peak identification and quantitation.",
+      "Inspect for leaks at all connections.",
+      "Record maintenance in logbook."
+    ],
+    "what_not_to_do": [
+      "Never use organic solvents in the IC system — they damage suppressors and columns.",
+      "Do not use metal fittings — metal ions contaminate the system and appear as cation peaks.",
+      "Never let eluent bottles run dry — air entering the system causes baseline instability.",
+      "Do not use tap water or low-grade water — trace ions will contaminate the entire system."
+    ],
+    "cleaning_frequency": {
+      "routine": "Prepare fresh eluent weekly. Flush system with DI water at end of each day.",
+      "after_contamination": "Flush extensively with DI water. Replace guard column if contaminated.",
+      "preventive": "Replace pump tubing monthly. Regenerate or replace suppressor per manufacturer schedule."
+    },
+    "safety_warnings": [
+      "NaOH solutions are corrosive — wear gloves and eye protection.",
+      "MSA is corrosive — handle with care.",
+      "Ensure waste is properly neutralized before disposal."
+    ],
+    "notes": [
+      "IC systems are extremely sensitive to contamination — always use the highest purity water and reagents.",
+      "Store NaOH eluent under nitrogen or helium to prevent carbonate formation."
+    ]
+  },
+  {
+    "technique": "CE",
+    "instrument": "Capillary Electrophoresis",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on CE maintenance from Agilent 7100 and Beckman PA 800 Plus documentation.",
+    "materials_needed": [
+      {"name": "1 M NaOH", "specification": "Analytical grade", "purpose": "Capillary conditioning"},
+      {"name": "0.1 M NaOH", "specification": "Analytical grade", "purpose": "Daily rinse"},
+      {"name": "0.1 M HCl", "specification": "Analytical grade", "purpose": "Acid wash"},
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm", "purpose": "Rinsing"},
+      {"name": "Methanol", "specification": "HPLC grade", "purpose": "Organic rinse"},
+      {"name": "New fused silica capillaries", "specification": "Match ID and length", "purpose": "Capillary replacement"}
+    ],
+    "before_cleaning": [
+      "Remove vials from the carousel.",
+      "Note the current capillary length and window position.",
+      "Set the instrument to manual rinse mode.",
+      "Prepare fresh conditioning solutions."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush with 1 M NaOH", "description": "Rinse capillary with 1 M NaOH for 10 minutes at high pressure to regenerate silanol groups.", "duration": "10 min", "warnings": ["NaOH is corrosive — handle with care."]},
+      {"step_number": 2, "title": "Flush with DI water", "description": "Rinse with DI water for 5 minutes to remove NaOH.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Flush with 0.1 M HCl", "description": "Rinse with HCl for 5 minutes to neutralize and protonate surface.", "duration": "5 min", "warnings": null},
+      {"step_number": 4, "title": "Final DI water rinse", "description": "Rinse with DI water for 10 minutes.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Flush with running buffer", "description": "Condition capillary with fresh running buffer for 10 minutes.", "duration": "10 min", "warnings": null},
+      {"step_number": 6, "title": "Clean electrode assemblies", "description": "Wipe inlet and outlet electrodes with lint-free wipes dampened with DI water.", "duration": "5 min", "warnings": null},
+      {"step_number": 7, "title": "Clean vial positions", "description": "Clean the carousel/tray and check for buffer crystallization or spills.", "duration": "5 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a test separation to verify EOF and migration time reproducibility.",
+      "Check current stability during a run — erratic current indicates capillary problems.",
+      "Record capillary conditioning details and number of runs."
+    ],
+    "what_not_to_do": [
+      "Never use a capillary with a blocked or cracked detection window.",
+      "Do not skip the conditioning steps — inconsistent EOF causes irreproducible separations.",
+      "Never allow the capillary to dry out during storage — store filled with DI water.",
+      "Do not apply voltage with an empty capillary — this damages the capillary coating."
+    ],
+    "cleaning_frequency": {
+      "routine": "Condition capillary with NaOH/water/buffer sequence at start of each day.",
+      "after_contamination": "Extended NaOH flush (30 min) followed by full conditioning sequence.",
+      "preventive": "Replace capillary every 100–200 runs or when migration time reproducibility degrades."
+    },
+    "safety_warnings": [
+      "NaOH and HCl are corrosive — wear gloves and eye protection.",
+      "High voltage (up to 30 kV) is used during CE operation — never open the instrument during a run.",
+      "Fused silica capillary fragments are extremely sharp."
+    ],
+    "notes": [
+      "For coated capillaries, follow the specific coating manufacturer's conditioning protocol instead.",
+      "Track EOF marker migration times to monitor capillary health over time."
+    ]
+  },
+  {
+    "technique": "SFC",
+    "instrument": "Supercritical Fluid Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.72,
+    "confidence_note": "Based on SFC maintenance from Waters ACQUITY UPC² and Agilent 1260 SFC documentation.",
+    "materials_needed": [
+      {"name": "SFC-grade methanol", "specification": "≥99.9%", "purpose": "Co-solvent flush"},
+      {"name": "SFC-grade isopropanol", "specification": null, "purpose": "Deep cleaning"},
+      {"name": "HPLC-grade ethanol", "specification": null, "purpose": "Alternative co-solvent flush"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External cleaning"},
+      {"name": "CO₂ supply", "specification": "SFC grade, 99.99%", "purpose": "Supercritical fluid supply"}
+    ],
+    "before_cleaning": [
+      "Stop CO₂ flow and allow system pressure to drop to ambient.",
+      "Set co-solvent pump to 0 mL/min.",
+      "Remove the SFC column.",
+      "Allow back-pressure regulator (BPR) to depressurize fully."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush co-solvent lines", "description": "Flush all co-solvent channels with methanol at 1 mL/min for 15 minutes.", "duration": "15 min", "warnings": null},
+      {"step_number": 2, "title": "IPA flush", "description": "Flush with isopropanol at 0.5 mL/min for 10 minutes to remove non-polar residues.", "duration": "10 min", "warnings": null},
+      {"step_number": 3, "title": "Clean BPR", "description": "Flush the back-pressure regulator with methanol. If BPR pressure is erratic, follow manufacturer's BPR cleaning or replacement procedure.", "duration": "10 min", "warnings": ["BPR is a precision component — do not disassemble without manufacturer instructions."]},
+      {"step_number": 4, "title": "Clean detector cell", "description": "Flush UV or PDA cell with methanol for 10 minutes.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Clean gas-liquid separator", "description": "If equipped, flush the waste/make-up flow path. Check for blockages.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Purge CO₂ lines", "description": "Briefly pressurize and depressurize the CO₂ path to clear any condensed moisture.", "duration": "5 min", "warnings": null},
+      {"step_number": 7, "title": "Reconnect and equilibrate", "description": "Install column, start CO₂ flow, set BPR pressure, and equilibrate for 20 minutes.", "duration": "20 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Verify stable BPR pressure and flow rate.",
+      "Run a blank injection to check baseline.",
+      "Run a test standard to verify retention and peak shape.",
+      "Record maintenance in logbook."
+    ],
+    "what_not_to_do": [
+      "Never open fittings while the system is pressurized — CO₂ expansion is rapid and can cause frostbite.",
+      "Do not use water in the CO₂ path — ice formation will block the system.",
+      "Never use non-SFC-grade CO₂ — impurities affect chromatography and damage components.",
+      "Do not leave co-solvent channels filled with buffer solutions."
+    ],
+    "cleaning_frequency": {
+      "routine": "Flush co-solvent lines at end of each day. Full cleaning monthly.",
+      "after_contamination": "Flush with MeOH → IPA → MeOH sequence. Clean BPR if pressure is erratic.",
+      "preventive": "Replace BPR seal annually. Check CO₂ cylinder purity with each replacement."
+    },
+    "safety_warnings": [
+      "SFC systems operate at high pressure (up to 400+ bar) — never loosen fittings while pressurized.",
+      "CO₂ release causes rapid cooling — risk of frostbite. Ensure adequate ventilation.",
+      "CO₂ is an asphyxiant in enclosed spaces — ensure room has CO₂ monitoring.",
+      "Wear safety glasses and gloves during maintenance."
+    ],
+    "notes": [
+      "SFC systems are sensitive to moisture — always use dry, high-purity CO₂.",
+      "If the BPR becomes difficult to control, it likely needs seal replacement."
+    ]
+  },
+  {
+    "technique": "TGA",
+    "instrument": "Thermogravimetric Analyzer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on TGA maintenance from TA Instruments Discovery/Q-series and NETZSCH TG 209 documentation.",
+    "materials_needed": [
+      {"name": "Alumina crucibles (pans)", "specification": "90 µL or as specified", "purpose": "Replacement sample pans"},
+      {"name": "Platinum crucibles", "specification": null, "purpose": "Reusable pans (if applicable)"},
+      {"name": "Isopropanol", "specification": "Analytical grade", "purpose": "Cleaning furnace exterior"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning surfaces"},
+      {"name": "Fine brush", "specification": "Soft, anti-static", "purpose": "Removing residue from balance area"},
+      {"name": "Compressed dry nitrogen", "specification": "99.999%", "purpose": "Purging furnace"}
+    ],
+    "before_cleaning": [
+      "Allow the furnace to cool to room temperature (wait at least 1 hour after a high-temperature run).",
+      "Close the purge gas flow.",
+      "Remove the sample pan from the balance arm.",
+      "Open the furnace per manufacturer instructions."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Remove sample residue", "description": "Carefully remove any spilled sample material from the furnace tube using a soft brush. Work gently to avoid disturbing the thermocouple.", "duration": "5 min", "warnings": ["Do not touch the thermocouple or balance mechanism with tools."]},
+      {"step_number": 2, "title": "Clean or replace crucibles", "description": "For platinum pans: heat to 1000°C in air to burn off residue, then cool. For alumina pans: dispose and use new ones.", "duration": "10 min", "warnings": ["Handle platinum pans with clean forceps only."]},
+      {"step_number": 3, "title": "Clean furnace tube", "description": "Wipe accessible interior surfaces with a lint-free wipe. For stubborn deposits, carefully use a cotton swab with IPA.", "duration": "5 min", "warnings": ["Do not use excessive liquid — it can damage the thermocouple and heating elements."]},
+      {"step_number": 4, "title": "Inspect thermocouple", "description": "Visually check the thermocouple for corrosion, discoloration, or deposits. Clean gently if needed.", "duration": "3 min", "warnings": ["Thermocouple wires are extremely fragile — do not bend or apply pressure."]},
+      {"step_number": 5, "title": "Clean balance chamber", "description": "Use a soft brush and gentle air flow to remove any dust or particles from the microbalance area.", "duration": "5 min", "warnings": ["Never blow compressed air directly at the balance mechanism — use gentle flow only."]},
+      {"step_number": 6, "title": "Purge and verify", "description": "Close the furnace, run a purge with dry N₂ for 10 minutes, then run a blank (empty pan) to verify baseline.", "duration": "20 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a blank measurement to verify flat baseline (weight change <0.02 mg over full temperature range).",
+      "Run a calcium oxalate or indium calibration standard to verify temperature accuracy.",
+      "Record cleaning date and any component replacements.",
+      "Check gas flow rates with a flow meter."
+    ],
+    "what_not_to_do": [
+      "Never touch the microbalance mechanism or hangdown wire — it is extremely sensitive.",
+      "Do not use water or aqueous solutions to clean inside the furnace.",
+      "Never run corrosive samples (strong acids, HF) without appropriate protective liners.",
+      "Do not exceed the maximum temperature rating of your crucible type.",
+      "Never force the furnace open or closed — this can damage alignment."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean crucibles after each run. Clean furnace interior weekly.",
+      "after_contamination": "Immediately clean any sample spillage. Run burnout at 900°C in air if organic contamination is suspected.",
+      "preventive": "Calibrate temperature and weight quarterly. Replace thermocouple per manufacturer schedule."
+    },
+    "safety_warnings": [
+      "The furnace reaches temperatures up to 1000°C+ — allow complete cooling before maintenance.",
+      "Some samples release toxic gases during heating — always use adequate exhaust ventilation.",
+      "Wear heat-resistant gloves when handling recently heated components."
+    ],
+    "notes": [
+      "Always use the correct gas atmosphere (N₂, air, Ar) for your application — using the wrong gas invalidates results.",
+      "Buoyancy correction blanks should be run after any furnace cleaning or gas change."
+    ]
+  },
+  {
+    "technique": "DSC",
+    "instrument": "Differential Scanning Calorimeter",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on DSC maintenance from TA Instruments Discovery/Q-series and NETZSCH DSC documentation.",
+    "materials_needed": [
+      {"name": "Aluminum hermetic pans and lids", "specification": "Match your press", "purpose": "Replacement sample pans"},
+      {"name": "Isopropanol", "specification": "Analytical grade", "purpose": "Cleaning cell"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning surfaces"},
+      {"name": "Soft brush", "specification": "Anti-static", "purpose": "Removing residue"},
+      {"name": "Indium standard", "specification": "99.999%", "purpose": "Temperature/enthalpy calibration check"},
+      {"name": "Compressed dry nitrogen", "specification": "99.999%", "purpose": "Purge gas"}
+    ],
+    "before_cleaning": [
+      "Allow the DSC cell to cool to room temperature.",
+      "Remove any sample pans from the cell.",
+      "Turn off purge gas temporarily for cleaning access."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Remove sample debris", "description": "Carefully remove any pan residue or spilled sample from the DSC cell using soft forceps and a brush.", "duration": "5 min", "warnings": ["Do not scratch the sensor surface — it is precision-machined."]},
+      {"step_number": 2, "title": "Clean cell with IPA", "description": "Dampen a lint-free wipe or cotton swab with IPA and gently clean the sample and reference platforms.", "duration": "5 min", "warnings": ["Do not flood the cell with liquid."]},
+      {"step_number": 3, "title": "Burn off organic residue", "description": "Run the DSC to 600°C (or cell maximum) in air or oxygen atmosphere for 10 minutes to oxidize organic contaminants.", "duration": "15 min", "warnings": ["Only do this if your DSC cell type supports high-temperature burnout. Check manual."]},
+      {"step_number": 4, "title": "Cool and inspect", "description": "Cool to room temperature. Inspect the sensor surface for discoloration or deposits.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Verify with baseline", "description": "Run a baseline scan (empty cell, both positions) to check for artifacts.", "duration": "15 min", "warnings": null},
+      {"step_number": 6, "title": "Calibration check", "description": "Run an indium standard to verify onset temperature (156.6°C) and enthalpy (28.71 J/g).", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Baseline should be flat with no exothermic or endothermic artifacts.",
+      "Indium onset should be within ±0.5°C of 156.6°C.",
+      "Record cleaning and calibration results."
+    ],
+    "what_not_to_do": [
+      "Never use metal tools to scrape the DSC sensor surface.",
+      "Do not use water to clean inside the cell — moisture causes baseline artifacts.",
+      "Never run reactive or explosive samples without proper safety pans.",
+      "Do not exceed the cell's maximum temperature rating during burnout."
+    ],
+    "cleaning_frequency": {
+      "routine": "Remove pans after each run. Clean cell weekly.",
+      "after_contamination": "Immediate cleaning if sample has leaked from pan.",
+      "preventive": "Calibrate with indium monthly. Replace thermocouples per manufacturer schedule."
+    },
+    "safety_warnings": [
+      "DSC cells reach very high temperatures — allow complete cooling.",
+      "Some samples can decompose violently — use pressure-rated pans for unknowns.",
+      "Ensure proper ventilation for evolved gases."
+    ],
+    "notes": [
+      "Hermetically sealed pans prevent cell contamination — always crimp properly.",
+      "Track baseline quality over time to detect gradual sensor degradation."
+    ]
+  },
+  {
+    "technique": "FPLC",
+    "instrument": "Fast Protein Liquid Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on FPLC maintenance from Cytiva ÄKTA series and UNICORN software documentation.",
+    "materials_needed": [
+      {"name": "0.5 M NaOH", "specification": "Analytical grade", "purpose": "CIP (Clean-In-Place) solution"},
+      {"name": "20% ethanol", "specification": "Analytical grade", "purpose": "Storage solution"},
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm, filtered 0.2 µm", "purpose": "Rinsing"},
+      {"name": "1 M NaCl", "specification": null, "purpose": "Removing ionic contaminants"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External cleaning"},
+      {"name": "0.2 µm syringe filters", "specification": null, "purpose": "Filtering buffers"}
+    ],
+    "before_cleaning": [
+      "Complete any running method and return to manual control.",
+      "Remove the column from the system.",
+      "Prepare fresh CIP and storage solutions.",
+      "Set UV detector wavelength to 280 nm to monitor protein removal."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush with water", "description": "Flush the entire flow path (bypassing column) with filtered DI water at 2 mL/min for 20 minutes.", "duration": "20 min", "warnings": null},
+      {"step_number": 2, "title": "NaOH CIP wash", "description": "Flush with 0.5 M NaOH for 30 minutes to remove protein deposits and sanitize.", "duration": "30 min", "warnings": ["Ensure all wetted parts are NaOH-compatible. Some columns cannot tolerate NaOH."]},
+      {"step_number": 3, "title": "Rinse NaOH", "description": "Flush with DI water until the pH of the outflow is neutral (check with pH paper).", "duration": "15 min", "warnings": null},
+      {"step_number": 4, "title": "Clean UV flow cell", "description": "If A280 baseline is elevated, flush cell with 1 M NaOH for 15 min, then rinse with water.", "duration": "15 min", "warnings": null},
+      {"step_number": 5, "title": "Clean sample loops and valves", "description": "Flush all injection loops and valve positions with NaOH, then water.", "duration": "10 min", "warnings": null},
+      {"step_number": 6, "title": "Fill with storage solution", "description": "Flush entire system with 20% ethanol for storage. Ensure all lines are filled.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "UV baseline at 280 nm should return to <0.01 AU.",
+      "Check all fittings for leaks.",
+      "Verify pressure is normal when flow path is restored.",
+      "Record CIP procedure and date."
+    ],
+    "what_not_to_do": [
+      "Never store the system filled with buffer — microbial growth will clog the system.",
+      "Do not use unfiltered buffers — particulates block frits and columns.",
+      "Never run NaOH through columns that are not NaOH-compatible (check column documentation).",
+      "Do not exceed the maximum flow rate for your tubing and column."
+    ],
+    "cleaning_frequency": {
+      "routine": "CIP after each purification campaign. Store in 20% ethanol between uses.",
+      "after_contamination": "Extended NaOH wash followed by thorough water rinse.",
+      "preventive": "Replace pump pistons and seals per manufacturer schedule. Replace tubing annually."
+    },
+    "safety_warnings": [
+      "NaOH is corrosive — wear gloves and eye protection.",
+      "Ensure biological samples are handled according to biosafety protocols.",
+      "Ethanol is flammable — store away from heat sources."
+    ],
+    "notes": [
+      "For lipid or lipid-protein contamination, add a 30% IPA wash step before NaOH.",
+      "ÄKTA systems have automated CIP methods in UNICORN — use these when available."
+    ]
+  },
+  {
+    "technique": "SPPS",
+    "instrument": "Solid Phase Peptide Synthesizer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on SPPS maintenance from CSBio, CEM Liberty, and Biotage Syro Wave documentation.",
+    "materials_needed": [
+      {"name": "DMF", "specification": "Peptide synthesis grade", "purpose": "Flushing resin and reagent lines"},
+      {"name": "DCM", "specification": "Analytical grade", "purpose": "Cleaning and shrinking resin"},
+      {"name": "Methanol", "specification": "HPLC grade", "purpose": "Final flush"},
+      {"name": "Nitrogen gas", "specification": "Dry", "purpose": "Drying lines"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External cleaning"}
+    ],
+    "before_cleaning": [
+      "Complete the synthesis and remove the resin from the reaction vessel.",
+      "Drain all reagent bottles.",
+      "Set the instrument to manual/maintenance mode."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush reaction vessel", "description": "Rinse the reaction vessel with DMF (3×), then DCM (3×), then methanol (3×).", "duration": "15 min", "warnings": null},
+      {"step_number": 2, "title": "Flush reagent delivery lines", "description": "Pump DMF through all amino acid and reagent delivery lines for 5 minutes each.", "duration": "20 min", "warnings": null},
+      {"step_number": 3, "title": "Clean activator lines", "description": "Flush HATU/HBTU/DIC delivery lines with DMF, then DCM to prevent crystallization.", "duration": "10 min", "warnings": ["Coupling reagent residue crystallizes and blocks lines if not removed."]},
+      {"step_number": 4, "title": "Clean deprotection lines", "description": "Flush piperidine/DMF delivery lines with DMF, then methanol.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Dry with nitrogen", "description": "Blow dry nitrogen through all lines and the reaction vessel for 5 minutes.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Clean waste container", "description": "Empty and rinse the waste container. Replace waste tubing if discolored.", "duration": "5 min", "warnings": ["DMF waste is hazardous — dispose according to regulations."]}
+    ],
+    "after_cleaning": [
+      "Verify all lines are clear by visual inspection.",
+      "Check that valves open and close properly.",
+      "Record cleaning and any parts replaced."
+    ],
+    "what_not_to_do": [
+      "Never leave coupling reagent solutions in lines — they crystallize and block delivery.",
+      "Do not use water in the synthesizer — it quenches coupling reactions and causes corrosion.",
+      "Never mix DMF waste with halogenated solvent waste.",
+      "Do not skip the DCM wash step — DMF residue swells certain tubing materials."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean all lines after each synthesis. Full system clean weekly.",
+      "after_contamination": "Extended flush with DMF → DCM → MeOH if precipitate is observed.",
+      "preventive": "Replace reagent delivery tubing every 6 months. Inspect frit condition monthly."
+    },
+    "safety_warnings": [
+      "DMF is a reproductive toxin — use in a fume hood with proper PPE.",
+      "DCM is a suspected carcinogen — minimize exposure.",
+      "Piperidine is toxic and flammable — handle with care.",
+      "TFA (used in cleavage) is highly corrosive — wear acid-resistant gloves and face shield."
+    ],
+    "notes": [
+      "Peptide synthesis generates significant hazardous waste — ensure proper waste segregation.",
+      "If delivery volumes become inconsistent, check for partial line blockages."
+    ]
+  },
+  {
+    "technique": "XRD",
+    "instrument": "X-Ray Diffractometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on XRD maintenance from Bruker D8 series, Malvern Panalytical Empyrean, and Rigaku documentation.",
+    "materials_needed": [
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning sample holders and optics"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning optical components"},
+      {"name": "Compressed air", "specification": "Filtered, oil-free", "purpose": "Removing powder residue"},
+      {"name": "Soft brush", "specification": "Anti-static", "purpose": "Cleaning sample stage"}
+    ],
+    "before_cleaning": [
+      "Ensure X-ray tube is OFF and the shutter is CLOSED.",
+      "Wait for the X-ray tube to cool (at least 30 minutes).",
+      "Remove any sample from the stage.",
+      "Close the radiation enclosure."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean sample stage", "description": "Brush away powder residue from the sample stage and holder clips. Use compressed air for fine particles.", "duration": "5 min", "warnings": ["Do not blow compressed air toward optical components."]},
+      {"step_number": 2, "title": "Clean sample holders", "description": "Wash zero-background holders and sample plates with ethanol. Dry completely before reuse.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Inspect optics", "description": "Visually inspect primary and secondary beam optics (slits, monochromator, mirror) for dust or contamination.", "duration": "5 min", "warnings": ["Do not touch optical surfaces with bare hands."]},
+      {"step_number": 4, "title": "Clean optics if needed", "description": "If optics are dusty, gently clean with a lint-free wipe dampened with ethanol. Let dry completely.", "duration": "5 min", "warnings": ["Only clean optics if visibly contaminated — unnecessary cleaning can misalign components."]},
+      {"step_number": 5, "title": "Check goniometer", "description": "Inspect goniometer tracks for debris. Clean with a dry lint-free wipe.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Verify alignment", "description": "Run a standard reference material (e.g., NIST LaB6 or silicon) to verify 2θ accuracy.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Verify 2θ peak positions match reference values.",
+      "Check peak intensity against historical values.",
+      "Record cleaning and alignment check results."
+    ],
+    "what_not_to_do": [
+      "NEVER open the radiation enclosure while X-rays are on — X-ray radiation is dangerous.",
+      "Do not use water on optical components — it causes spotting and corrosion.",
+      "Never touch Göbel mirrors, monochromator crystals, or Soller slits with bare hands.",
+      "Do not attempt X-ray tube replacement yourself — contact a qualified service engineer."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean sample stage after each sample. Inspect optics monthly.",
+      "after_contamination": "Immediately clean any powder spills. Verify alignment after incident.",
+      "preventive": "X-ray tube replacement: every 3000–5000 hours. Annual alignment by service engineer."
+    },
+    "safety_warnings": [
+      "X-RAY RADIATION HAZARD — never bypass safety interlocks.",
+      "Always ensure the X-ray shutter is closed and tube is off before opening the enclosure.",
+      "Follow your institution's radiation safety protocols.",
+      "Some samples may be radioactive or toxic — follow appropriate handling procedures."
+    ],
+    "notes": [
+      "Track X-ray tube hours and intensity over time to predict replacement timing.",
+      "Keep a log of standard reference scans for trend monitoring."
+    ]
+  },
+  {
+    "technique": "DLS",
+    "instrument": "Dynamic Light Scattering Analyzer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.78,
+    "confidence_note": "Based on DLS maintenance from Malvern Panalytical Zetasizer series documentation.",
+    "materials_needed": [
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm, filtered 0.1 µm", "purpose": "Rinsing cells"},
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning cells"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Drying cells"},
+      {"name": "Disposable cuvettes", "specification": "DLS-grade", "purpose": "Replacement cells"},
+      {"name": "Compressed air", "specification": "Filtered", "purpose": "Drying cells"}
+    ],
+    "before_cleaning": [
+      "Remove sample cuvette from the instrument.",
+      "Allow any temperature-controlled samples to equilibrate.",
+      "Note the last measurement results for comparison."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean reusable cuvettes", "description": "Rinse cuvette 5 times with filtered DI water. Then rinse 3 times with filtered ethanol. Dry with filtered compressed air.", "duration": "10 min", "warnings": ["Never touch optical faces of the cuvette."]},
+      {"step_number": 2, "title": "Clean zeta potential cells", "description": "Flush DTS1070 cells with DI water using syringes through both ports. Flush at least 10 times.", "duration": "10 min", "warnings": ["Do not insert syringes forcefully — this damages the electrodes."]},
+      {"step_number": 3, "title": "Clean cell holder", "description": "Wipe the cell holder area with a lint-free wipe dampened with ethanol. Remove any spills.", "duration": "3 min", "warnings": null},
+      {"step_number": 4, "title": "Inspect optics window", "description": "Check the laser window for smudges or condensation. Clean with a lens wipe if needed.", "duration": "3 min", "warnings": null},
+      {"step_number": 5, "title": "Verify with standard", "description": "Measure a polystyrene latex size standard (e.g., 60 nm or 200 nm) to verify instrument performance.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Size standard should measure within ±2% of certified value.",
+      "PDI of monodisperse standard should be <0.1.",
+      "Record verification results."
+    ],
+    "what_not_to_do": [
+      "Never use unfiltered solvents for rinsing — dust particles dominate DLS measurements.",
+      "Do not use scratched or cloudy cuvettes — optical defects cause measurement artifacts.",
+      "Never sonicate DTS1070 folded capillary cells — this damages the electrodes.",
+      "Do not use abrasive materials on optical surfaces."
+    ],
+    "cleaning_frequency": {
+      "routine": "Rinse cuvettes between every sample. Full cleaning at end of day.",
+      "after_contamination": "Soak cuvettes in 2% Hellmanex or dilute acid, then rinse extensively.",
+      "preventive": "Replace DTS1070 cells every 50–100 measurements. Verify with standards monthly."
+    },
+    "safety_warnings": [
+      "The instrument contains a laser — never look directly into the beam path.",
+      "Wear gloves when handling nanoparticle samples.",
+      "Dispose of nanoparticle waste according to institutional guidelines."
+    ],
+    "notes": [
+      "Filtration is the most critical factor for DLS measurement quality — filter all samples and solvents through 0.1–0.2 µm filters.",
+      "Keep a dedicated set of clean cuvettes for DLS — do not share with other instruments."
+    ]
+  },
+  {
+    "technique": "Titration",
+    "instrument": "Potentiometric Titrator",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.80,
+    "confidence_note": "Based on titration maintenance from Metrohm Titrando and Mettler Toledo Excellence T series documentation.",
+    "materials_needed": [
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm", "purpose": "Rinsing"},
+      {"name": "pH buffer solutions", "specification": "pH 4, 7, 10", "purpose": "Electrode calibration"},
+      {"name": "KCl filling solution", "specification": "3 M KCl", "purpose": "Refilling reference electrode"},
+      {"name": "Electrode cleaning solution", "specification": "Pepsin/HCl or thiourea", "purpose": "Removing protein/sulfide deposits"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning burette and surfaces"}
+    ],
+    "before_cleaning": [
+      "Complete any running titration.",
+      "Remove the titration vessel and electrode from the stand.",
+      "Drain the burette of old titrant."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean pH electrode", "description": "Rinse the electrode with DI water. For protein deposits, soak in pepsin/HCl solution for 1 hour.", "duration": "5 min", "warnings": null},
+      {"step_number": 2, "title": "Refill reference electrolyte", "description": "Open the refill port and top up with 3 M KCl solution to the marked level.", "duration": "3 min", "warnings": ["Use only the KCl concentration specified for your electrode."]},
+      {"step_number": 3, "title": "Clean burette", "description": "Rinse the burette cylinder and tip with DI water, then with the titrant to be used next.", "duration": "5 min", "warnings": null},
+      {"step_number": 4, "title": "Clean titration vessel", "description": "Wash all glassware with detergent, rinse with DI water, and dry.", "duration": "5 min", "warnings": null},
+      {"step_number": 5, "title": "Clean stirrer and sensors", "description": "Wipe the magnetic stirrer and any temperature probe with a damp cloth.", "duration": "3 min", "warnings": null},
+      {"step_number": 6, "title": "Calibrate electrode", "description": "Perform a 2-point or 3-point pH calibration with buffer solutions. Verify slope is 95–102%.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Electrode slope should be between -54 and -60 mV/pH (95–102% at 25°C).",
+      "Run a standardization titration with a primary standard (e.g., KHP for NaOH).",
+      "Record calibration results and electrode condition."
+    ],
+    "what_not_to_do": [
+      "Never let the pH electrode dry out — always store in KCl solution or pH 4 buffer.",
+      "Do not use the wrong titrant concentration without updating the method parameters.",
+      "Never store NaOH titrant in glass burettes — it etches glass and changes concentration.",
+      "Do not ignore a low electrode slope — replace the electrode."
+    ],
+    "cleaning_frequency": {
+      "routine": "Rinse electrode and burette after each use. Calibrate daily.",
+      "after_contamination": "Soak electrode in appropriate cleaning solution (pepsin for proteins, thiourea for sulfides).",
+      "preventive": "Replace pH electrode every 12–18 months. Standardize titrant monthly."
+    },
+    "safety_warnings": [
+      "Handle NaOH and HCl titrants with gloves — they are corrosive.",
+      "Buffer solutions may contain preservatives — check SDS.",
+      "Dispose of waste titrant solutions properly."
+    ],
+    "notes": [
+      "Electrode response time increases with age — replace when calibration takes excessively long.",
+      "Always protect NaOH from atmospheric CO₂ with a soda lime trap."
+    ]
+  },
+  {
+    "technique": "KF",
+    "instrument": "Karl Fischer Titrator",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.78,
+    "confidence_note": "Based on KF maintenance from Metrohm 870/917 and Mettler Toledo C/V series documentation.",
+    "materials_needed": [
+      {"name": "Methanol", "specification": "Dry, KF grade", "purpose": "Rinsing cell"},
+      {"name": "KF reagent", "specification": "Hydranal Composite or equivalent", "purpose": "Fresh titrant"},
+      {"name": "Molecular sieves", "specification": "3Å", "purpose": "Drying solvent and environment"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning cell exterior"},
+      {"name": "Certified water standard", "specification": "1 mg/mL or 10 mg/mL", "purpose": "Verification"}
+    ],
+    "before_cleaning": [
+      "Complete any running titration.",
+      "Drain the titration cell of working medium.",
+      "Remove the electrode."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Drain and rinse cell", "description": "Drain the old working medium. Rinse the cell 3 times with dry methanol.", "duration": "5 min", "warnings": null},
+      {"step_number": 2, "title": "Clean electrode", "description": "Rinse the double-Pt electrode with methanol. If coated, soak in dry methanol for 30 minutes.", "duration": "5 min", "warnings": ["Never touch the platinum pins with fingers."]},
+      {"step_number": 3, "title": "Clean burette tip", "description": "Rinse the burette tip with methanol. Check for crystallized reagent buildup.", "duration": "3 min", "warnings": null},
+      {"step_number": 4, "title": "Check drying tube", "description": "Inspect the molecular sieve drying tube. Replace sieves if color has changed or if ambient drift is high.", "duration": "3 min", "warnings": null},
+      {"step_number": 5, "title": "Refill with fresh reagent", "description": "Fill the cell with fresh working medium (solvent). Fill the burette with fresh KF titrant.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Condition cell", "description": "Run the conditioning cycle until drift stabilizes below 10 µg/min.", "duration": "10-20 min", "warnings": null},
+      {"step_number": 7, "title": "Verify with water standard", "description": "Inject a certified water standard and verify recovery is 98–102%.", "duration": "5 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Drift should be <10 µg/min (volumetric) or <5 µg/min (coulometric).",
+      "Water standard recovery should be 98–102%.",
+      "Record reagent lot numbers and verification results."
+    ],
+    "what_not_to_do": [
+      "Never expose KF reagents to atmospheric moisture — always keep sealed.",
+      "Do not use wet glassware or syringes — even trace moisture invalidates results.",
+      "Never mix different brands of KF reagent in the same system.",
+      "Do not use KF reagents with aldehydes or ketones without side-reaction-free reagent."
+    ],
+    "cleaning_frequency": {
+      "routine": "Change working medium daily or after 20 titrations.",
+      "after_contamination": "Drain, rinse 5 times with dry methanol, refill with fresh reagent.",
+      "preventive": "Replace drying tubes monthly. Replace electrode annually."
+    },
+    "safety_warnings": [
+      "KF reagents contain methanol and iodine — toxic and flammable.",
+      "Work in a well-ventilated area.",
+      "Wear gloves — some KF solvents are skin irritants."
+    ],
+    "notes": [
+      "The biggest source of KF error is moisture ingress — keep the cell sealed at all times.",
+      "For coulometric KF, also check generator electrode condition and anolyte/catholyte levels."
+    ]
+  },
+  {
+    "technique": "KFO",
+    "instrument": "Karl Fischer Oven Sample Processor",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on KFO maintenance from Metrohm 874/885 Oven Sample Processor documentation.",
+    "materials_needed": [
+      {"name": "Dry methanol", "specification": "KF grade", "purpose": "Cleaning oven and transfer line"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning oven interior"},
+      {"name": "Compressed dry nitrogen", "specification": "99.999%", "purpose": "Carrier gas"},
+      {"name": "Replacement septa", "specification": "Match vial type", "purpose": "Replacing worn septa"},
+      {"name": "Certified water standard", "specification": "Cellulose moisture standard", "purpose": "Verification"}
+    ],
+    "before_cleaning": [
+      "Allow the oven to cool to room temperature.",
+      "Remove all sample vials.",
+      "Disconnect the transfer line from the KF cell."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean oven interior", "description": "Wipe the oven chamber with a dry lint-free wipe. Remove any sample residue or spills.", "duration": "5 min", "warnings": ["Ensure oven is fully cooled before cleaning."]},
+      {"step_number": 2, "title": "Clean transfer line", "description": "Disconnect both ends and blow dry N₂ through the line. If moisture carryover is high, replace the line.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Clean needle/septum assembly", "description": "Inspect the needle for blockage. Replace the septum if it shows multiple puncture marks.", "duration": "5 min", "warnings": null},
+      {"step_number": 4, "title": "Check gas connections", "description": "Verify carrier gas (N₂) flow rate and check for leaks at all connections.", "duration": "5 min", "warnings": null},
+      {"step_number": 5, "title": "Clean KF cell", "description": "Follow the standard KF cleaning procedure for the connected titration cell.", "duration": "15 min", "warnings": null},
+      {"step_number": 6, "title": "Verify with standard", "description": "Run a cellulose moisture standard to verify the oven + KF system accuracy.", "duration": "20 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Blank (empty vial) should give near-zero moisture.",
+      "Cellulose standard recovery should be within certified range.",
+      "Record results and any parts replaced."
+    ],
+    "what_not_to_do": [
+      "Never use water or aqueous solutions to clean the oven — it defeats the purpose of the moisture analyzer.",
+      "Do not set the oven temperature above the decomposition point of your sample type.",
+      "Never reuse septa — worn septa allow moisture ingress.",
+      "Do not kink or sharply bend the transfer line."
+    ],
+    "cleaning_frequency": {
+      "routine": "Wipe oven chamber after each batch. Clean transfer line weekly.",
+      "after_contamination": "Replace transfer line and septa if contaminated samples were run.",
+      "preventive": "Replace transfer line every 6 months. Replace septa after each batch."
+    },
+    "safety_warnings": [
+      "The oven operates at temperatures up to 300°C — allow complete cooling.",
+      "Some samples release toxic volatiles when heated — ensure proper exhaust.",
+      "KF reagents are flammable — keep away from heat."
+    ],
+    "notes": [
+      "The transfer line temperature must be higher than the oven temperature to prevent condensation.",
+      "Optimize drying time and temperature for each sample type to avoid charring."
+    ]
+  },
+  {
+    "technique": "CD",
+    "instrument": "Circular Dichroism Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on CD maintenance from JASCO J-1500/J-1700 and Applied Photophysics documentation.",
+    "materials_needed": [
+      {"name": "Deionized water", "specification": "18.2 MΩ·cm", "purpose": "Rinsing cuvettes"},
+      {"name": "Ethanol", "specification": "Spectroscopy grade", "purpose": "Cleaning cuvettes"},
+      {"name": "Hellmanex detergent", "specification": "2% solution", "purpose": "Removing protein films"},
+      {"name": "Quartz cuvettes", "specification": "Far-UV grade (170 nm)", "purpose": "Replacement cells"},
+      {"name": "Nitrogen gas", "specification": "Oxygen-free", "purpose": "Instrument purge"}
+    ],
+    "before_cleaning": [
+      "Turn off the lamp and allow it to cool.",
+      "Ensure N₂ purge is running (protects optics from ozone).",
+      "Remove the sample cuvette."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean quartz cuvettes", "description": "Rinse cuvettes with DI water, soak in 2% Hellmanex for 30 min, rinse extensively with DI water, then ethanol.", "duration": "40 min", "warnings": ["Never use glass cuvettes — they absorb below 300 nm."]},
+      {"step_number": 2, "title": "Dry cuvettes", "description": "Air dry upside down on lint-free wipes or dry with filtered N₂.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Clean sample compartment", "description": "Wipe the cell holder with a lint-free wipe dampened with ethanol. Remove any spills.", "duration": "3 min", "warnings": null},
+      {"step_number": 4, "title": "Check N₂ purge", "description": "Verify N₂ flow rate is adequate (typically 5–10 L/min) and there are no leaks.", "duration": "3 min", "warnings": ["Low N₂ flow allows ozone formation, which damages optics and is hazardous."]},
+      {"step_number": 5, "title": "Verify with CSA standard", "description": "Measure a (1S)-(+)-10-camphorsulfonic acid (CSA) standard. Verify Δε at 290.5 nm and 192.5 nm.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "CSA standard should give expected ellipticity values per instrument spec.",
+      "Baseline scan (empty cuvette or buffer blank) should be near zero.",
+      "Record lamp hours and verification results."
+    ],
+    "what_not_to_do": [
+      "Never operate the CD without nitrogen purge — ozone damages optics and is toxic.",
+      "Do not touch the optical faces of quartz cuvettes with bare hands.",
+      "Never use buffers containing Cl⁻ below 195 nm — chloride absorbs strongly in the far-UV.",
+      "Do not open the instrument housing — the xenon lamp operates at high voltage."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean cuvettes between every sample. Verify with CSA monthly.",
+      "after_contamination": "Extended Hellmanex soak followed by exhaustive rinsing.",
+      "preventive": "Replace xenon lamp per manufacturer schedule (typically 1000–2000 hours)."
+    },
+    "safety_warnings": [
+      "The xenon lamp produces intense UV radiation — never look directly at the beam.",
+      "Ozone is produced if N₂ purge fails — ensure N₂ is flowing before turning on the lamp.",
+      "The lamp housing is under high pressure — never open without following the lamp change procedure."
+    ],
+    "notes": [
+      "Far-UV CD (below 200 nm) is extremely sensitive to buffer composition — use phosphate, not Tris.",
+      "Track lamp intensity over time — declining output indicates the lamp needs replacement."
+    ]
+  },
+  {
+    "technique": "SEM",
+    "instrument": "Scanning Electron Microscope",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.72,
+    "confidence_note": "Based on SEM maintenance from Thermo Fisher Phenom and JEOL JSM series documentation.",
+    "materials_needed": [
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning sample stubs"},
+      {"name": "Carbon tape", "specification": "Conductive", "purpose": "Sample mounting"},
+      {"name": "Compressed air", "specification": "Filtered, oil-free", "purpose": "Dust removal"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning chamber"},
+      {"name": "Conductive silver paint", "specification": null, "purpose": "Improving sample conductivity"}
+    ],
+    "before_cleaning": [
+      "Vent the sample chamber following the manufacturer's procedure.",
+      "Remove the sample and any stubs from the stage.",
+      "Ensure the electron beam is off.",
+      "Wear powder-free nitrile gloves."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean sample chamber", "description": "Wipe the interior walls and stage with lint-free wipes dampened with ethanol. Remove debris and carbon tape residue.", "duration": "10 min", "warnings": ["Do not touch the electron gun or detector — these are serviced by engineers only."]},
+      {"step_number": 2, "title": "Clean sample stubs", "description": "Sonicate reusable aluminum stubs in ethanol for 10 minutes. Dry completely before reuse.", "duration": "15 min", "warnings": null},
+      {"step_number": 3, "title": "Inspect apertures", "description": "Check the objective aperture for contamination (dark deposits). Contact service engineer if cleaning is needed.", "duration": "5 min", "warnings": ["Aperture cleaning/replacement is typically a service task."]},
+      {"step_number": 4, "title": "Clean chamber door seal", "description": "Wipe the O-ring seal with a dry lint-free wipe. Check for cracks or debris that could cause vacuum leaks.", "duration": "3 min", "warnings": null},
+      {"step_number": 5, "title": "Pump down and verify", "description": "Close the chamber and pump down. Verify vacuum reaches operating level within expected time.", "duration": "10 min", "warnings": null},
+      {"step_number": 6, "title": "Image quality check", "description": "Image a standard sample (e.g., tin-on-carbon) to verify resolution and astigmatism correction.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Vacuum should reach operating pressure within normal timeframe.",
+      "Image quality should show sharp edges and proper contrast.",
+      "Record cleaning and any issues observed."
+    ],
+    "what_not_to_do": [
+      "Never touch the electron column, gun, or detectors — these require trained service personnel.",
+      "Do not introduce wet or outgassing samples — they contaminate the vacuum and column.",
+      "Never use magnetic tools near the electron column.",
+      "Do not use powdered gloves — powder contaminates the vacuum chamber.",
+      "Never vent the chamber by opening the door while under vacuum."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean chamber and stubs after each session. Check vacuum after each sample change.",
+      "after_contamination": "Extended pump-down. If contamination persists, schedule service for column cleaning.",
+      "preventive": "Annual service for gun cleaning, alignment, and detector maintenance by manufacturer."
+    },
+    "safety_warnings": [
+      "SEM uses high voltage (1–30 kV) — the instrument has safety interlocks, do not bypass them.",
+      "Some samples may be hazardous — follow appropriate handling protocols.",
+      "The electron beam generates X-rays — the SEM has built-in shielding."
+    ],
+    "notes": [
+      "Image quality degradation is usually due to contamination or charging — ensure samples are properly prepared.",
+      "Always sputter-coat non-conductive samples before imaging."
+    ]
+  },
+  {
+    "technique": "Sputter",
+    "instrument": "Sputter Coater",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.72,
+    "confidence_note": "Based on sputter coater maintenance from Denton Vacuum Desk V and Quorum Q150 documentation.",
+    "materials_needed": [
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning chamber"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning surfaces"},
+      {"name": "Replacement targets", "specification": "Au, Pt, or Pd/Au", "purpose": "Target replacement"},
+      {"name": "Argon gas", "specification": "99.999%", "purpose": "Sputter gas supply"}
+    ],
+    "before_cleaning": [
+      "Turn off the sputter coater and vent the chamber.",
+      "Remove any samples from the stage.",
+      "Allow the target to cool if recently used."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean chamber interior", "description": "Wipe the chamber walls and glass jar (if applicable) with ethanol-dampened lint-free wipes to remove metal deposits.", "duration": "5 min", "warnings": null},
+      {"step_number": 2, "title": "Clean sample stage", "description": "Remove the stage and wipe clean. Remove any adhesive residue.", "duration": "3 min", "warnings": null},
+      {"step_number": 3, "title": "Inspect target", "description": "Check the sputter target for erosion (racetrack groove). Replace if the target is >50% consumed.", "duration": "3 min", "warnings": null},
+      {"step_number": 4, "title": "Check vacuum seal", "description": "Clean the O-ring and mating surfaces with a dry wipe. Apply a thin layer of vacuum grease if needed.", "duration": "3 min", "warnings": null},
+      {"step_number": 5, "title": "Verify vacuum and operation", "description": "Close chamber, pump down, and run a short test sputter cycle on a blank stub.", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Vacuum should reach base pressure within normal timeframe.",
+      "Test coating should be uniform (no arc marks or uneven coverage).",
+      "Record target condition and cleaning."
+    ],
+    "what_not_to_do": [
+      "Never touch the sputter target with bare hands — skin oils cause arcing.",
+      "Do not use water inside the chamber — it prevents achieving vacuum.",
+      "Never operate without argon gas flowing — this damages the target.",
+      "Do not overapply vacuum grease — excess grease contaminates the chamber."
+    ],
+    "cleaning_frequency": {
+      "routine": "Wipe chamber after every 10–20 coating cycles.",
+      "after_contamination": "Full chamber cleaning with ethanol.",
+      "preventive": "Replace target before it is fully consumed. Replace O-ring annually."
+    },
+    "safety_warnings": [
+      "High voltage is used during sputtering — never open the chamber during operation.",
+      "Some targets (e.g., chromium) can be hazardous — follow material safety protocols.",
+      "Ensure argon cylinder is properly secured."
+    ],
+    "notes": [
+      "Excessive metal buildup on chamber walls can flake and contaminate samples.",
+      "Track the number of coating cycles to predict target replacement timing."
+    ]
+  },
+  {
+    "technique": "BET",
+    "instrument": "BET Surface Area Analyzer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on BET maintenance from Micromeritics ASAP 2020/2460 and Quantachrome documentation.",
+    "materials_needed": [
+      {"name": "Sample tubes", "specification": "Match instrument model", "purpose": "Replacement tubes"},
+      {"name": "Glass wool or frit", "specification": null, "purpose": "Sample containment"},
+      {"name": "Isopropanol", "specification": "Analytical grade", "purpose": "Cleaning sample tubes"},
+      {"name": "Compressed dry nitrogen", "specification": "99.999%", "purpose": "Degas purge gas"},
+      {"name": "Alumina reference material", "specification": "Certified surface area", "purpose": "Verification standard"}
+    ],
+    "before_cleaning": [
+      "Remove sample tubes from analysis and degas ports.",
+      "Allow any heated degas stations to cool.",
+      "Close gas supply valves."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean sample tubes", "description": "Remove spent samples. Wash tubes with detergent, rinse with DI water, then IPA. Dry in oven at 110°C.", "duration": "30 min", "warnings": ["Some samples require special disposal — check your material safety data."]},
+      {"step_number": 2, "title": "Inspect O-rings and seals", "description": "Check all tube port O-rings for cracks. Replace if worn.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Clean dewar and cold trap", "description": "Empty and clean liquid nitrogen dewars. Inspect the cold trap for ice buildup.", "duration": "10 min", "warnings": ["Handle liquid nitrogen with proper cryogenic PPE."]},
+      {"step_number": 4, "title": "Check vacuum system", "description": "Run a vacuum leak test. Verify the system reaches the required base vacuum.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Verify with standard", "description": "Run a certified alumina surface area standard. Compare measured vs. certified value.", "duration": "60 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Measured surface area of standard should be within ±5% of certified value.",
+      "Vacuum should reach base pressure specification.",
+      "Record cleaning, O-ring replacements, and verification results."
+    ],
+    "what_not_to_do": [
+      "Never skip the degas step — adsorbed moisture and gases invalidate BET measurements.",
+      "Do not use cracked or chipped sample tubes — vacuum leaks cause measurement failure.",
+      "Never overfill sample tubes — sample can be pulled into the manifold.",
+      "Do not use contaminated glass wool — it adds surface area to the measurement."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean sample tubes after each use. Check vacuum system weekly.",
+      "after_contamination": "Full system leak check and cold trap cleaning.",
+      "preventive": "Replace O-rings quarterly. Verify with standard monthly. Service vacuum pump annually."
+    },
+    "safety_warnings": [
+      "Liquid nitrogen causes cryogenic burns — use proper PPE and dewar handling procedures.",
+      "Some samples are fine powders — avoid inhalation and use a fume hood.",
+      "Ensure adequate ventilation — nitrogen gas displaces oxygen."
+    ],
+    "notes": [
+      "Proper degassing is the single most important factor for accurate BET results.",
+      "Track standard measurement results over time to detect instrument drift."
+    ]
+  },
+  {
+    "technique": "SECMALS",
+    "instrument": "Size Exclusion Chromatography Multi-Angle Light Scattering",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on SEC-MALS maintenance from Wyatt Technology DAWN/Optilab and Malvern OMNISEC documentation.",
+    "materials_needed": [
+      {"name": "HPLC-grade water or mobile phase", "specification": "Filtered 0.1 µm", "purpose": "Flushing system"},
+      {"name": "20% ethanol or 0.02% sodium azide", "specification": null, "purpose": "Storage solution"},
+      {"name": "Toluene", "specification": "HPLC grade", "purpose": "MALS normalization"},
+      {"name": "BSA monomer standard", "specification": "2 mg/mL", "purpose": "System verification"},
+      {"name": "0.1 µm syringe filters", "specification": null, "purpose": "Filtering mobile phase"}
+    ],
+    "before_cleaning": [
+      "Stop the HPLC/SEC pump flow.",
+      "Note the current MALS laser intensity and RI baseline for comparison.",
+      "Disconnect the column if performing a deep clean."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush SEC system", "description": "Flush the HPLC and all tubing with filtered mobile phase at operating flow rate for 20 minutes.", "duration": "20 min", "warnings": null},
+      {"step_number": 2, "title": "Clean MALS flow cell", "description": "Flush the MALS cell with filtered water at low flow for 30 minutes. If laser signals are noisy, flush with 0.1 M NaOH for 15 min then rinse with water.", "duration": "30 min", "warnings": ["Always use 0.1 µm filtered solvents through the MALS — particles scatter light and contaminate data."]},
+      {"step_number": 3, "title": "Clean RI detector", "description": "Flush the RI (Optilab/refractometer) cell with mobile phase until baseline stabilizes.", "duration": "15 min", "warnings": null},
+      {"step_number": 4, "title": "MALS normalization", "description": "Run a toluene normalization to calibrate detector angles (follow Wyatt/manufacturer procedure).", "duration": "15 min", "warnings": null},
+      {"step_number": 5, "title": "Fill with storage solution", "description": "If storing, flush entire system with 20% ethanol or 0.02% sodium azide.", "duration": "10 min", "warnings": null},
+      {"step_number": 6, "title": "Verify with BSA", "description": "Inject a BSA monomer standard. Verify molar mass is ~66.5 kDa.", "duration": "30 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "BSA molar mass should be within ±5% of expected (66.5 kDa).",
+      "All MALS detector signals should be smooth and noise-free.",
+      "RI baseline should be flat.",
+      "Record normalization coefficients and verification results."
+    ],
+    "what_not_to_do": [
+      "Never use unfiltered mobile phase — particles cause light scattering artifacts that corrupt data.",
+      "Do not allow air bubbles in the MALS flow cell — they cause massive signal spikes.",
+      "Never store the system with buffer containing salt — it will crystallize and block the cell.",
+      "Do not use the MALS without normalization — detector angle calibration is critical for accuracy."
+    ],
+    "cleaning_frequency": {
+      "routine": "Flush system at end of each day. Normalize MALS weekly.",
+      "after_contamination": "Extended flush with filtered water + NaOH cycle for MALS cell.",
+      "preventive": "Replace MALS flow cell gaskets annually. Service laser per manufacturer schedule."
+    },
+    "safety_warnings": [
+      "The MALS contains a laser — never look directly into the beam path.",
+      "Sodium azide is toxic — handle with gloves and proper disposal.",
+      "Toluene is flammable and toxic — use in a fume hood."
+    ],
+    "notes": [
+      "Filtration quality is the #1 factor for MALS data quality — invest in good filtration.",
+      "Track MALS normalization coefficients over time — sudden changes indicate cell contamination."
+    ]
+  },
+  {
+    "technique": "TEM",
+    "instrument": "Transmission Electron Microscope",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.70,
+    "confidence_note": "Based on TEM user maintenance from JEOL JEM series and Thermo Fisher Talos documentation. Most TEM maintenance requires trained service engineers.",
+    "materials_needed": [
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning sample holders"},
+      {"name": "Acetone", "specification": "Analytical grade", "purpose": "Removing contamination"},
+      {"name": "Plasma cleaner", "specification": null, "purpose": "Cleaning grids and holders"},
+      {"name": "TEM grids", "specification": "Cu or Au, carbon-coated", "purpose": "Sample support"},
+      {"name": "Anti-static tweezers", "specification": null, "purpose": "Grid handling"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning holders"}
+    ],
+    "before_cleaning": [
+      "Retract the sample holder and remove it from the column.",
+      "Follow your facility's TEM usage log-off procedure.",
+      "Note column vacuum levels for comparison after cleaning."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean sample holder", "description": "Rinse holder tip with ethanol, then acetone. Use a lint-free wipe to dry. Plasma clean for 30 seconds if available.", "duration": "5 min", "warnings": ["Handle holders by the shaft only — never touch the tip area."]},
+      {"step_number": 2, "title": "Clean holder O-ring", "description": "Remove the O-ring from the holder, clean with ethanol, inspect for damage. Apply a thin film of vacuum grease.", "duration": "5 min", "warnings": ["A damaged O-ring will cause vacuum failure."]},
+      {"step_number": 3, "title": "Plasma clean grids", "description": "Place grids in plasma cleaner for 15–30 seconds to make them hydrophilic and remove hydrocarbon contamination.", "duration": "2 min", "warnings": null},
+      {"step_number": 4, "title": "Clean anti-contamination device", "description": "If your TEM has a cold finger/anti-contamination device, follow the defrost and cleaning procedure per manufacturer instructions.", "duration": "30 min", "warnings": ["This procedure varies significantly between instruments — consult your manual."]},
+      {"step_number": 5, "title": "Verify vacuum and imaging", "description": "Re-insert a clean holder, verify vacuum returns to operating level. Take an image of a standard sample (e.g., gold nanoparticles on carbon) to verify resolution.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Column vacuum should reach operating pressure (typically <1 × 10⁻⁵ Pa).",
+      "Lattice fringes on standard sample should be resolved at the instrument's specification.",
+      "Record holder cleaning and vacuum levels."
+    ],
+    "what_not_to_do": [
+      "NEVER attempt to service the electron gun, column, or vacuum system — contact a service engineer.",
+      "Do not insert wet or outgassing samples — they contaminate the column and degrade vacuum.",
+      "Never use magnetic tools near the column.",
+      "Do not force the holder into the goniometer — misalignment causes vacuum breaks.",
+      "Never open the column without authorization and proper training."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean holder and plasma clean grids before each session.",
+      "after_contamination": "Extensive holder cleaning. Schedule column bake-out if contamination persists.",
+      "preventive": "Annual column bake-out and alignment by manufacturer service engineer."
+    },
+    "safety_warnings": [
+      "TEM uses very high voltage (80–300 kV) — never bypass safety interlocks.",
+      "The instrument generates X-rays — built-in shielding is present, do not remove panels.",
+      "Some TEM samples may be hazardous — follow institutional protocols.",
+      "Liquid nitrogen is used for anti-contamination — handle with cryogenic PPE."
+    ],
+    "notes": [
+      "User-serviceable parts are limited to sample holders, grids, and aperture cleaning.",
+      "Hydrocarbon contamination is the most common cause of poor TEM image quality."
+    ]
+  },
+  {
+    "technique": "Raman",
+    "instrument": "Raman Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on Raman maintenance from Renishaw inVia, HORIBA LabRAM, and Bruker Senterra documentation.",
+    "materials_needed": [
+      {"name": "Lens cleaning solution", "specification": "Optical grade", "purpose": "Cleaning objective lenses"},
+      {"name": "Lens tissue", "specification": "Optical grade", "purpose": "Wiping optics"},
+      {"name": "Silicon wafer", "specification": "Polished (100)", "purpose": "Calibration standard (520 cm⁻¹)"},
+      {"name": "Compressed air", "specification": "Filtered, oil-free", "purpose": "Dust removal"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "General cleaning"}
+    ],
+    "before_cleaning": [
+      "Turn off the laser.",
+      "Remove the sample from the stage.",
+      "Allow the system to power down the laser fully."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean sample stage", "description": "Remove any sample debris. Wipe the stage with a lint-free wipe dampened with ethanol.", "duration": "3 min", "warnings": null},
+      {"step_number": 2, "title": "Clean objective lens", "description": "Use a puff of filtered air to remove dust, then gently wipe with lens tissue and optical cleaning solution.", "duration": "5 min", "warnings": ["Use circular motions from center outward. Never dry-wipe an objective lens."]},
+      {"step_number": 3, "title": "Inspect optical path", "description": "Check for dust on mirrors and filters. Use filtered air to remove particles.", "duration": "5 min", "warnings": ["Do not touch internal optical components — contact service if contaminated."]},
+      {"step_number": 4, "title": "Clean enclosure windows", "description": "If the microscope has enclosure windows, clean with glass cleaner and lint-free wipes.", "duration": "3 min", "warnings": null},
+      {"step_number": 5, "title": "Calibration check", "description": "Measure the silicon 520 cm⁻¹ peak. Position should be within ±1 cm⁻¹.", "duration": "5 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Silicon peak should be at 520.7 ± 1 cm⁻¹.",
+      "Peak intensity should match historical values.",
+      "Record calibration results."
+    ],
+    "what_not_to_do": [
+      "NEVER look into the laser beam — Raman lasers can cause permanent eye damage.",
+      "Do not use regular glass cleaner on optical components — use optical-grade solutions only.",
+      "Never attempt to realign the laser or spectrometer optics — this requires trained service.",
+      "Do not use fluorescent materials near the instrument during measurements."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean stage after each sample. Calibrate with silicon daily.",
+      "after_contamination": "Clean objective lens and stage immediately.",
+      "preventive": "Annual laser power check and alignment by service engineer."
+    },
+    "safety_warnings": [
+      "LASER HAZARD — Class 3B or 4 laser. Always wear appropriate laser safety eyewear.",
+      "Never remove laser safety interlocks or enclosures.",
+      "Some samples may fluoresce intensely — reduce laser power to avoid sample damage."
+    ],
+    "notes": [
+      "Fluorescence interference is the most common Raman measurement problem — try a different excitation wavelength if available.",
+      "Track laser power over time to predict replacement needs."
+    ]
+  },
+  {
+    "technique": "ssNMR",
+    "instrument": "Solid-State Nuclear Magnetic Resonance Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.70,
+    "confidence_note": "Based on ssNMR probe maintenance from Bruker Avance Neo documentation. Most NMR maintenance requires trained specialists.",
+    "materials_needed": [
+      {"name": "MAS rotors", "specification": "Match probe size (1.3/2.5/3.2/4 mm)", "purpose": "Sample containers"},
+      {"name": "Rotor cleaning kit", "specification": null, "purpose": "Cleaning rotors"},
+      {"name": "Compressed dry nitrogen", "specification": null, "purpose": "Spinning gas"},
+      {"name": "Ethanol", "specification": "Analytical grade", "purpose": "Cleaning rotors and caps"},
+      {"name": "KBr powder", "specification": "IR/NMR grade", "purpose": "Background reference"}
+    ],
+    "before_cleaning": [
+      "Stop rotor spinning and wait for complete stop.",
+      "Eject the rotor from the probe.",
+      "Turn off spinning gas.",
+      "Note the current shim values."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean MAS rotors", "description": "Remove sample from rotors using the unpacking tool. Rinse rotors with ethanol, then dry completely.", "duration": "10 min", "warnings": ["Rotors are precision-machined — do not drop or scratch."]},
+      {"step_number": 2, "title": "Clean rotor caps", "description": "Sonicate caps in ethanol for 5 minutes. Dry with lint-free wipes or compressed air.", "duration": "10 min", "warnings": null},
+      {"step_number": 3, "title": "Clean probe stator", "description": "Use a gentle puff of air to remove powder from the stator area. If probe allows, carefully wipe accessible surfaces.", "duration": "5 min", "warnings": ["Never insert tools into the probe bore — this damages the coil and stator."]},
+      {"step_number": 4, "title": "Check spinning gas lines", "description": "Verify bearing and drive gas pressures are correct. Check for moisture in gas lines.", "duration": "5 min", "warnings": null},
+      {"step_number": 5, "title": "Verify with reference", "description": "Pack a rotor with KBr and run a ¹³C CPMAS or adamantane reference to verify probe performance.", "duration": "20 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Reference linewidth and sensitivity should match historical values.",
+      "Rotor should spin stably at operating speed.",
+      "Record probe condition and reference measurements."
+    ],
+    "what_not_to_do": [
+      "NEVER approach the magnet with ferromagnetic objects — the strong magnetic field is always on and can be lethal.",
+      "Do not attempt to remove or service the probe without proper training.",
+      "Never spin a damaged or unbalanced rotor — it can shatter at high speed.",
+      "Do not use metal tools near the probe — they can be pulled into the magnet."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean rotors and caps between each sample.",
+      "after_contamination": "Extensive rotor cleaning. If probe is contaminated, schedule service.",
+      "preventive": "Annual probe tuning and maintenance by manufacturer service."
+    },
+    "safety_warnings": [
+      "STRONG MAGNETIC FIELD — never bring metal objects, credit cards, or pacemakers near the magnet.",
+      "Rotors spinning at 10,000–110,000 Hz can shatter — always use the safety shield.",
+      "Cryogenic liquids (LN₂, LHe) are used — follow cryogenic safety protocols.",
+      "Follow your institution's magnet safety zone markings."
+    ],
+    "notes": [
+      "Rotor imbalance is the most common cause of spinning instability — always pack rotors symmetrically.",
+      "Track reference linewidths to detect probe degradation over time."
+    ]
+  },
+  {
+    "technique": "NMR",
+    "instrument": "Nuclear Magnetic Resonance Spectrometer",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.75,
+    "confidence_note": "Based on solution NMR maintenance from Bruker Avance Neo and JEOL ECZ series documentation.",
+    "materials_needed": [
+      {"name": "NMR tubes", "specification": "5 mm, high quality (Wilmad/Norell)", "purpose": "Sample containers"},
+      {"name": "Deuterated solvents", "specification": "CDCl₃, D₂O, DMSO-d₆", "purpose": "NMR solvents"},
+      {"name": "Acetone-d₆", "specification": "NMR grade", "purpose": "Tube and probe cleaning"},
+      {"name": "Pipe cleaners", "specification": null, "purpose": "Cleaning NMR tube spinner"},
+      {"name": "Compressed air", "specification": "Filtered, dry", "purpose": "Drying spinner"}
+    ],
+    "before_cleaning": [
+      "Eject the current sample from the magnet.",
+      "Turn off the spinner air.",
+      "Note current lock and shim values."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Clean NMR tubes", "description": "Rinse tubes with appropriate solvent (acetone, then target deuterated solvent). Dry with filtered N₂ stream.", "duration": "5 min", "warnings": ["Never use compressed air from unfiltered lines — oil contaminates tubes."]},
+      {"step_number": 2, "title": "Clean sample spinner", "description": "Wipe the spinner (turbine) with a lint-free wipe. Remove any solvent residue. Use a pipe cleaner for the bore.", "duration": "5 min", "warnings": null},
+      {"step_number": 3, "title": "Check probe for drips", "description": "Lower the probe (if possible) and inspect for solvent drips from cracked tubes. Wipe clean if found.", "duration": "5 min", "warnings": ["Solvent in the probe degrades performance and can damage electronics."]},
+      {"step_number": 4, "title": "Run lineshape test", "description": "Insert a lineshape standard (CHCl₃ in CDCl₃ or acetone-d₆). Run ¹H spectrum and check linewidth.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Reshim if needed", "description": "If linewidth exceeds specification, run automated shimming (TopShim or equivalent).", "duration": "10 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "¹H linewidth on CHCl₃ should meet probe specifications (typically <0.5 Hz for 400 MHz).",
+      "Lock should be stable.",
+      "Record shim values and lineshape test results."
+    ],
+    "what_not_to_do": [
+      "NEVER bring ferromagnetic objects near the magnet — this is a life-threatening hazard.",
+      "Do not drop NMR tubes into the magnet bore — use the sample lift system.",
+      "Never use cracked or chipped NMR tubes — they can break inside the probe.",
+      "Do not ignore spinning sidebands — they indicate a dirty or damaged spinner/tube."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean spinner weekly. Lineshape test weekly.",
+      "after_contamination": "Clean probe bore if solvent spill occurred. Schedule probe cleaning by service if needed.",
+      "preventive": "Cryogen fill schedule per magnet requirements. Annual probe maintenance by manufacturer."
+    },
+    "safety_warnings": [
+      "STRONG MAGNETIC FIELD — keep all ferromagnetic materials away. Follow 5-gauss line safety zone.",
+      "Cryogenic liquids (liquid helium, liquid nitrogen) are used for the magnet — follow cryo safety protocols.",
+      "Some deuterated solvents are toxic (CDCl₃, benzene-d₆) — use in a fume hood.",
+      "In case of magnet quench, evacuate immediately due to oxygen displacement."
+    ],
+    "notes": [
+      "NMR tube quality directly affects spectral quality — invest in good tubes.",
+      "Track helium level and fill schedule to prevent magnet quench."
+    ]
+  },
+  {
+    "technique": "PrepLC",
+    "instrument": "Preparative Liquid Chromatograph",
+    "manufacturer": "Generic",
+    "model": "General",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Procedure Extracted or Summarized",
+    "source_url": null,
+    "source_title": null,
+    "confidence": 0.78,
+    "confidence_note": "Based on prep LC maintenance from Agilent 1260 Prep, Waters Prep 150, and KNAUER AZURA documentation.",
+    "materials_needed": [
+      {"name": "HPLC-grade methanol", "specification": "≥99.9%", "purpose": "System flush"},
+      {"name": "HPLC-grade water", "specification": "18.2 MΩ·cm", "purpose": "Salt removal"},
+      {"name": "Isopropanol", "specification": "HPLC grade", "purpose": "Deep cleaning"},
+      {"name": "Large-bore inlet frits", "specification": "Match system", "purpose": "Frit replacement"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "External cleaning"},
+      {"name": "Fraction collector tubes/vials", "specification": null, "purpose": "Replacements"}
+    ],
+    "before_cleaning": [
+      "Complete any running method.",
+      "Remove the prep column — replace with a union.",
+      "Drain the fraction collector.",
+      "Note pump volumes and current method parameters."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Flush with water", "description": "Pump DI water at 20–50 mL/min (appropriate for your system bore) for 15 minutes to remove buffers.", "duration": "15 min", "warnings": ["Use higher flow rates appropriate for prep-scale tubing."]},
+      {"step_number": 2, "title": "Flush with methanol", "description": "Switch to methanol at the same flow rate for 15 minutes.", "duration": "15 min", "warnings": null},
+      {"step_number": 3, "title": "IPA flush", "description": "Flush with IPA at reduced flow for 10 minutes for deep cleaning.", "duration": "10 min", "warnings": null},
+      {"step_number": 4, "title": "Clean fraction collector", "description": "Remove all tubes/vials. Wipe the collector tray and diverter valve with methanol-dampened wipes.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Clean injection system", "description": "Flush the injection loop and valve with methanol. For manual injection, clean the injection port.", "duration": "5 min", "warnings": null},
+      {"step_number": 6, "title": "Inspect and replace frits", "description": "Check inlet frits for blockage. Replace if system pressure is elevated.", "duration": "5 min", "warnings": null},
+      {"step_number": 7, "title": "Return to mobile phase", "description": "Flush back to starting mobile phase conditions. Reconnect column and equilibrate.", "duration": "20 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a blank injection to verify clean baseline.",
+      "Check fraction collector triggering with a test run.",
+      "Verify flow rate accuracy (gravimetric check).",
+      "Record cleaning and maintenance."
+    ],
+    "what_not_to_do": [
+      "Never run prep columns at analytical-scale flow rates — this wastes time and gives poor results.",
+      "Do not leave buffers in the system — salt crystallization blocks prep-scale tubing quickly.",
+      "Never ignore fraction collector alignment — misaligned tubes cause fraction loss.",
+      "Do not use analytical-grade fittings on prep-scale connections — they cannot handle the flow."
+    ],
+    "cleaning_frequency": {
+      "routine": "Flush system after each purification campaign. Clean fraction collector daily.",
+      "after_contamination": "Full water → MeOH → IPA → MeOH flush sequence.",
+      "preventive": "Replace pump seals per manufacturer schedule. Replace check valves annually."
+    },
+    "safety_warnings": [
+      "Prep LC uses large solvent volumes — ensure adequate ventilation and waste capacity.",
+      "Organic solvent vapors are flammable — no ignition sources near the instrument.",
+      "Large fraction volumes require proper handling and storage.",
+      "Wear appropriate PPE when handling large volumes of organic solvents."
+    ],
+    "notes": [
+      "Prep LC tubing and fittings are larger bore than analytical — do not interchange.",
+      "Always verify fraction purity by analytical LC before combining fractions."
+    ]
+  }
+]

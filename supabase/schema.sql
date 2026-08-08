@@ -306,3 +306,20 @@ create index if not exists idx_cp_technique on cleaning_procedures(technique);
 create index if not exists idx_cp_mfr       on cleaning_procedures(manufacturer);
 create index if not exists idx_cp_expires   on cleaning_procedures(expires_at);
 create index if not exists idx_cp_status    on cleaning_procedures(validation_status);
+
+alter table cleaning_procedures enable row level security;
+
+create policy "Authenticated users can read cleaning procedures"
+  on cleaning_procedures for select
+  to authenticated
+  using (true);
+
+create policy "Authenticated users can insert cleaning procedures"
+  on cleaning_procedures for insert
+  to authenticated
+  with check (true);
+
+create policy "Authenticated users can delete cleaning procedures"
+  on cleaning_procedures for delete
+  to authenticated
+  using (true);

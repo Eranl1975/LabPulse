@@ -1,7 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { CleaningProcedureContent } from './cleaning-types';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Shared lazy client — same pattern as ai-fallback.ts
+let _client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!_client) {
+    _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return _client;
+}
 
 const SYSTEM_PROMPT = `You are an expert analytical instrument maintenance specialist with deep knowledge of cleaning procedures for all major laboratory instruments.
 
@@ -59,7 +66,18 @@ CRITICAL RULES:
 5. The "what_not_to_do" section must contain 3-8 instrument-specific warnings.
    - These must be real, meaningful hazards — not generic filler.
 
-Return ONLY a raw JSON object matching this exact schema:
+CONCISENESS RULES:
+- Keep each step description to 1-3 sentences maximum.
+- Limit cleaning_steps to 8-12 steps.
+- Keep materials_needed to 6-10 items.
+- Keep what_not_to_do to 3-6 items.
+- Keep safety_warnings to 3-5 items.
+- Keep notes to 2-4 items.
+- Total JSON response MUST be under 5000 characters.
+
+Return ONLY a raw JSON object — no markdown code fences, no explanation before or after, JUST the JSON object starting with { and ending with }.
+
+Schema:
 
 {
   "instrument": string,
@@ -71,9 +89,9 @@ Return ONLY a raw JSON object matching this exact schema:
   "source_title": string | null,
   "confidence": number,
   "confidence_note": string,
-  "materials_needed": [{ "name": string, "specification": string?, "purpose": string }],
+  "materials_needed": [{ "name": string, "specification": string or null, "purpose": string }],
   "before_cleaning": [string],
-  "cleaning_steps": [{ "step_number": number, "title": string, "description": string, "duration": string?, "warnings": [string]? }],
+  "cleaning_steps": [{ "step_number": number, "title": string, "description": string, "duration": string or null, "warnings": [string] or null }],
   "after_cleaning": [string],
   "what_not_to_do": [string],
   "cleaning_frequency": { "routine": string, "after_contamination": string, "preventive": string },
@@ -86,15 +104,19 @@ source_label values:
 - "Manufacturer Documentation - Procedure Extracted or Summarized" for manufacturer_documentation
 - "AI-Generated Cleaning Procedure" for ai_generated`;
 
+// Confidence threshold below which we escalate from Sonnet to Opus
+// (same pattern as ai-fallback.ts)
 const OPUS_ESCALATION_THRESHOLD = 0.5;
 
 async function callModel(
-  model: string,
+  modelId: string,
   userMessage: string,
 ): Promise<{ parsed: Partial<CleaningProcedureContent>; modelUsed: string }> {
-  const message = await client.messages.create({
-    model,
-    max_tokens: 4096,
+  console.log(`[ai-cleaning] Calling ${modelId}...`);
+
+  const message = await getClient().messages.create({
+    model: modelId,
+    max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
   });
@@ -104,22 +126,57 @@ async function callModel(
     .map(b => (b as { type: 'text'; text: string }).text)
     .join('');
 
+  console.log(`[ai-cleaning] ${modelId} responded, length=${text.length}, stop_reason=${message.stop_reason}`);
+
   let parsed: Partial<CleaningProcedureContent> = {};
   try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON object found in response');
-    parsed = JSON.parse(jsonMatch[0]);
-  } catch {
+    // Strip markdown code fences if present
+    const cleaned = text
+      .replace(/^```(?:json)?\s*\n?/gm, '')
+      .replace(/\n?```\s*$/gm, '')
+      .trim();
+
+    // Find the outermost balanced JSON object
+    const startIdx = cleaned.indexOf('{');
+    if (startIdx === -1) throw new Error('No JSON object found in response');
+
+    let depth = 0;
+    let endIdx = -1;
+    let inString = false;
+    let escape = false;
+    for (let i = startIdx; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+      if (escape) { escape = false; continue; }
+      if (ch === '\\' && inString) { escape = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === '{') depth++;
+      else if (ch === '}') { depth--; if (depth === 0) { endIdx = i; break; } }
+    }
+
+    if (endIdx === -1) throw new Error('Unbalanced JSON in response');
+    parsed = JSON.parse(cleaned.slice(startIdx, endIdx + 1));
+    console.log(`[ai-cleaning] Parsed OK, source_type=${parsed.source_type}, confidence=${parsed.confidence}`);
+  } catch (parseErr) {
+    console.error('[ai-cleaning] JSON parse error:', parseErr);
+    console.error('[ai-cleaning] Raw response (first 800 chars):', text.slice(0, 800));
+    // Graceful degradation — same as ai-fallback.ts: return partial result
     parsed = {
-      confidence: 0.3,
-      confidence_note: 'AI response could not be parsed. Please try again.',
-      notes: ['The cleaning procedure could not be generated. Please retry or consult the manufacturer manual directly.'],
+      notes: ['AI response could not be parsed. Please try again or consult the manufacturer manual directly.'],
     };
   }
 
-  return { parsed, modelUsed: model };
+  return { parsed, modelUsed: modelId };
 }
 
+/**
+ * Generate a cleaning procedure via AI — follows the same pattern as
+ * aiAnswerFallback() in ai-fallback.ts:
+ *   1. Try Sonnet first (fast, cost-efficient)
+ *   2. If Sonnet confidence < 0.5, escalate to Opus
+ *   3. Use Opus result only if it has equal or higher confidence
+ *   4. Never throw — always return a result (even if degraded)
+ */
 export async function generateCleaningProcedure(
   technique: string,
   vendor?: string | null,
@@ -138,17 +195,22 @@ export async function generateCleaningProcedure(
 
   const userMessage = lines.join('\n');
 
-  // Default: Sonnet (fast, cost-efficient)
+  // ── Sonnet first, then Opus escalation (same as ai-fallback.ts) ─────────
   let { parsed, modelUsed } = await callModel('claude-sonnet-4-6', userMessage);
 
-  // Escalate to Opus if confidence is low
   const sonnetConfidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0.5;
   if (sonnetConfidence < OPUS_ESCALATION_THRESHOLD) {
-    const opusResult = await callModel('claude-opus-4-6', userMessage);
-    const opusConfidence = typeof opusResult.parsed.confidence === 'number' ? opusResult.parsed.confidence : 0.5;
-    if (opusConfidence >= sonnetConfidence) {
-      parsed = opusResult.parsed;
-      modelUsed = opusResult.modelUsed;
+    console.log(`[ai-cleaning] Sonnet confidence ${sonnetConfidence} < ${OPUS_ESCALATION_THRESHOLD}, escalating to Opus...`);
+    try {
+      const opusResult = await callModel('claude-opus-4-6', userMessage);
+      const opusConfidence = typeof opusResult.parsed.confidence === 'number' ? opusResult.parsed.confidence : 0.5;
+      if (opusConfidence >= sonnetConfidence) {
+        parsed = opusResult.parsed;
+        modelUsed = opusResult.modelUsed;
+      }
+    } catch (opusErr) {
+      // Opus escalation failure is non-fatal — keep Sonnet result
+      console.error('[ai-cleaning] Opus escalation failed, using Sonnet result:', opusErr);
     }
   }
 
