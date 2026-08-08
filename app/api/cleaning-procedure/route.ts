@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
+import { findCleaningProcedure } from '@/lib/cleaning-store';
 import { generateCleaningProcedure } from '@/lib/ai-cleaning';
 import type { Technique } from '@/lib/types';
 import type { CleaningProcedureResponse, CleaningProcedureContent } from '@/lib/cleaning-types';
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
   const model   = typeof body.model === 'string'  ? body.model.trim()  || null : null;
   const refresh = body.refresh === true;
 
-  // ── Check Supabase cache first ────────────────────────────────────────────
+  // ── 1. Check Supabase cache first ───────────────────────────────────────────
   if (!refresh) {
     try {
       const { createSupabaseServerClient } = await import('@/lib/supabase-server');
@@ -81,61 +82,67 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(response);
       }
     } catch (err) {
-      // Supabase not available or table doesn't exist yet — fall through to AI
+      // Supabase not available or table doesn't exist yet — fall through
       console.error('[cleaning-procedure] cache lookup error:', err);
     }
   }
 
-  // ── Generate via AI (same pattern as /api/query — graceful fallback) ─────
-  // Start with an empty/default procedure (same way /api/query starts with
-  // empty rankItems result before AI fallback)
-  let content: CleaningProcedureContent = {
-    instrument:       technique,
-    manufacturer:     vendor ?? 'Generic',
-    model:            model ?? 'General',
-    source_type:      'ai_generated',
-    source_label:     'AI-Generated Cleaning Procedure',
-    source_url:       null,
-    source_title:     null,
-    confidence:       0,
-    confidence_note:  'No cleaning procedure could be generated. Please consult the manufacturer manual directly.',
-    materials_needed: [],
-    before_cleaning:  [],
-    cleaning_steps:   [],
-    after_cleaning:   [],
-    what_not_to_do:   [],
-    cleaning_frequency: {
-      routine:             'Consult manufacturer manual.',
-      after_contamination: 'Clean immediately after suspected contamination.',
-      preventive:          'Follow manufacturer preventive maintenance schedule.',
-    },
-    safety_warnings:  [],
-    notes:            ['Cleaning procedure could not be generated. This may be due to a temporary service issue. Please try again or consult the manufacturer manual directly.'],
-  };
+  // ── 2. Check local knowledge base (same as rankItems in /api/query) ─────────
+  const localResult = findCleaningProcedure(technique, vendor, model);
+  let content: CleaningProcedureContent | null = localResult;
   let modelUsed: string | undefined;
 
-  // Only attempt AI if API key is configured (same check as /api/query)
-  if (process.env.ANTHROPIC_API_KEY) {
+  // ── 3. AI fallback if local confidence is low (same as /api/query pattern) ──
+  // Only call AI if: local result is missing/low-confidence AND API key exists AND refresh requested
+  const needsAI = !content || content.confidence < 0.4 || refresh;
+
+  if (needsAI && process.env.ANTHROPIC_API_KEY) {
     try {
       const result = await generateCleaningProcedure(technique, vendor, model);
-      content = result.content;
-      modelUsed = result.modelUsed;
+      // Use AI result only if it has higher confidence than local
+      if (!content || result.content.confidence >= content.confidence) {
+        content = result.content;
+        modelUsed = result.modelUsed;
+      }
     } catch (err) {
-      // AI call failed — return the default empty result rather than crashing
-      // (same pattern as /api/query: catch around aiAnswerFallback)
+      // AI call failed — keep the local result (same as /api/query)
       console.error('[cleaning-procedure] AI generation error:', err);
     }
-  } else {
-    console.warn('[cleaning-procedure] ANTHROPIC_API_KEY not set, skipping AI generation');
   }
 
-  // ── Upsert to Supabase cache (non-fatal) ────────────────────────────────
-  if (content.confidence > 0) {
+  // ── 4. Fallback: if still no content, return an empty procedure ─────────────
+  if (!content) {
+    content = {
+      instrument:       technique,
+      manufacturer:     vendor ?? 'Generic',
+      model:            model ?? 'General',
+      source_type:      'ai_generated',
+      source_label:     'AI-Generated Cleaning Procedure',
+      source_url:       null,
+      source_title:     null,
+      confidence:       0,
+      confidence_note:  'No cleaning procedure available. Please consult the manufacturer manual.',
+      materials_needed: [],
+      before_cleaning:  [],
+      cleaning_steps:   [],
+      after_cleaning:   [],
+      what_not_to_do:   [],
+      cleaning_frequency: {
+        routine:             'Consult manufacturer manual.',
+        after_contamination: 'Clean immediately after suspected contamination.',
+        preventive:          'Follow manufacturer preventive maintenance schedule.',
+      },
+      safety_warnings:  [],
+      notes:            ['No procedure found for this instrument. Please consult the manufacturer manual.'],
+    };
+  }
+
+  // ── 5. Upsert to Supabase cache (non-fatal, only for AI results) ────────────
+  if (modelUsed && content.confidence > 0) {
     try {
       const { createSupabaseServerClient } = await import('@/lib/supabase-server');
       const supabase = await createSupabaseServerClient();
 
-      // Delete existing cache entry (expression-based unique index can't be used with JS upsert)
       let deleteQuery = supabase
         .from('cleaning_procedures')
         .delete()
@@ -146,7 +153,6 @@ export async function POST(req: NextRequest) {
       else        { deleteQuery = deleteQuery.is('model', null); }
       await deleteQuery;
 
-      // Insert new cache entry
       await supabase.from('cleaning_procedures').insert({
         technique,
         manufacturer:       vendor,
@@ -159,7 +165,7 @@ export async function POST(req: NextRequest) {
         what_not_to_do:     content.what_not_to_do,
         materials:          content.materials_needed.map(m => m.name),
         cleaning_frequency: content.cleaning_frequency.routine,
-        ai_model_used:      modelUsed ?? null,
+        ai_model_used:      modelUsed,
         ai_confidence:      content.confidence,
         retrieval_date:     new Date().toISOString(),
         validation_status:  'unverified',
@@ -167,12 +173,11 @@ export async function POST(req: NextRequest) {
         updated_at:         new Date().toISOString(),
       });
     } catch (err) {
-      // Cache upsert failure is non-fatal — return the AI result anyway
       console.error('[cleaning-procedure] cache upsert error:', err);
     }
   }
 
-  // Always return 200 with the result (even if degraded) — same as /api/query
+  // Always return 200 with the result — same as /api/query
   const response: CleaningProcedureResponse = {
     procedure:     content,
     source_type:   content.source_type,

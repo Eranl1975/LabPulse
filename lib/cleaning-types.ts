@@ -26,6 +26,7 @@ export interface CleaningFrequency {
 }
 
 export interface CleaningProcedureContent {
+  technique?: string;    // present in local knowledge base items
   instrument: string;
   manufacturer: string;
   model: string;
