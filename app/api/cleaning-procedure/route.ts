@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { generateCleaningProcedure } from '@/lib/ai-cleaning';
 import type { Technique } from '@/lib/types';
-import type { CleaningProcedureResponse } from '@/lib/cleaning-types';
+import type { CleaningProcedureResponse, CleaningProcedureContent } from '@/lib/cleaning-types';
 
 const VALID_TECHNIQUES = new Set<Technique>([
   'LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC',
@@ -10,7 +10,7 @@ const VALID_TECHNIQUES = new Set<Technique>([
   'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC',
 ]);
 
-// Allow up to 60 seconds for Claude API call (default Vercel timeout is 10s)
+// Allow up to 120 seconds for Claude API call (Sonnet + possible Opus escalation)
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
@@ -42,8 +42,7 @@ export async function POST(req: NextRequest) {
   const model   = typeof body.model === 'string'  ? body.model.trim()  || null : null;
   const refresh = body.refresh === true;
 
-  // ── Check Supabase cache ──────────────────────────────────────────────────
-  let cached = false;
+  // ── Check Supabase cache first ────────────────────────────────────────────
   if (!refresh) {
     try {
       const { createSupabaseServerClient } = await import('@/lib/supabase-server');
@@ -87,18 +86,51 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── Generate via AI ───────────────────────────────────────────────────────
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      { error: 'AI service is not configured. Please contact the administrator.' },
-      { status: 503 },
-    );
+  // ── Generate via AI (same pattern as /api/query — graceful fallback) ─────
+  // Start with an empty/default procedure (same way /api/query starts with
+  // empty rankItems result before AI fallback)
+  let content: CleaningProcedureContent = {
+    instrument:       technique,
+    manufacturer:     vendor ?? 'Generic',
+    model:            model ?? 'General',
+    source_type:      'ai_generated',
+    source_label:     'AI-Generated Cleaning Procedure',
+    source_url:       null,
+    source_title:     null,
+    confidence:       0,
+    confidence_note:  'No cleaning procedure could be generated. Please consult the manufacturer manual directly.',
+    materials_needed: [],
+    before_cleaning:  [],
+    cleaning_steps:   [],
+    after_cleaning:   [],
+    what_not_to_do:   [],
+    cleaning_frequency: {
+      routine:             'Consult manufacturer manual.',
+      after_contamination: 'Clean immediately after suspected contamination.',
+      preventive:          'Follow manufacturer preventive maintenance schedule.',
+    },
+    safety_warnings:  [],
+    notes:            ['Cleaning procedure could not be generated. This may be due to a temporary service issue. Please try again or consult the manufacturer manual directly.'],
+  };
+  let modelUsed: string | undefined;
+
+  // Only attempt AI if API key is configured (same check as /api/query)
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const result = await generateCleaningProcedure(technique, vendor, model);
+      content = result.content;
+      modelUsed = result.modelUsed;
+    } catch (err) {
+      // AI call failed — return the default empty result rather than crashing
+      // (same pattern as /api/query: catch around aiAnswerFallback)
+      console.error('[cleaning-procedure] AI generation error:', err);
+    }
+  } else {
+    console.warn('[cleaning-procedure] ANTHROPIC_API_KEY not set, skipping AI generation');
   }
 
-  try {
-    const { content, modelUsed } = await generateCleaningProcedure(technique, vendor, model);
-
-    // ── Upsert to Supabase cache ──────────────────────────────────────────
+  // ── Upsert to Supabase cache (non-fatal) ────────────────────────────────
+  if (content.confidence > 0) {
     try {
       const { createSupabaseServerClient } = await import('@/lib/supabase-server');
       const supabase = await createSupabaseServerClient();
@@ -127,7 +159,7 @@ export async function POST(req: NextRequest) {
         what_not_to_do:     content.what_not_to_do,
         materials:          content.materials_needed.map(m => m.name),
         cleaning_frequency: content.cleaning_frequency.routine,
-        ai_model_used:      modelUsed,
+        ai_model_used:      modelUsed ?? null,
         ai_confidence:      content.confidence,
         retrieval_date:     new Date().toISOString(),
         validation_status:  'unverified',
@@ -138,21 +170,15 @@ export async function POST(req: NextRequest) {
       // Cache upsert failure is non-fatal — return the AI result anyway
       console.error('[cleaning-procedure] cache upsert error:', err);
     }
-
-    const response: CleaningProcedureResponse = {
-      procedure:     content,
-      source_type:   content.source_type,
-      cached:        false,
-      generated_at:  new Date().toISOString(),
-      ai_model_used: modelUsed,
-    };
-    return NextResponse.json(response);
-  } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    console.error('[cleaning-procedure] AI generation error:', errMsg);
-    return NextResponse.json(
-      { error: `Unable to generate cleaning procedure: ${errMsg}` },
-      { status: 500 },
-    );
   }
+
+  // Always return 200 with the result (even if degraded) — same as /api/query
+  const response: CleaningProcedureResponse = {
+    procedure:     content,
+    source_type:   content.source_type,
+    cached:        false,
+    generated_at:  new Date().toISOString(),
+    ai_model_used: modelUsed,
+  };
+  return NextResponse.json(response);
 }
