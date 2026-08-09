@@ -42,15 +42,28 @@ export const metadata: Metadata = {
     apple: '/icon.svg',
   },
   manifest: '/manifest.json',
+  openGraph: {
+    type: 'website',
+    title: 'LabPulse — Instrument Troubleshooting Intelligence',
+    description: 'Evidence-ranked troubleshooting for 27 analytical techniques. AI-powered diagnostics for HPLC, LCMS, GC, NMR, and more.',
+    siteName: 'LabPulse',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LabPulse — Instrument Troubleshooting Intelligence',
+    description: 'Evidence-ranked troubleshooting for 27 analytical techniques.',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}>
       <body>
+        <a href="#main-content" className="skip-to-content">Skip to main content</a>
         <AuthRedirect />
         <NavBar />
-        <div style={{ paddingTop: '64px' }}>{children}</div>
+        <main id="main-content" style={{ paddingTop: '64px' }}>{children}</main>
       </body>
     </html>
   );

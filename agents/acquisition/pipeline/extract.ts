@@ -4,7 +4,7 @@
 import type { RawFetchedItem, ExtractedItem } from '../types';
 import type { Technique, Severity } from '@/lib/types';
 
-const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS']);
+const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
 const VALID_SEVERITIES  = new Set<Severity>(['low', 'medium', 'high', 'critical']);
 
 function isValidTechnique(v: unknown): v is Technique {

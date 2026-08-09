@@ -108,6 +108,21 @@
   }
 
   ::selection { background-color: var(--color-teal-100); color: var(--color-navy-900); }
+
+  /* ── Dark mode ─────────────────────────────────────────── */
+  html.dark {
+    background: linear-gradient(160deg, #0a1628 0%, #040d1e 100%);
+  }
+  html.dark body {
+    color: var(--color-slate-200);
+  }
+  html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+    color: var(--color-slate-100);
+  }
+  html.dark ::selection {
+    background-color: rgba(20,184,166,.3);
+    color: var(--color-teal-100);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -410,4 +425,66 @@
     padding: 2.25rem 0 4rem;
   }
   @media (min-width: 768px) { .lab-page-body { padding: 2.75rem 0 5rem; } }
+
+  /* ── Dark mode overrides ───────────────────────────────── */
+  :is(html.dark) .lab-card {
+    background: var(--color-navy-800);
+    border-color: var(--color-navy-600);
+    box-shadow: 0 1px 4px rgba(0,0,0,.3);
+  }
+  :is(html.dark) .lab-input {
+    background: var(--color-navy-900);
+    border-color: var(--color-navy-600);
+    color: var(--color-slate-100);
+  }
+  :is(html.dark) .lab-input::placeholder { color: var(--color-slate-500); }
+  :is(html.dark) .lab-input:focus {
+    border-color: var(--color-teal-500);
+    background: var(--color-navy-800);
+  }
+  :is(html.dark) .lab-btn-secondary {
+    background: var(--color-navy-800);
+    color: var(--color-slate-200);
+    border-color: var(--color-navy-600);
+  }
+  :is(html.dark) .lab-label { color: var(--color-slate-400); }
+  :is(html.dark) .nav-link { color: var(--color-slate-400); }
+  :is(html.dark) .nav-link:hover { color: var(--color-slate-100); background: var(--color-navy-700); }
+  :is(html.dark) .ans-section { border-left-color: var(--color-teal-600); }
+  :is(html.dark) .lab-error { background: rgba(185,28,28,.12); border-color: rgba(185,28,28,.3); }
+  :is(html.dark) .priority-item {
+    background: var(--color-navy-800);
+    border-color: var(--color-navy-600);
+    color: var(--color-slate-300);
+  }
+
+  /* ── Loading skeleton ──────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-slate-200) 25%, var(--color-slate-100) 50%, var(--color-slate-200) 75%);
+    background-size: 200% 100%;
+    animation: labShimmer 1.5s ease infinite;
+    border-radius: var(--radius-md);
+  }
+  :is(html.dark) .skeleton {
+    background: linear-gradient(90deg, var(--color-navy-700) 25%, var(--color-navy-600) 50%, var(--color-navy-700) 75%);
+    background-size: 200% 100%;
+  }
+
+  /* ── Skip-to-content (a11y) ────────────────────────────── */
+  .skip-to-content {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 1000;
+    padding: .5rem 1rem;
+    background: var(--color-teal-600);
+    color: #fff;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    text-decoration: none;
+    transition: top .15s;
+  }
+  .skip-to-content:focus {
+    top: 8px;
+  }
 }

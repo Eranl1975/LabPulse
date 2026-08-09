@@ -205,21 +205,29 @@ function ManagerView({ output }: { output: ManagerOutput }) {
   );
 }
 
-// ── Confidence bar ────────────────────────────────────────────────────────────
+// ── Confidence bar (color-blind safe: text label + pattern + percentage) ──────
 function ConfidenceBar({ confidence }: { confidence: number }) {
   const info = confidenceInfo(confidence);
+  // Pattern marker for color-blind users
+  const marker = confidence >= 0.75 ? '\u25CF' : confidence >= 0.50 ? '\u25B2' : confidence > 0 ? '\u25A0' : '\u2013';
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      padding: '0.75rem 1rem',
-      borderRadius: '8px',
-      background: info.bg,
-      border: `1px solid ${info.border}`,
-      marginBottom: '1.375rem',
-    }}>
-      {/* Progress bar */}
+    <div
+      role="meter"
+      aria-valuenow={Math.round(confidence * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={info.label}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1rem',
+        padding: '0.75rem 1rem',
+        borderRadius: '8px',
+        background: info.bg,
+        border: `1px solid ${info.border}`,
+        marginBottom: '1.375rem',
+      }}
+    >
       <div style={{
         flex: 1,
         height: '6px',
@@ -244,7 +252,7 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
         whiteSpace: 'nowrap',
         flexShrink: 0,
       }}>
-        {info.label}
+        {marker} {info.label}
       </span>
     </div>
   );

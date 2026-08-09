@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import type { Technique, LabReport } from '@/lib/types';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import type { Technique, LabReport, RankedAnswer } from '@/lib/types';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
 import { addReport } from '@/lib/reportStore';
+import { exportAsText, exportAsCSV } from '@/lib/export';
 import ReportModal from './ReportModal';
 import ModeSwitcher, { type DisplayMode } from './ModeSwitcher';
 import AnswerDisplay from './AnswerDisplay';
@@ -327,7 +328,7 @@ function getFilteredChecked(technique: string): string[] {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ApiResult {
-  ranked_answer: { confidence: number };
+  ranked_answer: RankedAnswer;
   ai_assisted: boolean;
   modes: {
     concise:  TextOutput;
@@ -533,12 +534,58 @@ export default function QueryForm() {
   const [showModal,        setShowModal]        = useState(false);
   const [pendingReportId,  setPendingReportId]  = useState<string | null>(null);
 
-  // Derived filtered lists — recomputed on every render when technique/vendor change
+  const formRef = useRef<HTMLFormElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Derived filtered lists
   const filteredVendors  = getFilteredVendors(technique);
   const filteredModels   = getFilteredModels(technique, vendor);
   const filteredIssues   = getFilteredIssues(technique);
   const filteredSymptoms = getFilteredSymptoms(technique);
   const filteredChecked  = getFilteredChecked(technique);
+
+  // Keyboard shortcuts: Ctrl+Enter = submit, Ctrl+1-4 = switch mode
+  const handleExportText = useCallback(() => {
+    if (result) exportAsText(result.ranked_answer, result.modes, technique);
+  }, [result, technique]);
+  const handleExportCSV = useCallback(() => {
+    if (result) exportAsCSV(result.ranked_answer, technique);
+  }, [result, technique]);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'Enter' && formRef.current) {
+          e.preventDefault();
+          formRef.current.requestSubmit();
+        }
+        const modes: DisplayMode[] = ['concise', 'standard', 'deep', 'manager'];
+        const modeIdx = parseInt(e.key) - 1;
+        if (modeIdx >= 0 && modeIdx < modes.length && result) {
+          e.preventDefault();
+          setMode(modes[modeIdx]);
+        }
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && target.tagName !== 'SELECT') {
+          e.preventDefault();
+          const firstInput = formRef.current?.querySelector('input');
+          firstInput?.focus();
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [result]);
+
+  // Focus management: scroll to results when they appear
+  useEffect(() => {
+    if (result && resultsRef.current) {
+      resultsRef.current.focus({ preventScroll: false });
+      resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [result]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -607,7 +654,7 @@ export default function QueryForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} noValidate>
+      <form ref={formRef} onSubmit={handleSubmit} noValidate>
 
         {/* ── Step 1: Instrument ─────────────────────────────────────────── */}
         <div style={SECTION}>
@@ -768,8 +815,26 @@ export default function QueryForm() {
         />
       )}
 
+      {/* Loading skeleton */}
+      {loading && (
+        <div style={{ marginTop: '2.75rem' }} aria-live="polite" aria-busy="true">
+          <div className="skeleton" style={{ height: '3rem', marginBottom: '1rem' }} />
+          <div className="skeleton" style={{ height: '1.5rem', width: '60%', marginBottom: '0.75rem' }} />
+          <div className="skeleton" style={{ height: '12rem', marginBottom: '1rem' }} />
+          <div className="skeleton" style={{ height: '1.5rem', width: '40%' }} />
+        </div>
+      )}
+
       {result && (
-        <div style={{ marginTop: '2.75rem' }} className="fade-in">
+        <div
+          ref={resultsRef}
+          tabIndex={-1}
+          role="region"
+          aria-label="Troubleshooting results"
+          aria-live="polite"
+          style={{ marginTop: '2.75rem', outline: 'none' }}
+          className="fade-in"
+        >
           <div style={{
             display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem',
           }}>
@@ -790,27 +855,35 @@ export default function QueryForm() {
             confidence={result.ranked_answer.confidence}
             selected={mode}
           />
-          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => setShowModal(true)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-                padding: '0.5rem 1.25rem',
-                background: 'transparent',
-                border: '1.5px solid var(--color-slate-300)',
-                borderRadius: '8px',
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.875rem', fontWeight: 600,
-                color: 'var(--color-slate-500)',
-                cursor: 'pointer',
-                transition: 'border-color .15s, color .15s',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-teal-500)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-teal-600)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-slate-300)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-slate-500)'; }}
+              className="lab-btn lab-btn-secondary lab-btn-sm"
             >
-              ✓ Update Outcome
+              Update Outcome
             </button>
+            <button
+              type="button"
+              onClick={handleExportText}
+              className="lab-btn lab-btn-secondary lab-btn-sm"
+              title="Export as text file"
+            >
+              Export TXT
+            </button>
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="lab-btn lab-btn-secondary lab-btn-sm"
+              title="Export as CSV"
+            >
+              Export CSV
+            </button>
+          </div>
+          <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-slate-400)' }}>
+              Ctrl+1-4: switch views | Ctrl+Enter: submit | /: focus search
+            </span>
           </div>
         </div>
       )}

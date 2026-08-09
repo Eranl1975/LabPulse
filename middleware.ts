@@ -1,25 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { checkRateLimit } from '@/lib/rate-limit';
 
-// AUTH_ROUTES: pages to redirect *away from* when already logged in
-// NOTE: /reset-password is intentionally excluded — users need it after clicking the reset link
 const AUTH_ROUTES = new Set(['/login', '/register', '/forgot-password']);
 const PUBLIC_ROUTES = new Set(['/', '/login', '/register', '/forgot-password', '/reset-password']);
-
-// Simple in-memory rate limiter
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
-  const now = Date.now();
-  const entry = rateLimitStore.get(key);
-  if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-  if (entry.count >= limit) return false;
-  entry.count++;
-  return true;
-}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -177,8 +177,14 @@ describe('scoreItem (composite)', () => {
   });
 
   it('agreement_bonus increases total score', () => {
-    const without = scoreItem(baseQuery, baseItem, 0, nowMs);
-    const with_   = scoreItem(baseQuery, baseItem, 0.05, nowMs);
+    // Use a weaker item so weighted sum is below 1.0 (room for bonus)
+    const weakerItem: KnowledgeItem = {
+      ...baseItem,
+      source_id: 'some-forum-post',        // 0.4 authority (not vendor)
+      evidence_strength: 'moderate',         // 0.7 instead of 1.0
+    };
+    const without = scoreItem(baseQuery, weakerItem, 0, nowMs);
+    const with_   = scoreItem(baseQuery, weakerItem, 0.05, nowMs);
     expect(with_.total).toBeGreaterThan(without.total);
   });
 });

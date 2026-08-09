@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Logo from './Logo';
 import UserMenu from './UserMenu';
+import ThemeToggle from './ThemeToggle';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { Profile } from '@/lib/database.types';
 
@@ -68,6 +69,7 @@ export default function NavBarClient({ profile, userEmail }: { profile: Profile 
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="hidden-mobile">
+          <ThemeToggle />
           {isLoggedIn ? (
             <UserMenu profile={profile} userEmail={userEmail ?? null} />
           ) : (

@@ -20,6 +20,7 @@ export interface KnowledgeItem {
   confidence_score: number; // 0–1
   evidence_strength: EvidenceStrength;
   updated_at: string; // ISO 8601
+  deleted_at?: string | null; // ISO 8601 — soft delete timestamp
 }
 
 export interface EvidenceSummary {

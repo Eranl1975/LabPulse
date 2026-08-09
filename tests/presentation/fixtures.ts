@@ -32,10 +32,11 @@ export const noEvidenceAnswer: RankedAnswer = {
   next_questions: ['Is the technique selection correct?'],
 };
 
-// Answer with contradicting evidence
+// Answer with contradicting evidence (no stop_conditions so conflict branch fires)
 export const conflictingAnswer: RankedAnswer = {
   ...highConfidenceAnswer,
   confidence: 0.55,
+  stop_conditions: [],
   uncertainties: [
     'Conflicting causes for "retention time shift": source-a vs source-b. Verify both sources.',
   ],

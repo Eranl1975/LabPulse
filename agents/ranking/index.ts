@@ -1,4 +1,4 @@
-import type { KnowledgeItem, RankedAnswer, EvidenceSummary } from '@/lib/types';
+import type { KnowledgeItem, RankedAnswer, EvidenceSummary, TroubleshootingQuery } from '@/lib/types';
 import type { RankingQuery, ScoredItem } from './types';
 import { detectIssueCategory } from './issue-detector';
 import { filterItems } from './filter';
@@ -118,5 +118,18 @@ export function rankItems(query: RankingQuery, items: KnowledgeItem[]): RankedAn
     evidence_summary,
     uncertainties,
     next_questions,
+  };
+}
+
+/** Convert a TroubleshootingQuery (from the old interface) to a RankingQuery. */
+export function fromTroubleshootingQuery(tq: TroubleshootingQuery): RankingQuery {
+  return {
+    technique:            tq.technique,
+    vendor:               tq.instrument_family || null,
+    model:                tq.model || null,
+    issue_category:       tq.issue_category?.trim() || null,
+    symptom_description:  tq.symptom_description,
+    method_conditions:    null,
+    already_checked:      [],
   };
 }

@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readItems, writeItems } from '@/lib/store';
+import { getUser } from '@/lib/auth';
+import { requireAdmin } from '@/lib/require-admin';
 import type { KnowledgeItem } from '@/lib/types';
 
-// GET /api/knowledge — list all items
+// GET /api/knowledge — list all items (requires authentication)
 export async function GET() {
+  const user = await getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+  }
   const items = readItems();
   return NextResponse.json(items);
 }
 
-// POST /api/knowledge — add a single new item
+// POST /api/knowledge — add a single new item (admin only)
 export async function POST(req: NextRequest) {
+  const adminCheck = await requireAdmin();
+  if (adminCheck) return adminCheck;
+
   let body: Partial<KnowledgeItem>;
   try {
     body = await req.json();
@@ -46,8 +55,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(newItem, { status: 201 });
 }
 
-// PUT /api/knowledge — bulk replace entire knowledge base
+// PUT /api/knowledge — bulk replace entire knowledge base (admin only)
 export async function PUT(req: NextRequest) {
+  const adminCheck = await requireAdmin();
+  if (adminCheck) return adminCheck;
+
   let items: KnowledgeItem[];
   try {
     items = await req.json();
@@ -63,8 +75,11 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json({ ok: true, count: items.length });
 }
 
-// PATCH /api/knowledge?id=xxx — update a single item
+// PATCH /api/knowledge?id=xxx — update a single item (admin only)
 export async function PATCH(req: NextRequest) {
+  const adminCheck = await requireAdmin();
+  if (adminCheck) return adminCheck;
+
   const id = new URL(req.url).searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id query param required' }, { status: 400 });
 
@@ -85,18 +100,23 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json(items[idx]);
 }
 
-// DELETE /api/knowledge?id=xxx — remove a single item
+// DELETE /api/knowledge?id=xxx — soft delete a single item (admin only)
 export async function DELETE(req: NextRequest) {
+  const adminCheck = await requireAdmin();
+  if (adminCheck) return adminCheck;
+
   const id = new URL(req.url).searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id query param required' }, { status: 400 });
 
   const items = readItems();
-  const filtered = items.filter(i => i.id !== id);
+  const idx = items.findIndex(i => i.id === id);
 
-  if (filtered.length === items.length) {
+  if (idx === -1) {
     return NextResponse.json({ error: 'Item not found' }, { status: 404 });
   }
 
-  writeItems(filtered);
-  return NextResponse.json({ ok: true });
+  // Soft delete: mark with deleted_at instead of removing
+  items[idx] = { ...items[idx], deleted_at: new Date().toISOString() };
+  writeItems(items);
+  return NextResponse.json({ ok: true, soft_deleted: true });
 }

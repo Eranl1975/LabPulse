@@ -107,11 +107,9 @@ export async function runAcquisitionPipeline(
       const quality = scoreSourceQuality(extracted);
 
       // Quality gate: discard items that fall below the minimum composite threshold.
+      // This is expected behavior (not an error) — tracked via items_skipped_weak_source.
       if (quality.composite < minQuality) {
         stats.items_skipped_weak_source++;
-        stats.errors.push(
-          `Skipped (quality ${quality.composite.toFixed(2)} < ${minQuality}): ${raw.source_id}`,
-        );
         continue;
       }
 

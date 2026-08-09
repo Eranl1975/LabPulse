@@ -21,88 +21,170 @@ Karl Fischer Oven (KFO): Metrohm 874 Oven Sample Processor, 885 Compact Oven; ca
 Vendors: Agilent, Waters, Thermo Fisher, Dionex, TA Instruments, Cytiva (formerly GE Healthcare), Shimadzu, PerkinElmer, Bruker, SCIEX, NETZSCH, Mettler Toledo, Restek, Phenomenex, CSBio, CEM Corporation, Biotage, Gyros Protein Technologies, Metrohm, Malvern Panalytical, Rigaku, and others.
 
 Your answers are based on:
-- Official vendor service and troubleshooting manuals (TA Instruments, Cytiva ÄKTA, Dionex ICS, Agilent, Waters, CSBio, CEM Liberty, Metrohm Titrando/KF Titrino/Oven, Malvern Zetasizer, Bruker D8, Rigaku SmartLab, etc.)
-- Peer-reviewed analytical chemistry, biochemistry, and materials literature (Journal of Chromatography, Analytical Chemistry, Thermochimica Acta, Journal of Thermal Analysis and Calorimetry, Nucleic Acids Research, Journal of Peptide Science, Journal of Applied Crystallography, Powder Diffraction, Langmuir, etc.)
-- Established laboratory best practices, ISO standards, and QC guidelines (USP, Ph. Eur., ICH Q6A, ISO 13320 for particle size)
+- Official vendor service and troubleshooting manuals
+- Peer-reviewed analytical chemistry, biochemistry, and materials literature
+- Established laboratory best practices, ISO standards, and QC guidelines (USP, Ph. Eur., ICH Q6A, ISO 13320)
 
 Rules:
 - ALWAYS provide actionable, specific answers — never say "insufficient information"
 - If details are missing, assume the most common scenario for that technique and issue
-- Exclude steps already tried (listed under "already_checked")
-- Return ONLY a raw JSON object — no markdown, no explanation, no code fences
+- Exclude steps already tried (listed under "already_checked")`;
 
-Schema (respond with this exact structure):
-{
-  "likely_causes": [string],       // most to least likely, max 6 items
-  "checks": [string],              // diagnostic steps to perform now, max 6
-  "corrective_actions": [string],  // specific fixes ordered by likelihood, max 6
-  "stop_conditions": [string],     // escalation triggers for service engineer
-  "confidence": number,            // 0.0–1.0 reflecting how specific the input is
-  "uncertainties": [string],       // additional info that would improve diagnosis
-  "next_questions": [string]       // follow-up questions to narrow root cause
-}`;
+// Tool definition for structured output — eliminates JSON parse failures
+const TROUBLESHOOT_TOOL: Anthropic.Messages.Tool = {
+  name: 'troubleshoot_response',
+  description: 'Return a structured troubleshooting response',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      likely_causes: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Most to least likely causes, max 6',
+      },
+      checks: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Diagnostic steps to perform now, max 6',
+      },
+      corrective_actions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Specific fixes ordered by likelihood, max 6',
+      },
+      stop_conditions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Escalation triggers for service engineer',
+      },
+      confidence: {
+        type: 'number',
+        description: 'Confidence 0.0–1.0 reflecting how specific the input is',
+      },
+      uncertainties: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Additional info that would improve diagnosis',
+      },
+      next_questions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Follow-up questions to narrow root cause',
+      },
+    },
+    required: ['likely_causes', 'checks', 'corrective_actions', 'stop_conditions', 'confidence', 'uncertainties', 'next_questions'],
+  },
+};
 
-// Confidence threshold below which we escalate from Sonnet to Opus
 const OPUS_ESCALATION_THRESHOLD = 0.5;
 
-async function callModel(model: string, userMessage: string): Promise<{ parsed: Partial<Record<string, unknown>>; modelUsed: string }> {
+interface TroubleshootResult {
+  likely_causes: string[];
+  checks: string[];
+  corrective_actions: string[];
+  stop_conditions: string[];
+  confidence: number;
+  uncertainties: string[];
+  next_questions: string[];
+}
+
+async function callModel(model: string, userMessage: string): Promise<{ parsed: TroubleshootResult; modelUsed: string }> {
   const message = await client.messages.create({
     model,
     max_tokens: 2048,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
+    tools: [TROUBLESHOOT_TOOL],
+    tool_choice: { type: 'tool', name: 'troubleshoot_response' },
   });
 
+  // Extract tool_use block — guaranteed by tool_choice
+  const toolBlock = message.content.find(b => b.type === 'tool_use');
+
+  if (toolBlock && toolBlock.type === 'tool_use') {
+    const input = toolBlock.input as Record<string, unknown>;
+    return {
+      parsed: {
+        likely_causes: arr(input.likely_causes),
+        checks: arr(input.checks),
+        corrective_actions: arr(input.corrective_actions),
+        stop_conditions: arr(input.stop_conditions),
+        confidence: typeof input.confidence === 'number' ? input.confidence : 0.5,
+        uncertainties: arr(input.uncertainties),
+        next_questions: arr(input.next_questions),
+      },
+      modelUsed: model,
+    };
+  }
+
+  // Fallback: try text extraction (legacy compatibility)
   const text = message.content
     .filter(b => b.type === 'text')
     .map(b => (b as { type: 'text'; text: string }).text)
     .join('');
 
-  let parsed: Partial<Record<string, unknown>> = {};
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON object found in response');
-    parsed = JSON.parse(jsonMatch[0]);
+    if (!jsonMatch) throw new Error('No JSON found');
+    const raw = JSON.parse(jsonMatch[0]);
+    return {
+      parsed: {
+        likely_causes: arr(raw.likely_causes),
+        checks: arr(raw.checks),
+        corrective_actions: arr(raw.corrective_actions),
+        stop_conditions: arr(raw.stop_conditions),
+        confidence: typeof raw.confidence === 'number' ? raw.confidence : 0.5,
+        uncertainties: arr(raw.uncertainties),
+        next_questions: arr(raw.next_questions),
+      },
+      modelUsed: model,
+    };
   } catch {
-    parsed = {
-      uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
+    return {
+      parsed: {
+        likely_causes: [],
+        checks: [],
+        corrective_actions: [],
+        stop_conditions: [],
+        confidence: 0.3,
+        uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
+        next_questions: [],
+      },
+      modelUsed: model,
     };
   }
+}
 
-  return { parsed, modelUsed: model };
+function arr(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.filter((x): x is string => typeof x === 'string');
 }
 
 export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswer> {
   const userMessage = buildUserMessage(query);
 
-  // Default: use Sonnet (fast, cost-efficient)
+  // Default: Sonnet (fast, cost-efficient)
   let { parsed, modelUsed } = await callModel('claude-sonnet-4-6', userMessage);
 
   // Escalate to Opus if Sonnet confidence is below threshold
-  const sonnetConfidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0.5;
-  if (sonnetConfidence < OPUS_ESCALATION_THRESHOLD) {
+  if (parsed.confidence < OPUS_ESCALATION_THRESHOLD) {
     const opusResult = await callModel('claude-opus-4-6', userMessage);
-    // Use Opus result only if it has higher confidence
-    const opusConfidence = typeof opusResult.parsed.confidence === 'number' ? opusResult.parsed.confidence : 0.5;
-    if (opusConfidence >= sonnetConfidence) {
+    if (opusResult.parsed.confidence >= parsed.confidence) {
       parsed = opusResult.parsed;
       modelUsed = opusResult.modelUsed;
     }
   }
 
-  const arr = (v: unknown): string[] =>
-    Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === 'string') : [];
-
   return {
     problem_summary:    query.symptom_description,
-    likely_causes:      arr(parsed.likely_causes),
-    checks:             arr(parsed.checks),
-    corrective_actions: arr(parsed.corrective_actions),
-    stop_conditions:    arr(parsed.stop_conditions),
-    confidence:         typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
+    likely_causes:      parsed.likely_causes,
+    checks:             parsed.checks,
+    corrective_actions: parsed.corrective_actions,
+    stop_conditions:    parsed.stop_conditions,
+    confidence:         parsed.confidence,
     evidence_summary:   [{ source_id: modelUsed, excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
-    uncertainties:      arr(parsed.uncertainties),
-    next_questions:     arr(parsed.next_questions),
+    uncertainties:      parsed.uncertainties,
+    next_questions:     parsed.next_questions,
   };
 }
 
