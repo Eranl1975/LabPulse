@@ -12,6 +12,7 @@ const baseStats: PipelineRunStats = {
   items_updated: 1,
   items_duplicate: 1,
   items_deprecated: 0,
+  items_skipped_weak_source: 0,
   contradictions_found: [],
   knowledge_gaps: [],
   errors: [],
