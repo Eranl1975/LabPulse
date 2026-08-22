@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { CleaningProcedureContent, CleaningProcedureResponse } from '@/lib/cleaning-types';
+import EmailProcedureDialog from './EmailProcedureDialog';
 
 interface Props {
   technique: string;
@@ -45,6 +46,9 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
   const [cached,    setCached]    = useState(false);
   const [genDate,   setGenDate]   = useState('');
   const [aiModel,   setAiModel]   = useState<string | undefined>();
+  const [emailOpen, setEmailOpen] = useState(false);
+
+  const handlePrint = useCallback(() => { window.print(); }, []);
 
   const fetchProcedure = useCallback(async (refresh = false) => {
     setLoading(true);
@@ -91,6 +95,7 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
     <>
       {/* Blurred backdrop */}
       <div
+        data-no-print
         style={{
           position: 'fixed', inset: 0, zIndex: 9998,
           background: 'rgba(15,23,42,.45)',
@@ -101,7 +106,7 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
       />
 
       {/* Modal panel */}
-      <div style={{
+      <div data-cleaning-modal style={{
         position: 'fixed',
         top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
@@ -121,6 +126,7 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
         <button
           onClick={onClose}
           aria-label="Close"
+          data-no-print
           style={{
             position: 'absolute', top: '1rem', right: '1rem',
             width: '28px', height: '28px', border: 'none',
@@ -486,7 +492,45 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
                 {genDate && new Date(genDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 {aiModel && ` via ${aiModel}`}
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }} data-no-print>
+                <button
+                  onClick={handlePrint}
+                  title="Print Cleaning Procedure"
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'transparent',
+                    border: '1.5px solid var(--color-slate-300)',
+                    borderRadius: '8px',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.8rem', fontWeight: 600,
+                    color: 'var(--color-slate-500)',
+                    cursor: 'pointer',
+                    transition: 'border-color .15s, color .15s',
+                    display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  Print
+                </button>
+                <button
+                  onClick={() => setEmailOpen(true)}
+                  title="Send by Email"
+                  style={{
+                    padding: '0.4rem 0.75rem',
+                    background: 'transparent',
+                    border: '1.5px solid var(--color-slate-300)',
+                    borderRadius: '8px',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.8rem', fontWeight: 600,
+                    color: 'var(--color-slate-500)',
+                    cursor: 'pointer',
+                    transition: 'border-color .15s, color .15s',
+                    display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  Email
+                </button>
                 <button
                   onClick={() => fetchProcedure(true)}
                   disabled={loading}
@@ -526,12 +570,47 @@ export default function CleaningProcedureModal({ technique, vendor, model, onClo
         )}
       </div>
 
+      {/* Email dialog overlay */}
+      {emailOpen && procedure && (
+        <EmailProcedureDialog
+          procedure={procedure}
+          generatedAt={genDate}
+          onClose={() => setEmailOpen(false)}
+        />
+      )}
+
       <style>{`
         @keyframes modalIn {
           from { opacity: 0; transform: translate(-50%, -48%); }
           to   { opacity: 1; transform: translate(-50%, -50%); }
         }
         @keyframes spin { to { transform: rotate(360deg) } }
+
+        @media print {
+          /* Hide non-printable elements */
+          [data-no-print] { display: none !important; }
+
+          /* Flatten modal for print */
+          [data-cleaning-modal] {
+            position: static !important;
+            transform: none !important;
+            max-height: none !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            animation: none !important;
+          }
+
+          /* Page setup */
+          @page {
+            size: A4;
+            margin: 1.5cm;
+          }
+        }
       `}</style>
     </>
   );

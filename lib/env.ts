@@ -20,6 +20,8 @@ const ENV_VARS: EnvVar[] = [
   { key: 'STRIPE_PRICE_ID', required: false },
   { key: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', required: false, isPublic: true },
   { key: 'NEXT_PUBLIC_SITE_URL', required: false, isPublic: true },
+  { key: 'RESEND_API_KEY', required: false },
+  { key: 'RESEND_FROM_EMAIL', required: false },
 ];
 
 export function validateEnv(): { valid: boolean; missing: string[]; warnings: string[] } {

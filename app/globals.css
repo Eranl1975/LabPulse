@@ -488,3 +488,16 @@
     top: 8px;
   }
 }
+
+/* ── Print styles ──────────────────────────────────────────────────────────── */
+@media print {
+  html, body {
+    background: white !important;
+  }
+  nav, header, footer, .skip-to-content {
+    display: none !important;
+  }
+  main {
+    padding-top: 0 !important;
+  }
+}
