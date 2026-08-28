@@ -500,4 +500,25 @@
   main {
     padding-top: 0 !important;
   }
+
+  /* Hide non-printable elements globally */
+  [data-no-print] {
+    display: none !important;
+  }
+
+  /* Troubleshooting print layout */
+  [data-troubleshooting-result] {
+    margin-top: 0 !important;
+  }
+
+  /* Hide form and page header when printing troubleshooting */
+  .lab-page-header,
+  form {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
 }

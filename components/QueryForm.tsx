@@ -10,6 +10,7 @@ import ModeSwitcher, { type DisplayMode } from './ModeSwitcher';
 import AnswerDisplay from './AnswerDisplay';
 import ComboInput from './ComboInput';
 import CleaningProcedureButton from './CleaningProcedureButton';
+import EmailTroubleshootingDialog from './EmailTroubleshootingDialog';
 
 // ── Option lists ──────────────────────────────────────────────────────────────
 
@@ -48,6 +49,8 @@ const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> =
     'Agilent':       [
       // Single quadrupole
       '6120B Compact LC/MSD', '6125B LC/MSD', '6130B LC/MSD', '6135B LC/MSD',
+      // InfinityLab single quadrupole (v4.1)
+      'InfinityLab LC/MSD iQ (G6301)', 'InfinityLab Pro iQ (G6160B)', 'InfinityLab Pro iQ Plus (G6170A)',
       // Triple quadrupole
       '6460 Triple Quad LC/MS', '6470 Triple Quad LC/MS', '6495 Triple Quad LC/MS', '6495C Triple Quad LC/MS',
       // Q-TOF
@@ -533,6 +536,7 @@ export default function QueryForm() {
   const [mode,             setMode]             = useState<DisplayMode>('standard');
   const [showModal,        setShowModal]        = useState(false);
   const [pendingReportId,  setPendingReportId]  = useState<string | null>(null);
+  const [emailTSOpen,      setEmailTSOpen]      = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -551,6 +555,7 @@ export default function QueryForm() {
   const handleExportCSV = useCallback(() => {
     if (result) exportAsCSV(result.ranked_answer, technique);
   }, [result, technique]);
+  const handlePrintTS = useCallback(() => { window.print(); }, []);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -832,6 +837,7 @@ export default function QueryForm() {
           role="region"
           aria-label="Troubleshooting results"
           aria-live="polite"
+          data-troubleshooting-result
           style={{ marginTop: '2.75rem', outline: 'none' }}
           className="fade-in"
         >
@@ -855,7 +861,25 @@ export default function QueryForm() {
             confidence={result.ranked_answer.confidence}
             selected={mode}
           />
-          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }} data-no-print>
+            <button
+              type="button"
+              onClick={handlePrintTS}
+              className="lab-btn lab-btn-secondary lab-btn-sm"
+              title="Print troubleshooting report"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'text-bottom', marginRight: '0.25rem' }}><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Print
+            </button>
+            <button
+              type="button"
+              onClick={() => setEmailTSOpen(true)}
+              className="lab-btn lab-btn-secondary lab-btn-sm"
+              title="Send troubleshooting report by email"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'text-bottom', marginRight: '0.25rem' }}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              Email
+            </button>
             <button
               type="button"
               onClick={() => setShowModal(true)}
@@ -880,12 +904,24 @@ export default function QueryForm() {
               Export CSV
             </button>
           </div>
-          <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '0.75rem', textAlign: 'center' }} data-no-print>
             <span style={{ fontSize: '0.75rem', color: 'var(--color-slate-400)' }}>
               Ctrl+1-4: switch views | Ctrl+Enter: submit | /: focus search
             </span>
           </div>
         </div>
+      )}
+
+      {/* Email troubleshooting dialog */}
+      {emailTSOpen && result && (
+        <EmailTroubleshootingDialog
+          answer={result.ranked_answer}
+          technique={technique}
+          vendor={vendor}
+          model={model}
+          issueCategory={issueCategory}
+          onClose={() => setEmailTSOpen(false)}
+        />
       )}
     </>
   );

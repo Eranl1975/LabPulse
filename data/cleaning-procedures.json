@@ -1600,5 +1600,76 @@
       "Prep LC tubing and fittings are larger bore than analytical — do not interchange.",
       "Always verify fraction purity by analytical LC before combining fractions."
     ]
+  },
+  {
+    "technique": "LCMS",
+    "instrument": "Agilent InfinityLab Pro iQ Plus Mass Detector",
+    "manufacturer": "Agilent",
+    "model": "InfinityLab Pro iQ Plus (G6170A)",
+    "source_type": "manufacturer_documentation",
+    "source_label": "Manufacturer Documentation - Based on Agilent InfinityLab Pro iQ Series User Guide",
+    "source_url": "https://www.agilent.com/cs/library/usermanuals/public/D0133020_Pro%20iQ%20Series%20User%20Guide.pdf",
+    "source_title": "Agilent InfinityLab Pro iQ Series User Guide (D0133020)",
+    "confidence": 0.85,
+    "confidence_note": "Based on official Agilent Pro iQ Series User Guide D0133020 and InfinityLab LC/MSD maintenance documentation.",
+    "materials_needed": [
+      {"name": "LC-MS grade methanol", "specification": "≥99.9%", "purpose": "Flushing solvent lines and cleaning ion source components"},
+      {"name": "LC-MS grade water", "specification": "18.2 MΩ·cm", "purpose": "Aqueous flush and dilution"},
+      {"name": "LC-MS grade isopropanol", "specification": "≥99.9%", "purpose": "Cleaning spray chamber and removing stubborn residues"},
+      {"name": "Lint-free wipes", "specification": null, "purpose": "Cleaning external surfaces and spray chamber"},
+      {"name": "Tuning compound", "specification": "Agilent LC/MS tuning mix", "purpose": "System performance verification after cleaning"},
+      {"name": "Sonication bath", "specification": null, "purpose": "Cleaning ion transfer capillary and spray shield"},
+      {"name": "Compressed nitrogen", "specification": "High purity, oil-free", "purpose": "Drying cleaned components"}
+    ],
+    "before_cleaning": [
+      "Complete any running sequence and allow the system to return to idle.",
+      "Set the LC flow to 0 mL/min.",
+      "Allow the ion source to cool to room temperature (wait at least 15 minutes after shutdown).",
+      "Vent the instrument using the OpenLab CDS vent sequence.",
+      "Disconnect the LC capillary from the ion source inlet.",
+      "Record current tune parameters for comparison after cleaning."
+    ],
+    "cleaning_steps": [
+      {"step_number": 1, "title": "Remove and clean spray shield", "description": "Remove the spray shield from the ESI or AJS source assembly. Sonicate in 50:50 methanol:water for 10 minutes. Rinse with pure methanol, then dry with nitrogen gas.", "duration": "15 min", "warnings": ["Handle the spray shield carefully — do not scratch the inner surface."]},
+      {"step_number": 2, "title": "Clean ion transfer capillary", "description": "Remove the ion transfer capillary. Sonicate in 50:50 isopropanol:water for 15 minutes. Rinse with methanol and dry completely with nitrogen gas before reinstalling.", "duration": "20 min", "warnings": ["Ensure the capillary is completely dry before reinstalling — residual solvent will cause signal instability."]},
+      {"step_number": 3, "title": "Clean nebulizer assembly", "description": "Inspect the nebulizer needle for clogs or salt buildup. If using AJS source, also inspect the sheath gas nozzle. Clean with methanol-soaked lint-free wipe. For stubborn deposits, sonicate the nebulizer tip in methanol for 5 minutes.", "duration": "10 min", "warnings": ["Do not insert wires or sharp objects into the nebulizer needle — this will damage the bore."]},
+      {"step_number": 4, "title": "Clean spray chamber", "description": "Wipe the interior of the spray chamber with lint-free wipes soaked in 50:50 methanol:water. Remove all visible salt deposits or discoloration. Dry with nitrogen.", "duration": "10 min", "warnings": null},
+      {"step_number": 5, "title": "Inspect and clean AJS components (if applicable)", "description": "If using the Agilent Jet Stream source, clean the sheath gas heater nozzle and super-heated nitrogen gas inlet. Wipe with methanol and ensure no residue remains.", "duration": "10 min", "warnings": ["AJS source components operate at high temperatures (up to 400°C). Ensure components are cool before handling."]},
+      {"step_number": 6, "title": "Reassemble and pump down", "description": "Reinstall all cleaned components in reverse order. Reconnect the LC capillary. Start the instrument and allow vacuum to reach operating pressure.", "duration": "15 min", "warnings": null},
+      {"step_number": 7, "title": "Run autotune and verify", "description": "Once vacuum is stable, run Auto Acquire or manual autotune using LC/MS tuning mix. Compare tune values with pre-cleaning baseline. Verify sensitivity meets specifications.", "duration": "15 min", "warnings": null}
+    ],
+    "after_cleaning": [
+      "Run a blank injection to verify baseline cleanliness.",
+      "Run a system suitability standard to confirm sensitivity recovery.",
+      "Compare autotune results (EM voltage, fragmentor response) with pre-cleaning values.",
+      "Document cleaning date, actions taken, and post-cleaning tune results in instrument logbook.",
+      "Update the maintenance log in OpenLab CDS if available."
+    ],
+    "what_not_to_do": [
+      "Never use acetone to clean ion source components — it can damage seals and O-rings.",
+      "Do not use abrasive materials or metal tools to clean the spray shield or capillary.",
+      "Do not operate the instrument with wet components — residual solvent causes arcing and signal instability.",
+      "Never remove or clean components while the instrument is powered on or under vacuum.",
+      "Do not use compressed air from laboratory air lines — oil contamination will deposit on ion optics.",
+      "Never exceed recommended gas flow rates after reassembly — check AJS sheath gas and drying gas settings."
+    ],
+    "cleaning_frequency": {
+      "routine": "Clean spray shield and inspect nebulizer weekly. Full source cleaning monthly or after 2000 injections.",
+      "after_contamination": "Immediately clean all source components if matrix-heavy samples (biological fluids, crude extracts) were analysed.",
+      "preventive": "Replace nebulizer needle every 6 months. Replace ion transfer capillary annually or when autotune values degrade beyond 20% of baseline."
+    },
+    "safety_warnings": [
+      "Always allow the ion source to cool completely before disassembly — components can reach 400°C during AJS operation.",
+      "Wear nitrile gloves and safety glasses when handling solvents and cleaning components.",
+      "Ensure adequate ventilation when using isopropanol and methanol.",
+      "The Pro iQ Plus operates at high voltages — never service internal electrical components; contact Agilent service.",
+      "Dispose of cleaning waste solvents according to local hazardous waste regulations."
+    ],
+    "notes": [
+      "The Pro iQ Plus (G6170A) supports four ion source types: ESI, APCI, MMI (Multimode), and AJS (Agilent Jet Stream).",
+      "AJS source provides enhanced sensitivity (sub-30 fg IDL) but requires additional maintenance of the sheath gas nozzle.",
+      "Mass range: m/z 2–3,000. Extended mass range compared to Pro iQ (G6160B, m/z 2–1,600).",
+      "Refer to Agilent Pro iQ Series User Guide D0133020 for detailed maintenance schedules and part numbers."
+    ]
   }
 ]

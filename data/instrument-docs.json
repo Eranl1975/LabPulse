@@ -1,0 +1,172 @@
+{
+  "instruments": {
+    "agilent-infinitylab-pro-iq-plus-g6170a": {
+      "technique": "LCMS",
+      "manufacturer": "Agilent",
+      "model": "InfinityLab Pro iQ Plus (G6170A)",
+      "full_name": "Agilent InfinityLab Pro iQ Plus Mass Detector",
+      "description": "Top-tier single-quadrupole mass detector with extended m/z 2–3,000 mass range, ESI/APCI/MMI/AJS ion sources, and sub-30 fg instrument detection limit. Part of the InfinityLab Pro iQ Series launched May 2025.",
+      "specifications": {
+        "mass_range": "m/z 2–3,000",
+        "ionization_modes": ["ESI", "APCI", "MMI (Multimode)", "AJS (Agilent Jet Stream)"],
+        "sensitivity_idl": "Below 30 fg with AJS source",
+        "operating_temperature": "15–35 °C (59–95 °F)",
+        "humidity": "< 95% RH at 40 °C",
+        "altitude": "Up to 3,000 m (9,842 ft)",
+        "line_voltage": "100–120 V and 200–240 V~, -5%/+10%",
+        "software": "OpenLab CDS 2.7 and later"
+      },
+      "documentation": [
+        {
+          "type": "user_guide",
+          "title": "Agilent InfinityLab Pro iQ Series User Guide",
+          "document_number": "D0133020",
+          "url": "https://www.agilent.com/cs/library/usermanuals/public/D0133020_Pro%20iQ%20Series%20User%20Guide.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "quick_reference",
+          "title": "Agilent InfinityLab Pro iQ Series Quick Reference Guide",
+          "document_number": "D0133021",
+          "url": "https://www.agilent.com/cs/library/quickreference/public/D0133021_Pro%20iQ%20Series%20Quick%20Reference%20Guide.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "site_preparation",
+          "title": "Agilent InfinityLab Pro iQ Series Site Preparation Checklist",
+          "document_number": "D0129562",
+          "url": "https://www.agilent.com/cs/library/sitepreparationchecklists/D0129562_Pro%20iQ%20Series%20Site%20Prep%20Checklist.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "concepts_guide",
+          "title": "Agilent InfinityLab LC/MSD Series and 6100 Series LC/MS Concepts Guide",
+          "document_number": "G1960-90104",
+          "url": "https://www.agilent.com/cs/library/usermanuals/public/G1960-90104_ChemStation_ConceptsGuide.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "maintenance_guide",
+          "title": "Agilent 6100 Series Single Quad LC/MS Systems Maintenance Guide",
+          "document_number": "G1960-90154",
+          "url": "https://www.agilent.com/cs/library/usermanuals/Public/G1960-90154_SingleQuad_Maintenance.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "familiarization_guide",
+          "title": "Agilent 6100 Series Quadrupole LC/MS Systems Familiarization Guide",
+          "document_number": "G1960-90080",
+          "url": "https://www.agilent.com/cs/library/usermanuals/public/G1960-90080_6100_Familiarization.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "site_preparation",
+          "title": "Agilent InfinityLab LC/MSD Series Site Preparation Guide",
+          "document_number": null,
+          "url": "https://www.agilent.com/cs/library/usermanuals/public/Infinity%20LCMSD%20Series%20Site%20Prep%20Guide.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "brochure",
+          "title": "Harness the Power of Pro — InfinityLab Pro iQ Series Brochure",
+          "document_number": "5994-8330EN",
+          "url": "https://www.agilent.com/cs/library/brochures/br-infinitylab-pro-iq-series-5994-8330en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "technical_overview",
+          "title": "Agilent InfinityLab LC/MSD iQ Technical Overview",
+          "document_number": "5994-1011EN",
+          "url": "https://www.agilent.com/cs/library/technicaloverviews/public/technical-overview-infinitylab-lc-msd-iq-5994-1011en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "supplies_reference",
+          "title": "Agilent InfinityLab LC/MSD Series Supplies Quick Reference",
+          "document_number": "5990-8580EN",
+          "url": "https://www.agilent.com/cs/library/sales/public/quick-reference-lcmsd-supplies-infinitylab-5990-8580en-agilent_HR.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "white_paper",
+          "title": "Maximize ROI with InfinityLab Pro iQ Series",
+          "document_number": "5994-8942EN",
+          "url": "https://www.agilent.com/cs/library/whitepaper/public/wp-maximize-roi-infinitylab-pro-iq-series-5994-8942en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "PFAS Analysis Using the Agilent InfinityLab Pro iQ Plus",
+          "document_number": "5994-8355EN",
+          "url": "https://www.agilent.com/cs/library/applications/an-pfas-analysis-pro-iq-plus-5994-8355en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "Oligonucleotide Analysis Using InfinityLab Pro iQ Plus",
+          "document_number": "5994-8337EN",
+          "url": "https://www.agilent.com/cs/library/applications/an-oligonucleotide-analysis-pro-iq-plus-5994-8337en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "API Purity Testing with MassHunter WalkUp and LC/MSD iQ",
+          "document_number": "5994-1503EN",
+          "url": "https://www.agilent.com/cs/library/applications/application-api-purity-lcmsd-iq-walkup-5994-1503en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "Using Self-Aware InfinityLab LC/MSD iQ for Pharmaceutical Analysis",
+          "document_number": "5994-1431EN",
+          "url": "https://www.agilent.com/cs/library/applications/application-pharmaceutical-mass%20detector-lc-msd-iq-lc-ms-single%20quadrupole-5994-1431en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "HILIC Analysis of Inorganic Anions Using LC/MSD iQ",
+          "document_number": "5994-3013EN",
+          "url": "https://www.agilent.com/cs/library/applications/application-hilic-analysis-inorganic-lc-msd-iq-msd-5994-3013en-agilent.pdf",
+          "source": "Agilent Technologies"
+        },
+        {
+          "type": "application_note",
+          "title": "mAb Titer in Spent Media Using 1260 Bio-Inert LC + LC/MSD iQ",
+          "document_number": "5994-2082EN",
+          "url": "https://www.agilent.com/cs/library/applications/application-mAb-titer-spent-media-1260-bio-inert-lc-msd-iq-5994-2082en-agilent.pdf",
+          "source": "Agilent Technologies"
+        }
+      ],
+      "ion_sources": [
+        {
+          "name": "Agilent Jet Stream (AJS)",
+          "description": "Enhanced sensitivity ESI source using superheated nitrogen sheath gas for improved desolvation. Exclusive to Pro iQ Plus.",
+          "url": "https://www.agilent.com/en/product/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-ion-sources/jet-stream-technology-ion-source-ajs"
+        },
+        {
+          "name": "Multimode Source (MMI)",
+          "description": "Simultaneous ESI and APCI ionization in a single run.",
+          "url": "https://www.agilent.com/en/product/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-ion-sources/multimode-source"
+        }
+      ],
+      "product_pages": [
+        {
+          "title": "Agilent InfinityLab Pro iQ Series Product Page",
+          "url": "https://www.agilent.com/en/product/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-instruments/single-quadrupole-lc-ms/pro-iq-series"
+        },
+        {
+          "title": "Harness the Power of Pro Landing Page",
+          "url": "https://www.agilent.com/en/product/liquid-chromatography-mass-spectrometry-lc-ms/harness-the-power-of-pro"
+        },
+        {
+          "title": "LC/MS Supplies & Accessories",
+          "url": "https://www.agilent.com/en/product/liquid-chromatography-mass-spectrometry-lc-ms/lc-ms-supplies-accessories"
+        }
+      ],
+      "consumables": [
+        {"part_number": "G3911-30000", "description": "FS Ion Injector"},
+        {"part_number": "G3911-30001", "description": "Ion Injector"}
+      ]
+    }
+  }
+}
