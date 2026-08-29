@@ -86,3 +86,100 @@ export interface AnalyticsSummary {
   by_technique: Record<string, number>;
   by_day: { date: string; count: number }[];
 }
+
+// ─── V2 Types: Evidence Hierarchy & Structured Reports ───────────────
+
+/** 7-tier evidence hierarchy (1 = highest authority) */
+export type EvidenceTier = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+export type EvidenceClassification =
+  | 'exact-model'                    // Tier 1: manufacturer doc for this exact model
+  | 'instrument-family'              // Tier 2: manufacturer doc for instrument family
+  | 'regulatory-standard'            // Tier 3: ICH, USP, FDA, EMA, ISO
+  | 'peer-reviewed'                  // Tier 4: peer-reviewed publication
+  | 'verified-technical'             // Tier 5: application note, tech note
+  | 'general-manufacturer-independent' // Tier 6: general lab best-practice
+  | 'ai-inference';                  // Tier 7: AI-generated (labeled)
+
+export interface SourceMetadata {
+  title: string;
+  manufacturer_or_org: string | null;
+  doc_number: string | null;
+  pub_date: string | null;           // ISO 8601
+  url: string | null;
+  page_or_section: string | null;
+  classification: EvidenceClassification;
+  tier: EvidenceTier;
+}
+
+export interface EvidenceSummaryV2 extends EvidenceSummary {
+  source_metadata: SourceMetadata | null;
+  classification: EvidenceClassification;
+}
+
+// ─── Missing Info Detection ──────────────────────────────────────────
+
+export type MissingInfoField =
+  | 'manufacturer' | 'model' | 'hardware_config'
+  | 'analyte' | 'sample_matrix' | 'column' | 'mobile_phase'
+  | 'flow_rate' | 'injection_volume' | 'gradient' | 'retention_time'
+  | 'ionization_mode' | 'source_params' | 'acquisition_mode'
+  | 'recent_maintenance' | 'qc_results' | 'raw_data'
+  | 'chromatographic_method' | 'expected_result';
+
+export interface MissingInfoResult {
+  missing_fields: MissingInfoField[];
+  critical_missing: MissingInfoField[];   // subset that triggers confidence cap
+  follow_up_questions: string[];
+}
+
+// ─── Structured Report & Hypotheses ──────────────────────────────────
+
+export interface Hypothesis {
+  rank: number;
+  cause: string;
+  probability: 'high' | 'medium' | 'low';
+  supporting_evidence: string[];
+  contradicting_evidence: string[];
+  diagnostic_test: string;
+  expected_result: string;
+  status: 'suspected' | 'confirmed';
+}
+
+export type ConfidenceLabelV2 =
+  | 'Insufficient evidence'      // 0–39%
+  | 'Preliminary hypothesis'     // 40–59%
+  | 'Probable cause'             // 60–79%
+  | 'Strongly supported'         // 80–94%
+  | 'Confirmed';                 // 95–100% (direct diagnostic evidence only)
+
+export interface ConfidenceBreakdown {
+  raw_score: number;
+  caps_applied: string[];            // e.g. "Missing critical method info: max 60%"
+  final_score: number;
+  label: ConfidenceLabelV2;
+  factor_scores: {
+    source_authority: number;
+    technique_relevance: number;
+    issue_relevance: number;
+    recency: number;
+    evidence_strength: number;
+  };
+  explanation: string;
+}
+
+/** Extended answer with structured report sections (backwards-compatible superset of RankedAnswer) */
+export interface RankedAnswerV2 extends RankedAnswer {
+  missing_information: MissingInfoResult;
+  hypotheses: Hypothesis[];
+  immediate_checks: string[];
+  verification_steps: string[];
+  escalation_criteria: string[];
+  sources_with_metadata: EvidenceSummaryV2[];
+  confidence_breakdown: ConfidenceBreakdown;
+  method_dependent_flags: string[];
+  printable_checklist: string[];
+  reported_observations: string[];
+  confirmed_evidence: string[];
+  remaining_uncertainty: string[];
+}

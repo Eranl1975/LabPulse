@@ -1,5 +1,5 @@
-import type { KnowledgeItem, EvidenceStrength } from '@/lib/types';
-import type { ScoreBreakdown, RankingQuery } from './types';
+import type { KnowledgeItem, EvidenceStrength, EvidenceClassification, EvidenceTier } from '@/lib/types';
+import type { ScoreBreakdown, ScoreBreakdownV2, RankingQuery, RankingQueryV2 } from './types';
 import {
   SCORE_WEIGHTS,
   VENDOR_SOURCE_PREFIXES,
@@ -8,6 +8,7 @@ import {
   RECENCY_FALLBACK,
   CHECKED_PENALTY,
 } from './weights';
+import { classifySource, tierToAuthorityScore } from '@/lib/evidence-hierarchy';
 
 // --- Individual factor scorers (exported for unit tests) ---
 
@@ -108,5 +109,56 @@ export function scoreItem(
     agreement_bonus,
     already_checked_penalty,
     total,
+  };
+}
+
+// --- V2 Source Authority (7-tier hierarchy) ---
+
+export function scoreSourceAuthorityV2(
+  source_id: string,
+  query_vendor: string | null,
+  query_model: string | null,
+): { score: number; classification: EvidenceClassification; tier: EvidenceTier } {
+  const { tier, classification } = classifySource(source_id, query_vendor, query_model);
+  return { score: tierToAuthorityScore(tier), classification, tier };
+}
+
+// --- V2 Composite scorer ---
+
+export function scoreItemV2(
+  query: RankingQueryV2,
+  item: KnowledgeItem,
+  agreement_bonus: number = 0,
+  nowMs: number = Date.now(),
+): ScoreBreakdownV2 {
+  const authorityResult         = scoreSourceAuthorityV2(item.source_id, query.vendor, query.model);
+  const source_authority        = authorityResult.score;
+  const technique_relevance     = scoreTechniqueRelevance(query, item);
+  const issue_relevance         = scoreIssueRelevance(query, item);
+  const recency                 = scoreRecency(item.updated_at, nowMs);
+  const evidence_strength       = scoreEvidenceStrength(item.evidence_strength);
+  const already_checked_penalty = scoreAlreadyCheckedPenalty(query, item);
+
+  const weighted =
+    SCORE_WEIGHTS.SOURCE_AUTHORITY    * source_authority +
+    SCORE_WEIGHTS.TECHNIQUE_RELEVANCE * technique_relevance +
+    SCORE_WEIGHTS.ISSUE_RELEVANCE     * issue_relevance +
+    SCORE_WEIGHTS.RECENCY             * recency +
+    SCORE_WEIGHTS.EVIDENCE_STRENGTH   * evidence_strength;
+
+  const total = Math.max(0, Math.min(1, weighted + agreement_bonus - already_checked_penalty));
+
+  return {
+    item_id: item.id,
+    source_authority,
+    technique_relevance,
+    issue_relevance,
+    recency,
+    evidence_strength,
+    agreement_bonus,
+    already_checked_penalty,
+    total,
+    evidence_classification: authorityResult.classification,
+    confidence_caps: [],  // populated at ranking level
   };
 }

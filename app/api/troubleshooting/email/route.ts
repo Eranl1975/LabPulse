@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limit';
-import type { RankedAnswer } from '@/lib/types';
+import type { RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import { buildTroubleshootingEmailHtml } from '@/lib/troubleshooting-email-html';
 import type { TroubleshootingEmailOptions } from '@/lib/troubleshooting-email-html';
+import { runQualityChecks } from '@/lib/quality-control';
+import type { RankingQueryV2 } from '@/agents/ranking/types';
 
 export const maxDuration = 30;
 
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
     to?: string;
     subject?: string;
     message?: string;
-    answer?: RankedAnswer;
+    answer?: RankedAnswer | RankedAnswerV2;
     technique?: string;
     vendor?: string;
     model?: string;
@@ -91,6 +93,31 @@ export async function POST(req: NextRequest) {
       { error: 'Email service is not configured. Please set RESEND_API_KEY.' },
       { status: 503 },
     );
+  }
+
+  // ── Pre-send QC gate (V2 answers only) ──────────────────────────────────────
+  if (answer && 'sources_with_metadata' in answer) {
+    const v2Answer = answer as RankedAnswerV2;
+    const emailQuery: RankingQueryV2 = {
+      technique: (technique || 'HPLC') as import('@/lib/types').Technique,
+      vendor: vendor || null,
+      model: model || null,
+      issue_category: issueCategory || null,
+      symptom_description: v2Answer.problem_summary,
+      method_conditions: null,
+      already_checked: [],
+    };
+    const qc = runQualityChecks(v2Answer, emailQuery);
+    if (qc.action === 'downgrade' || qc.action === 'regenerate') {
+      const newConf = qc.recommended_confidence !== null
+        ? Math.min(v2Answer.confidence, qc.recommended_confidence)
+        : Math.max(0, v2Answer.confidence - 0.15);
+      v2Answer.confidence = newConf;
+      if (v2Answer.confidence_breakdown) {
+        v2Answer.confidence_breakdown.final_score = newConf;
+        v2Answer.confidence_breakdown.label = newConf >= 0.60 ? 'Probable cause' : newConf >= 0.40 ? 'Preliminary hypothesis' : 'Insufficient evidence';
+      }
+    }
   }
 
   // ── Build HTML body ───────────────────────────────────────────────────────────

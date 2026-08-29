@@ -1,6 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { RankedAnswer } from './types';
-import type { RankingQuery } from '@/agents/ranking/types';
+import type { RankedAnswer, RankedAnswerV2, Hypothesis, ConfidenceBreakdown, EvidenceSummaryV2, MissingInfoResult } from './types';
+import type { RankingQuery, RankingQueryV2 } from '@/agents/ranking/types';
+import { getCapability } from './instrument-capabilities';
+import { detectMissingInfo } from './missing-info-detector';
+import { deduplicateItems } from './deduplication';
+import { runQualityChecks } from './quality-control';
+import { validateSourceForVendor } from './evidence-hierarchy';
+import { getConfidenceLabelV2 } from '@/agents/ranking/tiering';
+import { CONFIDENCE_CAPS } from '@/agents/ranking/weights';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -23,14 +30,127 @@ Vendors: Agilent, Waters, Thermo Fisher, Dionex, TA Instruments, Cytiva (formerl
 Your answers are based on:
 - Official vendor service and troubleshooting manuals
 - Peer-reviewed analytical chemistry, biochemistry, and materials literature
-- Established laboratory best practices, ISO standards, and QC guidelines (USP, Ph. Eur., ICH Q6A, ISO 13320)
+- Established laboratory best practices, ISO standards, and QC guidelines (USP, Ph. Eur., ICH Q6A, ICH M10, ISO 13320)
 
-Rules:
-- ALWAYS provide actionable, specific answers — never say "insufficient information"
-- If details are missing, assume the most common scenario for that technique and issue
-- Exclude steps already tried (listed under "already_checked")`;
+EVIDENCE HIERARCHY — classify every source you reference into one of these tiers:
+1. Exact-model manufacturer documentation (specific to queried model)
+2. Instrument-family manufacturer documentation (same vendor, related models)
+3. Regulatory standards (ICH, USP, FDA, EMA, ISO)
+4. Peer-reviewed publications (journal articles with DOI)
+5. Verified technical documents (application notes, tech notes)
+6. General manufacturer-independent best practices
+7. AI-generated inference (your own reasoning — ALWAYS label clearly)
 
-// Tool definition for structured output — eliminates JSON parse failures
+CRITICAL RULES:
+- Do NOT invent document references, URLs, page numbers, or DOI numbers that do not exist
+- Do NOT present vendor documentation for one manufacturer as evidence for a different manufacturer's instrument
+- Every cited source MUST include: title or description, manufacturer/organization, and classification tier
+- If you are uncertain about a source, classify it as tier 7 (AI-generated inference)
+- Distinguish clearly between reported observations (what user sees) and conclusions (what you infer)
+- Flag numeric values (flow rate, injection volume, voltage) as METHOD-DEPENDENT starting points unless sourced from exact-model documentation
+- For ion suppression: distinguish high TIC noise from actual ion suppression; reference Matrix Factor calculation per ICH M10 principles; do NOT use "50% suppression" as a universal threshold
+- Provide hypotheses ranked by probability with supporting AND contradicting evidence
+- Label all hypotheses as "suspected" unless direct diagnostic evidence confirms them
+- Separate immediate diagnostic checks from corrective actions — corrective actions should only follow confirmed diagnosis
+- Exclude steps already tried (listed under "already_checked")
+
+HARD CONFIDENCE RULES — you MUST follow these, violations will be overridden by the system:
+- Symptom description only, no diagnostic results provided → confidence MUST be ≤ 0.40
+- Missing manufacturer or model information → confidence MUST be ≤ 0.35
+- Missing critical method context (column, mobile phase, ionization mode for LCMS) → confidence MUST be ≤ 0.30
+- No exact-model documentation cited → confidence MUST be ≤ 0.50
+- User reports an observation AND proposes a diagnosis without experimental evidence → treat the diagnosis as an UNCONFIRMED HYPOTHESIS, not a fact. List the user's proposed diagnosis as one hypothesis among several.
+- High TIC baseline ≠ ion suppression. These are DIFFERENT problems with different root causes and diagnostics. High TIC suggests contamination, column bleed, or mobile phase background. Ion suppression requires matrix factor evaluation (post-extraction spike vs neat standard).
+- NEVER use "50% suppression" or any fixed percentage as a universal threshold for ion suppression
+- ALL hypotheses MUST be labeled "suspected" unless you have direct experimental evidence confirming them
+- NEVER recommend corrective actions (method changes, hardware modifications) before the relevant diagnostic check confirms the cause`;
+
+// V2 Tool definition with extended structured output
+const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
+  name: 'troubleshoot_response',
+  description: 'Return a structured troubleshooting response with evidence hierarchy and hypothesis ranking',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      reported_observations: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'What the user actually reported/observed (facts, not interpretations)',
+      },
+      hypotheses: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            cause: { type: 'string', description: 'Root cause hypothesis' },
+            probability: { type: 'string', enum: ['high', 'medium', 'low'] },
+            supporting_evidence: { type: 'array', items: { type: 'string' }, description: 'Evidence supporting this hypothesis with source classification tier' },
+            contradicting_evidence: { type: 'array', items: { type: 'string' }, description: 'Evidence against this hypothesis' },
+            diagnostic_test: { type: 'string', description: 'Specific test to confirm or rule out this cause' },
+            expected_result: { type: 'string', description: 'What the diagnostic test should show if this cause is correct' },
+          },
+          required: ['cause', 'probability', 'supporting_evidence', 'diagnostic_test', 'expected_result'],
+        },
+        description: 'Ranked hypotheses (max 6), most likely first',
+      },
+      checks: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Immediate diagnostic steps to perform now (before corrective actions), max 6',
+      },
+      corrective_actions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Specific fixes — only recommend AFTER cause is confirmed via diagnostics, max 6',
+      },
+      verification_steps: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Steps to verify the problem is resolved after correction',
+      },
+      stop_conditions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Escalation triggers for service engineer',
+      },
+      confidence: {
+        type: 'number',
+        description: 'Confidence 0.0–1.0. Cap at 0.50 for symptoms-only (no diagnostics). Cap at 0.60 if critical method info is missing. Cap at 0.70 without exact-model source. Use 0.95+ ONLY with direct diagnostic evidence.',
+      },
+      uncertainties: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Remaining uncertainties and what additional info would improve diagnosis',
+      },
+      next_questions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Follow-up questions to narrow root cause',
+      },
+      method_dependent_flags: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Items that are method-dependent starting points (flag flow rates, voltages, volumes)',
+      },
+      sources_with_metadata: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'Source title or description' },
+            manufacturer_or_org: { type: 'string', description: 'Manufacturer or organization' },
+            classification: { type: 'string', enum: ['exact-model', 'instrument-family', 'regulatory-standard', 'peer-reviewed', 'verified-technical', 'general-manufacturer-independent', 'ai-inference'] },
+          },
+          required: ['title', 'manufacturer_or_org', 'classification'],
+        },
+        description: 'All referenced sources with classification. Do NOT invent sources.',
+      },
+    },
+    required: ['reported_observations', 'hypotheses', 'checks', 'corrective_actions', 'stop_conditions', 'confidence', 'uncertainties', 'next_questions', 'sources_with_metadata'],
+  },
+};
+
+// Legacy tool kept for backwards compatibility
 const TROUBLESHOOT_TOOL: Anthropic.Messages.Tool = {
   name: 'troubleshoot_response',
   description: 'Return a structured troubleshooting response',
@@ -86,6 +206,25 @@ interface TroubleshootResult {
   confidence: number;
   uncertainties: string[];
   next_questions: string[];
+}
+
+interface TroubleshootResultV2 extends TroubleshootResult {
+  reported_observations: string[];
+  hypotheses: Array<{
+    cause: string;
+    probability: 'high' | 'medium' | 'low';
+    supporting_evidence: string[];
+    contradicting_evidence: string[];
+    diagnostic_test: string;
+    expected_result: string;
+  }>;
+  verification_steps: string[];
+  method_dependent_flags: string[];
+  sources_with_metadata: Array<{
+    title: string;
+    manufacturer_or_org: string;
+    classification: string;
+  }>;
 }
 
 async function callModel(model: string, userMessage: string): Promise<{ parsed: TroubleshootResult; modelUsed: string }> {
@@ -155,11 +294,74 @@ async function callModel(model: string, userMessage: string): Promise<{ parsed: 
   }
 }
 
+async function callModelV2(model: string, userMessage: string): Promise<{ parsed: TroubleshootResultV2; modelUsed: string }> {
+  const message = await client.messages.create({
+    model,
+    max_tokens: 4096,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userMessage }],
+    tools: [TROUBLESHOOT_TOOL_V2],
+    tool_choice: { type: 'tool', name: 'troubleshoot_response' },
+  });
+
+  const toolBlock = message.content.find(b => b.type === 'tool_use');
+
+  if (toolBlock && toolBlock.type === 'tool_use') {
+    const input = toolBlock.input as Record<string, unknown>;
+    const hypothesesRaw = Array.isArray(input.hypotheses) ? input.hypotheses : [];
+
+    return {
+      parsed: {
+        likely_causes: hypothesesRaw.map((h: Record<string, unknown>) => typeof h.cause === 'string' ? h.cause : ''),
+        checks: arr(input.checks),
+        corrective_actions: arr(input.corrective_actions),
+        stop_conditions: arr(input.stop_conditions),
+        confidence: typeof input.confidence === 'number' ? input.confidence : 0.5,
+        uncertainties: arr(input.uncertainties),
+        next_questions: arr(input.next_questions),
+        reported_observations: arr(input.reported_observations),
+        hypotheses: hypothesesRaw.map((h: Record<string, unknown>) => ({
+          cause: typeof h.cause === 'string' ? h.cause : '',
+          probability: (['high', 'medium', 'low'].includes(h.probability as string) ? h.probability : 'medium') as 'high' | 'medium' | 'low',
+          supporting_evidence: arr(h.supporting_evidence),
+          contradicting_evidence: arr(h.contradicting_evidence),
+          diagnostic_test: typeof h.diagnostic_test === 'string' ? h.diagnostic_test : '',
+          expected_result: typeof h.expected_result === 'string' ? h.expected_result : '',
+        })),
+        verification_steps: arr(input.verification_steps),
+        method_dependent_flags: arr(input.method_dependent_flags),
+        sources_with_metadata: Array.isArray(input.sources_with_metadata)
+          ? input.sources_with_metadata.map((s: Record<string, unknown>) => ({
+              title: typeof s.title === 'string' ? s.title : '',
+              manufacturer_or_org: typeof s.manufacturer_or_org === 'string' ? s.manufacturer_or_org : '',
+              classification: typeof s.classification === 'string' ? s.classification : 'ai-inference',
+            }))
+          : [],
+      },
+      modelUsed: model,
+    };
+  }
+
+  // Fallback: empty V2 result
+  return {
+    parsed: {
+      likely_causes: [], checks: [], corrective_actions: [], stop_conditions: [],
+      confidence: 0.3,
+      uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
+      next_questions: [],
+      reported_observations: [], hypotheses: [], verification_steps: [],
+      method_dependent_flags: [], sources_with_metadata: [],
+    },
+    modelUsed: model,
+  };
+}
+
 function arr(v: unknown): string[] {
   if (!Array.isArray(v)) return [];
   return v.filter((x): x is string => typeof x === 'string');
 }
 
+/** Legacy V1 fallback — preserved for backwards compatibility */
 export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswer> {
   const userMessage = buildUserMessage(query);
 
@@ -188,6 +390,202 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
   };
 }
 
+/** V2 fallback with structured hypotheses, evidence hierarchy, and quality control */
+export async function aiAnswerFallbackV2(
+  query: RankingQueryV2,
+  kbResult?: RankedAnswer,
+): Promise<RankedAnswerV2> {
+  const userMessage = buildUserMessageV2(query, kbResult);
+
+  // Default: Sonnet
+  let { parsed, modelUsed } = await callModelV2('claude-sonnet-4-6', userMessage);
+
+  // Escalate to Opus if Sonnet confidence is below threshold
+  if (parsed.confidence < OPUS_ESCALATION_THRESHOLD) {
+    const opusResult = await callModelV2('claude-opus-4-6', userMessage);
+    if (opusResult.parsed.confidence >= parsed.confidence) {
+      parsed = opusResult.parsed;
+      modelUsed = opusResult.modelUsed;
+    }
+  }
+
+  // Detect missing info
+  const missingInfo = detectMissingInfo(query, query.technique);
+
+  // Apply confidence caps — HARD enforcement regardless of what Claude returned
+  const caps: string[] = [];
+  let confidence = parsed.confidence;
+
+  // AI sources are never exact-model (always tier 7)
+  caps.push(`AI-generated answer (no exact-model source): max ${CONFIDENCE_CAPS.NO_EXACT_MODEL_SOURCE * 100}%`);
+  confidence = Math.min(confidence, CONFIDENCE_CAPS.NO_EXACT_MODEL_SOURCE);
+
+  if (missingInfo.critical_missing.length > 0) {
+    caps.push(`Missing critical method info (${missingInfo.critical_missing.join(', ')}): max ${CONFIDENCE_CAPS.MISSING_CRITICAL_INFO * 100}%`);
+    confidence = Math.min(confidence, CONFIDENCE_CAPS.MISSING_CRITICAL_INFO);
+  }
+
+  if (!query.qc_results && !query.recent_maintenance) {
+    caps.push(`Symptoms only, no diagnostic confirmation: max ${CONFIDENCE_CAPS.SYMPTOMS_ONLY * 100}%`);
+    confidence = Math.min(confidence, CONFIDENCE_CAPS.SYMPTOMS_ONLY);
+  }
+
+  // Contradictions in AI output
+  const hasContradiction = parsed.uncertainties.some(u => u.toLowerCase().includes('conflict') || u.toLowerCase().includes('contradict'));
+  if (hasContradiction) {
+    caps.push(`Conflicting evidence: reduced by ${CONFIDENCE_CAPS.CONFLICTING_EVIDENCE_REDUCTION * 100}%`);
+    confidence = Math.max(0, confidence - CONFIDENCE_CAPS.CONFLICTING_EVIDENCE_REDUCTION);
+  }
+
+  confidence = parseFloat(confidence.toFixed(2));
+
+  // Deduplicate
+  const dedupCauses = deduplicateItems(parsed.likely_causes, 6);
+  const dedupChecks = deduplicateItems(parsed.checks, 6);
+  const dedupActions = deduplicateItems(parsed.corrective_actions, 6);
+
+  // Build hypotheses
+  const hypotheses: Hypothesis[] = parsed.hypotheses.map((h, i) => ({
+    rank: i + 1,
+    cause: h.cause,
+    probability: h.probability,
+    supporting_evidence: h.supporting_evidence,
+    contradicting_evidence: h.contradicting_evidence ?? [],
+    diagnostic_test: h.diagnostic_test,
+    expected_result: h.expected_result,
+    status: 'suspected' as const,
+  }));
+
+  // Build sources with metadata
+  const classificationMap: Record<string, EvidenceSummaryV2['classification']> = {
+    'exact-model': 'exact-model',
+    'instrument-family': 'instrument-family',
+    'regulatory-standard': 'regulatory-standard',
+    'peer-reviewed': 'peer-reviewed',
+    'verified-technical': 'verified-technical',
+    'general-manufacturer-independent': 'general-manufacturer-independent',
+    'ai-inference': 'ai-inference',
+  };
+
+  const sourcesWithMetadata: EvidenceSummaryV2[] = parsed.sources_with_metadata.map(s => {
+    let classification = classificationMap[s.classification] ?? 'ai-inference';
+    let tier = (Object.entries(classificationMap).findIndex(([k]) => k === s.classification) + 1 || 7) as 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+    // Cross-vendor validation: if source mentions a different vendor, downgrade to ai-inference
+    if (query.vendor && s.manufacturer_or_org) {
+      const sourceVendor = s.manufacturer_or_org.toLowerCase().replace(/\s+/g, '');
+      const queryVendor = query.vendor.toLowerCase().replace(/\s+/g, '');
+      const isVendorSpecific = ['exact-model', 'instrument-family'].includes(classification);
+      if (isVendorSpecific && sourceVendor !== queryVendor && !sourceVendor.includes(queryVendor) && !queryVendor.includes(sourceVendor)) {
+        classification = 'ai-inference';
+        tier = 7;
+      }
+    }
+
+    return {
+      source_id: modelUsed,
+      excerpt: s.title,
+      evidence_strength: 'moderate' as const,
+      classification,
+      source_metadata: {
+        title: s.title,
+        manufacturer_or_org: s.manufacturer_or_org,
+        doc_number: null,
+        pub_date: null,
+        url: null,
+        page_or_section: null,
+        classification,
+        tier,
+      },
+    };
+  });
+
+  const confidenceBreakdown: ConfidenceBreakdown = {
+    raw_score: parsed.confidence,
+    caps_applied: caps,
+    final_score: confidence,
+    label: getConfidenceLabelV2(confidence),
+    factor_scores: {
+      source_authority: 0.30,  // AI = tier 7
+      technique_relevance: 1.0,
+      issue_relevance: parsed.confidence,
+      recency: 1.0,
+      evidence_strength: 0.70,
+    },
+    explanation: `AI-generated answer (${modelUsed}). ${caps.length > 0 ? `Caps applied: ${caps.join('; ')}` : 'No caps applied.'}`,
+  };
+
+  const result: RankedAnswerV2 = {
+    problem_summary: query.symptom_description,
+    likely_causes: dedupCauses.main,
+    checks: dedupChecks.main,
+    corrective_actions: dedupActions.main,
+    stop_conditions: parsed.stop_conditions,
+    confidence,
+    evidence_summary: [{ source_id: modelUsed, excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
+    uncertainties: parsed.uncertainties,
+    next_questions: parsed.next_questions,
+
+    missing_information: missingInfo,
+    hypotheses,
+    immediate_checks: dedupChecks.main,
+    verification_steps: parsed.verification_steps ?? [],
+    escalation_criteria: parsed.stop_conditions,
+    sources_with_metadata: sourcesWithMetadata,
+    confidence_breakdown: confidenceBreakdown,
+    method_dependent_flags: parsed.method_dependent_flags ?? [],
+    printable_checklist: [
+      ...dedupChecks.main.map((c, i) => `☐ Check ${i + 1}: ${c}`),
+      ...dedupActions.main.map((a, i) => `☐ Action ${i + 1}: ${a}`),
+    ],
+    reported_observations: parsed.reported_observations ?? [query.symptom_description],
+    confirmed_evidence: [],
+    remaining_uncertainty: parsed.uncertainties,
+  };
+
+  // Symptom/cause confusion check: remove causes that restate the symptom
+  const symptomWords = getWordSet(query.symptom_description);
+  if (symptomWords.size >= 3) {
+    const filtered: string[] = [];
+    for (const cause of result.likely_causes) {
+      const causeWords = getWordSet(cause);
+      const overlap = [...symptomWords].filter(w => causeWords.has(w)).length;
+      const similarity = overlap / Math.max(symptomWords.size, causeWords.size);
+      if (similarity > 0.6) {
+        // Move to observations instead of causes
+        if (!result.reported_observations.includes(cause)) {
+          result.reported_observations.push(cause);
+        }
+      } else {
+        filtered.push(cause);
+      }
+    }
+    result.likely_causes = filtered;
+  }
+
+  // Run quality checks — enforce caps directly
+  const qc = runQualityChecks(result, query);
+  if (qc.action === 'downgrade' || qc.action === 'regenerate') {
+    // Apply recommended confidence cap from QC
+    if (qc.recommended_confidence !== null && qc.recommended_confidence < result.confidence) {
+      result.confidence = qc.recommended_confidence;
+    } else {
+      // Fallback: subtract 0.15 per error
+      const errorCount = qc.failures.filter(f => f.severity === 'error').length;
+      result.confidence = Math.max(0, result.confidence - errorCount * 0.15);
+    }
+    result.confidence = parseFloat(result.confidence.toFixed(2));
+    result.confidence_breakdown.final_score = result.confidence;
+    result.confidence_breakdown.label = getConfidenceLabelV2(result.confidence);
+    result.confidence_breakdown.caps_applied.push(`Quality control ${qc.action}: ${qc.failures.length} issue(s)`);
+    result.uncertainties.push(
+      ...qc.failures.map(f => `QC ${f.severity}: ${f.message}`)
+    );
+  }
+
+  return result;
+}
+
 function buildUserMessage(query: RankingQuery): string {
   const lines: string[] = [
     `Technique: ${query.technique}`,
@@ -201,4 +599,82 @@ function buildUserMessage(query: RankingQuery): string {
     lines.push(`Already checked: ${query.already_checked.join(', ')}`);
   }
   return lines.join('\n');
+}
+
+function buildUserMessageV2(query: RankingQueryV2, kbResult?: RankedAnswer): string {
+  const lines: string[] = [
+    `Technique: ${query.technique}`,
+  ];
+  if (query.vendor)            lines.push(`Vendor: ${query.vendor}`);
+  if (query.model)             lines.push(`Model: ${query.model}`);
+  if (query.issue_category)    lines.push(`Issue category: ${query.issue_category}`);
+  if (query.method_conditions) lines.push(`Method conditions: ${query.method_conditions}`);
+
+  // Extended context fields
+  if (query.analyte)           lines.push(`Analyte: ${query.analyte}`);
+  if (query.sample_matrix)     lines.push(`Sample matrix: ${query.sample_matrix}`);
+  if (query.column)            lines.push(`Column: ${query.column}`);
+  if (query.mobile_phase)      lines.push(`Mobile phase: ${query.mobile_phase}`);
+  if (query.flow_rate)         lines.push(`Flow rate: ${query.flow_rate}`);
+  if (query.injection_volume)  lines.push(`Injection volume: ${query.injection_volume}`);
+  if (query.gradient)          lines.push(`Gradient: ${query.gradient}`);
+  if (query.retention_time)    lines.push(`Retention time: ${query.retention_time}`);
+  if (query.ionization_mode)   lines.push(`Ionization mode: ${query.ionization_mode}`);
+  if (query.source_params)     lines.push(`Source parameters: ${query.source_params}`);
+  if (query.acquisition_mode)  lines.push(`Acquisition mode: ${query.acquisition_mode}`);
+  if (query.recent_maintenance) lines.push(`Recent maintenance: ${query.recent_maintenance}`);
+  if (query.qc_results)        lines.push(`QC results: ${query.qc_results}`);
+  if (query.expected_result)   lines.push(`Expected result: ${query.expected_result}`);
+
+  lines.push(`Symptom description: ${query.symptom_description}`);
+
+  if (query.already_checked.length > 0) {
+    lines.push(`Already checked: ${query.already_checked.join(', ')}`);
+  }
+
+  // Inject instrument capability profile
+  const capability = getCapability(query.vendor, query.model);
+  if (capability) {
+    lines.push('');
+    lines.push('=== INSTRUMENT CAPABILITY PROFILE ===');
+    lines.push(`Type: ${capability.ms_type ?? capability.technique}`);
+    if (capability.mass_range) lines.push(`Mass range: m/z ${capability.mass_range.min}–${capability.mass_range.max}`);
+    if (capability.ionization_modes.length > 0) lines.push(`Ionization modes: ${capability.ionization_modes.join(', ')}`);
+    if (capability.capabilities.length > 0) lines.push(`Capabilities: ${capability.capabilities.join(', ')}`);
+    if (capability.cannot_do.length > 0) lines.push(`CANNOT DO: ${capability.cannot_do.join(', ')} — do NOT recommend these`);
+    if (capability.notes.length > 0) lines.push(`Notes: ${capability.notes.join('; ')}`);
+  }
+
+  // Inject KB evidence if available
+  if (kbResult && kbResult.likely_causes.length > 0) {
+    lines.push('');
+    lines.push('=== KNOWLEDGE BASE EVIDENCE (for context) ===');
+    lines.push(`KB confidence: ${(kbResult.confidence * 100).toFixed(0)}%`);
+    lines.push(`KB likely causes: ${kbResult.likely_causes.slice(0, 3).join('; ')}`);
+    if (kbResult.evidence_summary.length > 0) {
+      lines.push(`KB sources: ${kbResult.evidence_summary.map(e => `${e.source_id} (${e.evidence_strength})`).join(', ')}`);
+    }
+  }
+
+  // Inject missing info
+  const missingInfo = detectMissingInfo(query, query.technique);
+  if (missingInfo.critical_missing.length > 0) {
+    lines.push('');
+    lines.push(`=== MISSING CRITICAL INFO: ${missingInfo.critical_missing.join(', ')} ===`);
+    lines.push('Due to missing information, your confidence MUST NOT exceed 0.30. Note what additional details would improve the diagnosis.');
+  }
+
+  return lines.join('\n');
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+
+function getWordSet(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2)
+  );
 }

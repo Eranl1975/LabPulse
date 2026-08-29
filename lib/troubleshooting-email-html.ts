@@ -1,4 +1,4 @@
-import type { RankedAnswer } from './types';
+import type { RankedAnswer, RankedAnswerV2 } from './types';
 
 // ── HTML entity escaping ────────────────────────────────────────────────────────
 
@@ -39,11 +39,14 @@ export function buildTroubleshootingEmailHtml(
   if (options.model) instrumentParts.push(esc(options.model));
   const instrumentLabel = instrumentParts.join(' — ');
 
-  // Confidence badge
+  // V2 check
+  const v2 = 'confidence_breakdown' in answer ? (answer as RankedAnswerV2) : null;
+
+  // Confidence badge (5-level)
   const pct = Math.round(answer.confidence * 100);
-  const confColor = answer.confidence >= 0.75 ? '#16a34a' : answer.confidence >= 0.50 ? '#d97706' : '#dc2626';
-  const confBg = answer.confidence >= 0.75 ? '#f0fdf4' : answer.confidence >= 0.50 ? '#fffbeb' : '#fef2f2';
-  const confLabel = answer.confidence >= 0.75 ? 'High' : answer.confidence >= 0.50 ? 'Medium' : 'Low';
+  const confColor = answer.confidence >= 0.95 ? '#065f46' : answer.confidence >= 0.80 ? '#16a34a' : answer.confidence >= 0.60 ? '#2563eb' : answer.confidence >= 0.40 ? '#d97706' : '#dc2626';
+  const confBg = answer.confidence >= 0.95 ? '#ecfdf5' : answer.confidence >= 0.80 ? '#f0fdf4' : answer.confidence >= 0.60 ? '#eff6ff' : answer.confidence >= 0.40 ? '#fffbeb' : '#fef2f2';
+  const confLabel = v2?.confidence_breakdown?.label ?? (answer.confidence >= 0.80 ? 'Strongly supported' : answer.confidence >= 0.60 ? 'Probable cause' : answer.confidence >= 0.40 ? 'Preliminary hypothesis' : 'Insufficient evidence');
 
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -164,8 +167,22 @@ export function buildTroubleshootingEmailHtml(
   </div>`;
   }
 
-  // References / Evidence
-  if (answer.evidence_summary.length > 0) {
+  // References / Evidence (V2: with source classification)
+  if (v2?.sources_with_metadata && v2.sources_with_metadata.length > 0) {
+    html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">References</h3>
+    <ul style="margin:0;padding-left:20px;">
+      ${v2.sources_with_metadata.map(s => {
+        const meta = s.source_metadata;
+        const tierBadge = meta ? `[Tier ${meta.tier}: ${esc(meta.classification)}]` : `[${esc(s.classification)}]`;
+        const title = meta?.title ?? s.source_id;
+        const org = meta?.manufacturer_or_org ? ` — ${esc(meta.manufacturer_or_org)}` : '';
+        return `<li style="font-size:12px;color:#64748b;margin:0 0 3px;line-height:1.5;"><strong>${esc(title)}</strong>${org} <span style="font-size:10px;color:#94a3b8;">${tierBadge}</span></li>`;
+      }).join('\n      ')}
+    </ul>
+  </div>`;
+  } else if (answer.evidence_summary.length > 0) {
     html += `
   <div style="${sectionStyle}">
     <h3 style="${sectionTitle}">References</h3>
@@ -174,6 +191,30 @@ export function buildTroubleshootingEmailHtml(
         `<li style="font-size:12px;color:#64748b;margin:0 0 3px;line-height:1.5;"><strong>${esc(e.source_id)}</strong> (${esc(e.evidence_strength)}) — ${esc(e.excerpt)}</li>`
       ).join('\n      ')}
     </ul>
+  </div>`;
+  }
+
+  // Confidence Breakdown (V2)
+  if (v2?.confidence_breakdown) {
+    const cb = v2.confidence_breakdown;
+    html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Confidence Breakdown</h3>
+    <table cellpadding="0" cellspacing="0" style="margin:0;width:100%;">
+      <tr><td style="font-size:12px;color:#64748b;padding:2px 0;">Score: <strong>${(cb.final_score * 100).toFixed(0)}%</strong> (${esc(cb.label)})</td></tr>
+      ${cb.caps_applied.length > 0 ? `<tr><td style="font-size:11px;color:#94a3b8;padding:2px 0;">Caps: ${cb.caps_applied.map(c => esc(c)).join('; ')}</td></tr>` : ''}
+      <tr><td style="font-size:11px;color:#94a3b8;padding:2px 0;">Source authority: ${(cb.factor_scores.source_authority * 100).toFixed(0)}% | Technique: ${(cb.factor_scores.technique_relevance * 100).toFixed(0)}% | Issue: ${(cb.factor_scores.issue_relevance * 100).toFixed(0)}% | Recency: ${(cb.factor_scores.recency * 100).toFixed(0)}% | Evidence: ${(cb.factor_scores.evidence_strength * 100).toFixed(0)}%</td></tr>
+    </table>
+  </div>`;
+  }
+
+  // Missing Information (V2)
+  if (v2?.missing_information?.critical_missing?.length) {
+    html += `
+  <div style="margin:0 0 16px;padding:12px 16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;">
+    <h3 style="margin:0 0 8px;font-size:12px;font-weight:700;color:#9a3412;text-transform:uppercase;letter-spacing:0.5px;">Missing Information</h3>
+    <p style="font-size:12px;color:#9a3412;margin:0 0 4px;">Critical fields missing: <strong>${v2.missing_information.critical_missing.map(f => esc(f)).join(', ')}</strong></p>
+    ${v2.missing_information.follow_up_questions.length > 0 ? `<ul style="margin:4px 0 0;padding-left:20px;">${v2.missing_information.follow_up_questions.map(q => `<li style="font-size:11px;color:#9a3412;line-height:1.5;">${esc(q)}</li>`).join('')}</ul>` : ''}
   </div>`;
   }
 

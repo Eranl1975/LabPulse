@@ -477,6 +477,44 @@ function QuickChips({
   );
 }
 
+function InputField({
+  value, onChange, placeholder,
+}: {
+  value: string; onChange: (v: string) => void; placeholder?: string;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      placeholder={placeholder}
+      onChange={e => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        boxSizing: 'border-box',
+        padding: '0.6875rem 0.9375rem',
+        background: 'var(--color-slate-50)',
+        border: '1.5px solid var(--color-slate-200)',
+        borderRadius: '8px',
+        fontFamily: 'var(--font-sans)',
+        fontSize: '0.9375rem',
+        color: 'var(--color-navy-900)',
+        outline: 'none',
+        transition: 'border-color .15s ease, box-shadow .15s ease, background .15s ease',
+      }}
+      onFocus={e => {
+        e.currentTarget.style.borderColor = 'var(--color-teal-500)';
+        e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(20,184,166,.15)';
+        e.currentTarget.style.background  = '#fff';
+      }}
+      onBlur={e => {
+        e.currentTarget.style.borderColor = 'var(--color-slate-200)';
+        e.currentTarget.style.boxShadow   = 'none';
+        e.currentTarget.style.background  = 'var(--color-slate-50)';
+      }}
+    />
+  );
+}
+
 function TextareaField({
   value, onChange, placeholder, rows = 3,
 }: {
@@ -530,6 +568,22 @@ export default function QueryForm() {
   const [symptoms,         setSymptoms]         = useState('');
   const [methodConditions, setMethodConditions] = useState('');
   const [alreadyChecked,   setAlreadyChecked]   = useState('');
+  // Extended context fields (V2)
+  const [analyte,          setAnalyte]          = useState('');
+  const [sampleMatrix,     setSampleMatrix]     = useState('');
+  const [column,           setColumn]           = useState('');
+  const [mobilephase,      setMobilephase]      = useState('');
+  const [flowRate,         setFlowRate]         = useState('');
+  const [injectionVolume,  setInjectionVolume]  = useState('');
+  const [gradient,         setGradient]         = useState('');
+  const [retentionTime,    setRetentionTime]    = useState('');
+  const [ionizationMode,   setIonizationMode]   = useState('');
+  const [sourceParams,     setSourceParams]     = useState('');
+  const [acquisitionMode,  setAcquisitionMode]  = useState('');
+  const [recentMaint,      setRecentMaint]      = useState('');
+  const [qcResults,        setQcResults]        = useState('');
+  const [expectedResult,   setExpectedResult]   = useState('');
+  const [showAdvanced,     setShowAdvanced]     = useState(false);
   const [loading,          setLoading]          = useState(false);
   const [result,           setResult]           = useState<ApiResult | null>(null);
   const [error,            setError]            = useState<string | null>(null);
@@ -620,6 +674,21 @@ export default function QueryForm() {
           symptom_description,
           method_conditions:  methodConditions.trim() || null,
           already_checked,
+          // Extended context (V2)
+          analyte:            analyte.trim()           || null,
+          sample_matrix:      sampleMatrix.trim()      || null,
+          column:             column.trim()            || null,
+          mobile_phase:       mobilephase.trim()       || null,
+          flow_rate:          flowRate.trim()           || null,
+          injection_volume:   injectionVolume.trim()   || null,
+          gradient:           gradient.trim()           || null,
+          retention_time:     retentionTime.trim()     || null,
+          ionization_mode:    ionizationMode.trim()    || null,
+          source_params:      sourceParams.trim()      || null,
+          acquisition_mode:   acquisitionMode.trim()   || null,
+          recent_maintenance: recentMaint.trim()       || null,
+          qc_results:         qcResults.trim()         || null,
+          expected_result:    expectedResult.trim()    || null,
         }),
       });
 
@@ -784,6 +853,72 @@ export default function QueryForm() {
                 rows={2}
               />
             </Field>
+
+            {/* ── Advanced Context (V2) ─────────────────────────────────── */}
+            <div style={{ marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-display)', fontSize: '0.8125rem', fontWeight: 600,
+                  color: 'var(--color-teal-600)', padding: '0.375rem 0',
+                }}
+              >
+                <span style={{ transform: showAdvanced ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}>▸</span>
+                Advanced Context (optional — improves accuracy)
+              </button>
+
+              {showAdvanced && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingTop: '0.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <Field label="Analyte">
+                      <InputField value={analyte} onChange={setAnalyte} placeholder="e.g. caffeine, ibuprofen" />
+                    </Field>
+                    <Field label="Sample Matrix">
+                      <InputField value={sampleMatrix} onChange={setSampleMatrix} placeholder="e.g. plasma, soil extract" />
+                    </Field>
+                    <Field label="Column">
+                      <InputField value={column} onChange={setColumn} placeholder="e.g. C18 150×4.6mm 3.5µm" />
+                    </Field>
+                    <Field label="Mobile Phase">
+                      <InputField value={mobilephase} onChange={setMobilephase} placeholder="e.g. 0.1% FA in water / ACN" />
+                    </Field>
+                    <Field label="Flow Rate">
+                      <InputField value={flowRate} onChange={setFlowRate} placeholder="e.g. 0.4 mL/min" />
+                    </Field>
+                    <Field label="Injection Volume">
+                      <InputField value={injectionVolume} onChange={setInjectionVolume} placeholder="e.g. 5 µL" />
+                    </Field>
+                    <Field label="Gradient Program">
+                      <InputField value={gradient} onChange={setGradient} placeholder="e.g. 5→95% B in 8 min" />
+                    </Field>
+                    <Field label="Retention Time">
+                      <InputField value={retentionTime} onChange={setRetentionTime} placeholder="e.g. expected 4.2 min, observed 3.8 min" />
+                    </Field>
+                    <Field label="Ionization Mode">
+                      <InputField value={ionizationMode} onChange={setIonizationMode} placeholder="e.g. ESI+, APCI-" />
+                    </Field>
+                    <Field label="Source Parameters">
+                      <InputField value={sourceParams} onChange={setSourceParams} placeholder="e.g. gas temp 300°C, nebulizer 45 psi" />
+                    </Field>
+                    <Field label="Acquisition Mode">
+                      <InputField value={acquisitionMode} onChange={setAcquisitionMode} placeholder="e.g. SIM m/z 195, scan 100-1000" />
+                    </Field>
+                    <Field label="Expected Result">
+                      <InputField value={expectedResult} onChange={setExpectedResult} placeholder="e.g. S/N > 10, RT 4.2±0.1 min" />
+                    </Field>
+                  </div>
+                  <Field label="Recent Maintenance">
+                    <InputField value={recentMaint} onChange={setRecentMaint} placeholder="e.g. replaced ESI capillary last week" />
+                  </Field>
+                  <Field label="QC / System Suitability Results">
+                    <InputField value={qcResults} onChange={setQcResults} placeholder="e.g. SST passed, RSD 1.2%, tailing 1.1" />
+                  </Field>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>

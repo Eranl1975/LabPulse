@@ -41,3 +41,37 @@ export interface TieredResults {
   low_confidence: TieredItem[];
   contradictions: string[];
 }
+
+// ─── V2 Types ────────────────────────────────────────────────────────
+
+import type { EvidenceClassification } from '@/lib/types';
+
+/** Extended query with additional technical context fields */
+export interface RankingQueryV2 extends RankingQuery {
+  analyte?: string | null;
+  sample_matrix?: string | null;
+  column?: string | null;
+  mobile_phase?: string | null;
+  flow_rate?: string | null;
+  injection_volume?: string | null;
+  gradient?: string | null;
+  retention_time?: string | null;
+  ionization_mode?: string | null;
+  source_params?: string | null;
+  acquisition_mode?: string | null;
+  recent_maintenance?: string | null;
+  qc_results?: string | null;
+  expected_result?: string | null;
+}
+
+export interface ScoreBreakdownV2 extends ScoreBreakdown {
+  evidence_classification: EvidenceClassification;
+  confidence_caps: string[];
+}
+
+export type ConfidenceTierV2 =
+  | 'insufficient_evidence'       // 0–0.39
+  | 'preliminary_hypothesis'      // 0.40–0.59
+  | 'probable_cause'              // 0.60–0.79
+  | 'strongly_supported'          // 0.80–0.94
+  | 'confirmed';                  // 0.95–1.00

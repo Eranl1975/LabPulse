@@ -63,7 +63,7 @@ describe('formatDeep', () => {
   it('rationale distinguishes high vs low confidence', () => {
     const high = formatDeep(highConfidenceAnswer).text;
     const low  = formatDeep({ ...highConfidenceAnswer, confidence: 0.3 }).text;
-    expect(high).toContain('High confidence');
-    expect(low).toContain('Low confidence');
+    expect(high).toContain('Strongly supported');
+    expect(low).toContain('Insufficient evidence');
   });
 });

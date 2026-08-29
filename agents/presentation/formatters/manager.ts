@@ -1,12 +1,14 @@
-import type { RankedAnswer } from '@/lib/types';
+import type { RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import type { ManagerOutput } from '../types';
 
 function deriveUrgency(confidence: number, stop_conditions: string[]): string {
   if (confidence === 0) return 'Unknown — insufficient evidence';
-  if (stop_conditions.length > 0 && confidence >= 0.70) return 'High — escalation conditions identified';
-  if (confidence >= 0.70) return 'High — root cause identified with strong evidence';
-  if (confidence >= 0.45) return 'Medium — probable cause, investigate today';
-  return 'Low — uncertain cause, escalate to analyst';
+  if (stop_conditions.length > 0 && confidence >= 0.80) return 'Critical — escalation conditions with strong evidence';
+  if (confidence >= 0.80) return 'High — strongly supported root cause';
+  if (stop_conditions.length > 0 && confidence >= 0.60) return 'High — escalation conditions identified';
+  if (confidence >= 0.60) return 'Medium-High — probable cause identified';
+  if (confidence >= 0.40) return 'Medium — preliminary hypothesis, investigate today';
+  return 'Low — insufficient evidence, escalate to analyst';
 }
 
 function deriveDataQualityRisk(answer: RankedAnswer): string {
@@ -36,14 +38,25 @@ export function formatManager(answer: RankedAnswer): ManagerOutput {
   const data_quality_risk   = deriveDataQualityRisk(answer);
   const recommended_action  = deriveRecommendedAction(answer);
 
-  const text = [
+  // V2 confidence label
+  const v2 = 'confidence_breakdown' in answer ? (answer as RankedAnswerV2) : null;
+  const confidenceLabel = v2?.confidence_breakdown?.label ?? `${Math.round(answer.confidence * 100)}%`;
+
+  const lines = [
     `## Manager Summary`,
     ``,
     `Issue:               ${issue_summary}`,
     `Urgency:             ${urgency}`,
+    `Confidence:          ${Math.round(answer.confidence * 100)}% (${confidenceLabel})`,
     `Data Quality Risk:   ${data_quality_risk}`,
     `Recommended Action:  ${recommended_action}`,
-  ].join('\n');
+  ];
+
+  if (v2?.missing_information?.critical_missing?.length) {
+    lines.push(`Missing Info:        ${v2.missing_information.critical_missing.join(', ')}`);
+  }
+
+  const text = lines.join('\n');
 
   return { mode: 'manager', issue_summary, urgency, data_quality_risk, recommended_action, text };
 }

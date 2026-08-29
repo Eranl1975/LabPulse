@@ -14,22 +14,36 @@ interface Props {
 }
 
 function confidenceInfo(c: number): { label: string; pct: number; color: string; bg: string; border: string } {
-  if (c >= 0.75) return {
-    label: `High confidence — ${Math.round(c * 100)}%`,
+  if (c >= 0.95) return {
+    label: `Confirmed — ${Math.round(c * 100)}%`,
+    pct: c * 100,
+    color: '#065f46',
+    bg: 'rgba(6,95,70,.07)',
+    border: 'rgba(6,95,70,.2)',
+  };
+  if (c >= 0.80) return {
+    label: `Strongly supported — ${Math.round(c * 100)}%`,
     pct: c * 100,
     color: 'var(--color-teal-600)',
     bg: 'rgba(15,145,136,.07)',
     border: 'rgba(15,145,136,.2)',
   };
-  if (c >= 0.50) return {
-    label: `Medium confidence — ${Math.round(c * 100)}%`,
+  if (c >= 0.60) return {
+    label: `Probable cause — ${Math.round(c * 100)}%`,
+    pct: c * 100,
+    color: '#2563eb',
+    bg: 'rgba(37,99,235,.07)',
+    border: 'rgba(37,99,235,.2)',
+  };
+  if (c >= 0.40) return {
+    label: `Preliminary hypothesis — ${Math.round(c * 100)}%`,
     pct: c * 100,
     color: 'var(--color-amber-600)',
     bg: 'rgba(217,119,6,.07)',
     border: 'rgba(217,119,6,.2)',
   };
   if (c > 0) return {
-    label: `Low confidence — ${Math.round(c * 100)}%`,
+    label: `Insufficient evidence — ${Math.round(c * 100)}%`,
     pct: c * 100,
     color: 'var(--color-red-700)',
     bg: 'rgba(185,28,28,.06)',

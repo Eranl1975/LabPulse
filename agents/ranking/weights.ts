@@ -47,3 +47,32 @@ export const RECENCY_BANDS = [
 ] as const;
 
 export const RECENCY_FALLBACK = 0.40;
+
+// ─── V2 Constants ────────────────────────────────────────────────────
+
+/** Confidence caps applied when context is insufficient (Section 4) */
+export const CONFIDENCE_CAPS = {
+  MISSING_CRITICAL_INFO:         0.60,
+  NO_EXACT_MODEL_SOURCE:         0.70,
+  SYMPTOMS_ONLY:                 0.50,
+  CONFLICTING_EVIDENCE_REDUCTION: 0.15,  // subtracted from raw score
+} as const;
+
+/** 5-level confidence tier thresholds (inclusive lower bound) */
+export const TIER_THRESHOLDS_V2 = {
+  CONFIRMED:              0.95,
+  STRONGLY_SUPPORTED:     0.80,
+  PROBABLE_CAUSE:         0.60,
+  PRELIMINARY_HYPOTHESIS: 0.40,
+} as const;
+
+/** Evidence tier → source authority score mapping (7-tier hierarchy) */
+export const EVIDENCE_TIER_SCORES: Record<number, number> = {
+  1: 1.00,  // exact-model manufacturer docs
+  2: 0.90,  // instrument-family manufacturer docs
+  3: 0.85,  // regulatory standards
+  4: 0.75,  // peer-reviewed publications
+  5: 0.60,  // verified technical docs
+  6: 0.45,  // general manufacturer-independent
+  7: 0.30,  // AI-generated inference
+};

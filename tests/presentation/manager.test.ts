@@ -12,18 +12,18 @@ describe('formatManager', () => {
     expect(result.issue_summary).toBe(highConfidenceAnswer.problem_summary);
   });
 
-  it('urgency is High for confidence >= 0.70', () => {
+  it('urgency is Critical for confidence >= 0.80 with escalation conditions', () => {
     const result = formatManager(highConfidenceAnswer);
-    expect(result.urgency).toMatch(/High/);
+    expect(result.urgency).toMatch(/Critical/);
   });
 
-  it('urgency is High with escalation conditions flagged', () => {
+  it('urgency is Critical for high-severity with escalation conditions', () => {
     const result = formatManager(highSeverityAnswer);
-    expect(result.urgency).toContain('High');
-    expect(result.urgency.toLowerCase()).toMatch(/escalation|identified/);
+    expect(result.urgency).toContain('Critical');
+    expect(result.urgency.toLowerCase()).toMatch(/escalation|strong/);
   });
 
-  it('urgency is Medium for confidence 0.45–0.69', () => {
+  it('urgency is Medium for confidence 0.45–0.59', () => {
     const medConf = { ...highConfidenceAnswer, confidence: 0.55, stop_conditions: [] };
     const result = formatManager(medConf);
     expect(result.urgency).toMatch(/Medium/);
