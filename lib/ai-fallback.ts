@@ -63,7 +63,18 @@ HARD CONFIDENCE RULES — you MUST follow these, violations will be overridden b
 - High TIC baseline ≠ ion suppression. These are DIFFERENT problems with different root causes and diagnostics. High TIC suggests contamination, column bleed, or mobile phase background. Ion suppression requires matrix factor evaluation (post-extraction spike vs neat standard).
 - NEVER use "50% suppression" or any fixed percentage as a universal threshold for ion suppression
 - ALL hypotheses MUST be labeled "suspected" unless you have direct experimental evidence confirming them
-- NEVER recommend corrective actions (method changes, hardware modifications) before the relevant diagnostic check confirms the cause`;
+- NEVER recommend corrective actions (method changes, hardware modifications) before the relevant diagnostic check confirms the cause
+
+METHOD CONTEXT CROSS-VALIDATION — MANDATORY (zero tolerance for violations):
+- BEFORE generating each hypothesis, cause, check, or action, you MUST verify it is consistent with the user's stated method context (mobile phase, ion pair reagent, column, analyte, sample matrix). If it contradicts or is irrelevant to ANY user-provided detail, DO NOT INCLUDE IT.
+- NEVER mention, reference, or recommend chemicals, reagents, or additives that the user did NOT specify. If the user says their ion pair is "tributylammonium acetate", the ONLY ion pair you may discuss is tributylammonium acetate. Do NOT mention TFA, formic acid, HFBA, TEA, or any other reagent unless the user explicitly included it.
+- NEVER recommend switching FROM a reagent the user did not mention. Example: if user says "tributylammonium ion pair", do NOT recommend "switch from TFA to formic acid" — TFA is not part of their method and must not appear anywhere in your response.
+- NEVER assume default reagents (TFA, formic acid, acetonitrile) if the user specified different ones. Base all advice on the USER'S stated method. Generic textbook answers that reference default reagents are WRONG when the user specified a different method.
+- If a generic troubleshooting step exists (e.g., "reduce mobile phase additive concentration"), ADAPT it to the user's specific reagent. Example: if user uses tributylammonium acetate, write "reduce tributylammonium acetate concentration" NOT "reduce TFA concentration".
+- Ion pair reagents are method-critical and NOT interchangeable: tributylammonium (TBA) ≠ TFA ≠ triethylammonium (TEA) ≠ HFBA. Each has distinct chromatographic behaviour, ion suppression profiles, and MS compatibility. Recommendations MUST match the specific ion pair in use.
+- If the user specifies a sample matrix (e.g., "synthetic compound in buffer"), do NOT recommend steps for a different matrix type (e.g., phospholipid removal is irrelevant for non-biological samples)
+- Every cause, check, and action must be checked against the user's provided method details before inclusion. If it contradicts or is irrelevant to the stated method, EXCLUDE it.
+- SELF-CHECK: After generating your full response, re-read every item and verify no chemical or reagent is mentioned that the user did not provide. If you find one, remove it or replace it with the user's actual reagent.`;
 
 // V2 Tool definition with extended structured output
 const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
@@ -444,17 +455,29 @@ export async function aiAnswerFallbackV2(
   const dedupChecks = deduplicateItems(parsed.checks, 6);
   const dedupActions = deduplicateItems(parsed.corrective_actions, 6);
 
-  // Build hypotheses
-  const hypotheses: Hypothesis[] = parsed.hypotheses.map((h, i) => ({
-    rank: i + 1,
-    cause: h.cause,
-    probability: h.probability,
-    supporting_evidence: h.supporting_evidence,
-    contradicting_evidence: h.contradicting_evidence ?? [],
-    diagnostic_test: h.diagnostic_test,
-    expected_result: h.expected_result,
-    status: 'suspected' as const,
-  }));
+  // Method context relevance filter — remove items contradicting user's stated method
+  const methodContextFlags: string[] = [];
+  const filteredCauses = filterByMethodContext(dedupCauses.main, query, methodContextFlags);
+  const filteredChecks = filterByMethodContext(dedupChecks.main, query, methodContextFlags);
+  const filteredActions = filterByMethodContext(dedupActions.main, query, methodContextFlags);
+
+  // Build hypotheses — filter out those whose cause mentions irrelevant chemicals
+  const hypotheseCauses = parsed.hypotheses.map(h => h.cause);
+  const filteredHypothesisCauses = filterByMethodContext(hypotheseCauses, query, methodContextFlags);
+  const filteredHypothesisCauseSet = new Set(filteredHypothesisCauses);
+
+  const hypotheses: Hypothesis[] = parsed.hypotheses
+    .filter(h => filteredHypothesisCauseSet.has(h.cause))
+    .map((h, i) => ({
+      rank: i + 1,
+      cause: h.cause,
+      probability: h.probability,
+      supporting_evidence: h.supporting_evidence,
+      contradicting_evidence: h.contradicting_evidence ?? [],
+      diagnostic_test: h.diagnostic_test,
+      expected_result: h.expected_result,
+      status: 'suspected' as const,
+    }));
 
   // Build sources with metadata
   const classificationMap: Record<string, EvidenceSummaryV2['classification']> = {
@@ -517,9 +540,9 @@ export async function aiAnswerFallbackV2(
 
   const result: RankedAnswerV2 = {
     problem_summary: query.symptom_description,
-    likely_causes: dedupCauses.main,
-    checks: dedupChecks.main,
-    corrective_actions: dedupActions.main,
+    likely_causes: filteredCauses,
+    checks: filteredChecks,
+    corrective_actions: filteredActions,
     stop_conditions: parsed.stop_conditions,
     confidence,
     evidence_summary: [{ source_id: modelUsed, excerpt: 'AI-generated answer based on scientific literature and instrument documentation', evidence_strength: 'moderate' }],
@@ -528,15 +551,15 @@ export async function aiAnswerFallbackV2(
 
     missing_information: missingInfo,
     hypotheses,
-    immediate_checks: dedupChecks.main,
+    immediate_checks: filteredChecks,
     verification_steps: parsed.verification_steps ?? [],
     escalation_criteria: parsed.stop_conditions,
     sources_with_metadata: sourcesWithMetadata,
     confidence_breakdown: confidenceBreakdown,
-    method_dependent_flags: parsed.method_dependent_flags ?? [],
+    method_dependent_flags: [...(parsed.method_dependent_flags ?? []), ...methodContextFlags],
     printable_checklist: [
-      ...dedupChecks.main.map((c, i) => `☐ Check ${i + 1}: ${c}`),
-      ...dedupActions.main.map((a, i) => `☐ Action ${i + 1}: ${a}`),
+      ...filteredChecks.map((c, i) => `☐ Check ${i + 1}: ${c}`),
+      ...filteredActions.map((a, i) => `☐ Action ${i + 1}: ${a}`),
     ],
     reported_observations: parsed.reported_observations ?? [query.symptom_description],
     confirmed_evidence: [],
@@ -677,4 +700,85 @@ function getWordSet(text: string): Set<string> {
       .split(/\s+/)
       .filter(w => w.length > 2)
   );
+}
+
+/** Chemical keyword groups for method context filtering */
+const METHOD_CHEMICAL_GROUPS: string[][] = [
+  ['tributylammonium', 'tba', 'tributylamine'],
+  ['tfa', 'trifluoroacetic', 'trifluoroacetate'],
+  ['triethylammonium', 'tea', 'triethylamine'],
+  ['tetrabutylammonium', 'tbah', 'tbaoh'],
+  ['hfba', 'hexafluorobutyric', 'heptafluorobutyric'],
+  ['formic acid', 'formate'],
+  ['acetic acid', 'acetate'],
+  ['ammonium formate'],
+  ['ammonium acetate'],
+  ['ammonium bicarbonate'],
+];
+
+/**
+ * Filter items that mention chemicals contradicting the user's stated method context.
+ * Returns filtered array. Removed items are logged to flags array.
+ */
+function filterByMethodContext(
+  items: string[],
+  query: RankingQueryV2,
+  flags: string[],
+): string[] {
+  const userContext = [
+    query.mobile_phase ?? '',
+    query.column ?? '',
+    query.sample_matrix ?? '',
+    query.analyte ?? '',
+    query.method_conditions ?? '',
+  ].join(' ').toLowerCase();
+
+  if (userContext.trim().length < 3) return items;
+
+  // Find which chemical groups the user's method contains
+  const userGroupIndices = new Set<number>();
+  for (let i = 0; i < METHOD_CHEMICAL_GROUPS.length; i++) {
+    if (METHOD_CHEMICAL_GROUPS[i].some(kw => userContext.includes(kw))) {
+      userGroupIndices.add(i);
+    }
+  }
+  if (userGroupIndices.size === 0) return items;
+
+  // Identify which broad categories (ion pair, modifier) user's chemicals belong to
+  // Ion pair indices: 0-4, Modifier indices: 1,5-9 (TFA is in both)
+  const ionPairRange = [0, 1, 2, 3, 4];
+  const userHasIonPair = ionPairRange.some(i => userGroupIndices.has(i));
+
+  return items.filter(item => {
+    const lower = item.toLowerCase();
+
+    // Check if item mentions a chemical from a group the user did NOT specify
+    for (let i = 0; i < METHOD_CHEMICAL_GROUPS.length; i++) {
+      if (userGroupIndices.has(i)) continue; // user uses this chemical, it's fine
+
+      const mentioned = METHOD_CHEMICAL_GROUPS[i].some(kw => lower.includes(kw));
+      if (!mentioned) continue;
+
+      // If user has an ion pair and this item mentions a DIFFERENT ion pair,
+      // filter it out — ANY mention of an irrelevant chemical is a contradiction
+      if (userHasIonPair && ionPairRange.includes(i)) {
+        const userIonPair = ionPairRange.find(idx => userGroupIndices.has(idx));
+        const userChemName = userIonPair !== undefined ? METHOD_CHEMICAL_GROUPS[userIonPair][0] : 'user-specified';
+        const itemChemName = METHOD_CHEMICAL_GROUPS[i][0];
+        flags.push(`Removed: "${item.substring(0, 80)}..." — mentions ${itemChemName} but user's method uses ${userChemName}`);
+        return false;
+      }
+
+      // For non-ion-pair chemicals: filter if the item recommends actions involving an irrelevant chemical
+      const itemChemName = METHOD_CHEMICAL_GROUPS[i][0];
+      if (lower.includes('switch') || lower.includes('replace') || lower.includes('from ' + itemChemName) ||
+          lower.includes(itemChemName + ' concentration') || lower.includes(itemChemName + ' >') ||
+          lower.includes('reduce ' + itemChemName) || lower.includes('increase ' + itemChemName)) {
+        flags.push(`Removed: "${item.substring(0, 80)}..." — mentions ${itemChemName} which is not in user's method`);
+        return false;
+      }
+    }
+
+    return true;
+  });
 }

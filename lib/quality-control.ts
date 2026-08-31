@@ -34,6 +34,8 @@ export function runQualityChecks(
   checkSymptomCauseConfusion(answer, query, failures);
   checkPrematureCorrectiveActions(answer, failures);
   checkSectionContradictions(answer, failures);
+  removeMethodContextContradictions(answer, query, failures);
+  checkMethodContextContradiction(answer, query, failures);
 
   const errors = failures.filter(f => f.severity === 'error');
   const passed = errors.length === 0;
@@ -270,4 +272,209 @@ function intersection(a: Set<string>, b: Set<string>): number {
     if (b.has(word)) count++;
   }
   return count;
+}
+
+// ─── Method Context Contradiction Auto-Removal ──────────────────────
+
+/**
+ * Actively remove items that mention chemicals contradicting the user's method.
+ * This is a safety net — items should already be filtered in ai-fallback.ts,
+ * but if any slip through, remove them here before display.
+ */
+function removeMethodContextContradictions(
+  answer: RankedAnswerV2,
+  query: RankingQueryV2,
+  failures: QCFailure[],
+): void {
+  const userContext = [
+    query.mobile_phase ?? '',
+    query.column ?? '',
+    query.sample_matrix ?? '',
+    query.analyte ?? '',
+    query.method_conditions ?? '',
+  ].join(' ');
+
+  if (userContext.trim().length < 3) return;
+
+  const userChemicals = extractChemicalContext(userContext);
+  if (userChemicals.size === 0) return;
+
+  const filterSection = (items: string[], sectionName: string): string[] => {
+    return items.filter(item => {
+      const itemChemicals = extractChemicalContext(item);
+      for (const [groupName, userGroupIndices] of userChemicals) {
+        const itemGroupIndices = itemChemicals.get(groupName);
+        if (!itemGroupIndices) continue;
+        for (const itemIdx of itemGroupIndices) {
+          if (!userGroupIndices.has(itemIdx)) {
+            const userKeywords = [...userGroupIndices].map(i => CHEMICAL_GROUPS[groupName][i][0]).join(', ');
+            const itemKeyword = CHEMICAL_GROUPS[groupName][itemIdx][0];
+            failures.push({
+              check: 'method_context_auto_removal',
+              severity: 'warning',
+              message: `Removed ${sectionName} item mentioning "${itemKeyword}" — user's method uses "${userKeywords}"`,
+            });
+            return false;
+          }
+        }
+      }
+      return true;
+    });
+  };
+
+  answer.likely_causes = filterSection(answer.likely_causes, 'likely_causes');
+  answer.checks = filterSection(answer.checks, 'checks');
+  answer.corrective_actions = filterSection(answer.corrective_actions, 'corrective_actions');
+  if (answer.immediate_checks) {
+    answer.immediate_checks = filterSection(answer.immediate_checks, 'immediate_checks');
+  }
+
+  // Also filter hypotheses
+  if (answer.hypotheses) {
+    answer.hypotheses = answer.hypotheses.filter(h => {
+      const causeChemicals = extractChemicalContext(h.cause);
+      for (const [groupName, userGroupIndices] of userChemicals) {
+        const causeGroupIndices = causeChemicals.get(groupName);
+        if (!causeGroupIndices) continue;
+        for (const causeIdx of causeGroupIndices) {
+          if (!userGroupIndices.has(causeIdx)) {
+            failures.push({
+              check: 'method_context_auto_removal',
+              severity: 'warning',
+              message: `Removed hypothesis "${h.cause.substring(0, 80)}..." — contradicts user's method context`,
+            });
+            return false;
+          }
+        }
+      }
+      return true;
+    });
+    // Re-rank remaining hypotheses
+    answer.hypotheses.forEach((h, i) => { h.rank = i + 1; });
+  }
+
+  // Rebuild printable checklist after removals
+  answer.printable_checklist = [
+    ...answer.checks.map((c, i) => `☐ Check ${i + 1}: ${c}`),
+    ...answer.corrective_actions.map((a, i) => `☐ Action ${i + 1}: ${a}`),
+  ];
+}
+
+// ─── Method Context Contradiction Detection ─────────────────────────
+
+/** Chemical keyword groups — chemicals within a group are NOT interchangeable */
+const CHEMICAL_GROUPS: Record<string, string[][]> = {
+  ion_pair_reagents: [
+    ['tributylammonium', 'tba', 'tributylamine'],
+    ['tfa', 'trifluoroacetic', 'trifluoroacetate'],
+    ['triethylammonium', 'tea', 'triethylamine'],
+    ['tetrabutylammonium', 'tbah', 'tbaoh'],
+    ['hfba', 'hexafluorobutyric', 'heptafluorobutyric'],
+  ],
+  mobile_phase_modifiers: [
+    ['formic acid', 'formate'],
+    ['acetic acid', 'acetate'],
+    ['tfa', 'trifluoroacetic'],
+    ['ammonium formate'],
+    ['ammonium acetate'],
+    ['ammonium bicarbonate'],
+  ],
+  sample_matrix_types: [
+    ['plasma', 'serum', 'blood'],
+    ['urine'],
+    ['tissue', 'homogenate'],
+    ['synthetic', 'standard', 'buffer', 'neat'],
+    ['soil', 'environmental'],
+    ['food', 'beverage'],
+  ],
+};
+
+/**
+ * Extract which chemical group members are present in text.
+ * Returns a map: group_name → Set of matched group indices.
+ */
+function extractChemicalContext(text: string): Map<string, Set<number>> {
+  const lower = text.toLowerCase();
+  const found = new Map<string, Set<number>>();
+
+  for (const [groupName, groups] of Object.entries(CHEMICAL_GROUPS)) {
+    const indices = new Set<number>();
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i].some(keyword => lower.includes(keyword))) {
+        indices.add(i);
+      }
+    }
+    if (indices.size > 0) {
+      found.set(groupName, indices);
+    }
+  }
+  return found;
+}
+
+function checkMethodContextContradiction(
+  answer: RankedAnswerV2,
+  query: RankingQueryV2,
+  failures: QCFailure[],
+): void {
+  // Collect user-provided method context
+  const userContext = [
+    query.mobile_phase ?? '',
+    query.column ?? '',
+    query.sample_matrix ?? '',
+    query.analyte ?? '',
+    query.method_conditions ?? '',
+  ].join(' ');
+
+  if (userContext.trim().length < 3) return;
+
+  const userChemicals = extractChemicalContext(userContext);
+  if (userChemicals.size === 0) return;
+
+  // Check all recommendation sections
+  const sections = [
+    { name: 'likely_causes', items: answer.likely_causes },
+    { name: 'checks', items: answer.checks },
+    { name: 'corrective_actions', items: answer.corrective_actions },
+  ];
+
+  for (const section of sections) {
+    for (const item of section.items) {
+      const itemChemicals = extractChemicalContext(item);
+
+      for (const [groupName, userGroupIndices] of userChemicals) {
+        const itemGroupIndices = itemChemicals.get(groupName);
+        if (!itemGroupIndices) continue;
+
+        // Check if the recommendation mentions a DIFFERENT chemical in the same group
+        for (const itemIdx of itemGroupIndices) {
+          if (!userGroupIndices.has(itemIdx)) {
+            // Item mentions a chemical the user did NOT specify in this group
+            const userKeywords = [...userGroupIndices].map(i => CHEMICAL_GROUPS[groupName][i][0]).join(', ');
+            const itemKeyword = CHEMICAL_GROUPS[groupName][itemIdx][0];
+            failures.push({
+              check: 'method_context_contradiction',
+              severity: 'error',
+              message: `${section.name} item mentions "${itemKeyword}" but user's method uses "${userKeywords}" — recommendation contradicts user-provided method context`,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Check for biological matrix assumptions when user specified non-biological
+  const userMatrixIndices = userChemicals.get('sample_matrix_types');
+  if (userMatrixIndices) {
+    const isSynthetic = userMatrixIndices.has(3); // synthetic/standard/buffer/neat
+    if (isSynthetic) {
+      const allItems = [...answer.likely_causes, ...answer.checks, ...answer.corrective_actions].join(' ').toLowerCase();
+      if (allItems.includes('phospholipid') || allItems.includes('protein precipitation') || allItems.includes('spe cleanup')) {
+        failures.push({
+          check: 'method_context_contradiction',
+          severity: 'warning',
+          message: 'Biological matrix cleanup recommended (phospholipid/protein precipitation/SPE) but user specified synthetic/standard/buffer matrix',
+        });
+      }
+    }
+  }
 }
