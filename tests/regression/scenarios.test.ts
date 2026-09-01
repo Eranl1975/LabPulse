@@ -154,7 +154,7 @@ describe('Regression Scenarios', () => {
       };
       const result = rankItemsV2(query, testItems);
       const allText = [...result.likely_causes, ...result.checks].join(' ').toLowerCase();
-      expect(allText).toContain('multiplier') || expect(allText).toContain('sensitivity');
+      expect(allText.includes('multiplier') || allText.includes('sensitivity')).toBe(true);
     });
   });
 
