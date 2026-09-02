@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { RankedAnswer, RankedAnswerV2, Hypothesis, ConfidenceBreakdown, EvidenceSummaryV2, MissingInfoResult } from './types';
+import type { RankedAnswer, RankedAnswerV2, Hypothesis, ConfidenceBreakdown, EvidenceSummaryV2, MissingInfoResult, VerificationCriterion, ActionDetail, SafetyLevel } from './types';
 import type { RankingQuery, RankingQueryV2 } from '@/agents/ranking/types';
 import { getCapability } from './instrument-capabilities';
 import { detectMissingInfo } from './missing-info-detector';
@@ -74,7 +74,19 @@ METHOD CONTEXT CROSS-VALIDATION — MANDATORY (zero tolerance for violations):
 - Ion pair reagents are method-critical and NOT interchangeable: tributylammonium (TBA) ≠ TFA ≠ triethylammonium (TEA) ≠ HFBA. Each has distinct chromatographic behaviour, ion suppression profiles, and MS compatibility. Recommendations MUST match the specific ion pair in use.
 - If the user specifies a sample matrix (e.g., "synthetic compound in buffer"), do NOT recommend steps for a different matrix type (e.g., phospholipid removal is irrelevant for non-biological samples)
 - Every cause, check, and action must be checked against the user's provided method details before inclusion. If it contradicts or is irrelevant to the stated method, EXCLUDE it.
-- SELF-CHECK: After generating your full response, re-read every item and verify no chemical or reagent is mentioned that the user did not provide. If you find one, remove it or replace it with the user's actual reagent.`;
+- SELF-CHECK: After generating your full response, re-read every item and verify no chemical or reagent is mentioned that the user did not provide. If you find one, remove it or replace it with the user's actual reagent.
+
+SAFETY AND COMPREHENSIVE TROUBLESHOOTING REQUIREMENTS:
+- ALWAYS include safety_warnings for any action involving high voltage, high vacuum, heated zones, pressurized systems, hazardous chemicals, UV/laser radiation, or gas cylinders
+- Classify every corrective action by safety level: "operator" (safe for trained lab staff), "maintenance" (requires trained lab maintenance personnel), or "service_engineer" (must be performed by manufacturer-authorized engineer)
+- Do NOT recommend opening high-voltage covers, vacuum chambers, heated MS sources, or gas regulators unless official documentation explicitly allows trained operators to do so
+- For every corrective action, specify: required materials/parts, the condition under which it should be performed, and a rollback/recovery procedure if the action fails
+- For verification after correction, include measurable acceptance criteria: specific parameter, expected value, tolerance, and measurement method. Examples: "Baseline noise < 0.5 mAU measured over 10 min blank gradient", "RT RSD < 0.5% over 6 injections", "Mass accuracy < 5 ppm on tuning compound"
+- Order diagnostic checks from safest/quickest/least-invasive to most complex
+- Provide 8-12 diagnostic checks and 6-10 corrective actions for complex problems — do not artificially limit to fewer items when more are scientifically warranted
+- Include instrument-specific acceptance criteria when the model is known`;
+
+const DEDUP_LIMIT = 12;
 
 // V2 Tool definition with extended structured output
 const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
@@ -87,6 +99,11 @@ const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
         type: 'array',
         items: { type: 'string' },
         description: 'What the user actually reported/observed (facts, not interpretations)',
+      },
+      safety_warnings: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Immediate safety and preservation warnings: injury prevention, contamination control, instrument protection, vacuum/pressure hazards, data preservation. Include before any diagnostic or corrective actions.',
       },
       hypotheses: {
         type: 'array',
@@ -102,22 +119,52 @@ const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
           },
           required: ['cause', 'probability', 'supporting_evidence', 'diagnostic_test', 'expected_result'],
         },
-        description: 'Ranked hypotheses (max 6), most likely first',
+        description: 'Ranked hypotheses (max 12), most likely first. Include factors that increase or decrease likelihood.',
       },
       checks: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Immediate diagnostic steps to perform now (before corrective actions), max 6',
+        description: 'Immediate diagnostic steps ordered from safest/quickest to most invasive. Include: what to inspect, how to perform check, expected normal result, abnormal result meaning, required tools/standards. Provide 8-12 checks for complex problems.',
       },
       corrective_actions: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Specific fixes — only recommend AFTER cause is confirmed via diagnostics, max 6',
+        description: 'Specific fixes — only recommend AFTER cause is confirmed via diagnostics. Provide 6-10 actions for complex problems.',
+      },
+      action_details: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            action: { type: 'string', description: 'The corrective action (must match an item in corrective_actions)' },
+            condition: { type: 'string', description: 'When to perform this action (e.g., "If leak test shows >5% pressure drop in 10 min")' },
+            materials: { type: 'array', items: { type: 'string' }, description: 'Required tools, parts, standards, or consumables' },
+            safety_level: { type: 'string', enum: ['operator', 'maintenance', 'service_engineer'], description: 'Who can safely perform this action' },
+            evidence_source: { type: 'string', description: 'Source supporting this recommendation (title + tier)' },
+            rollback: { type: 'string', description: 'Recovery procedure if action fails or worsens the problem' },
+          },
+          required: ['action', 'condition', 'materials', 'safety_level', 'evidence_source', 'rollback'],
+        },
+        description: 'Detailed per-action metadata for each corrective action',
       },
       verification_steps: {
         type: 'array',
         items: { type: 'string' },
         description: 'Steps to verify the problem is resolved after correction',
+      },
+      verification_criteria: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            parameter: { type: 'string', description: 'What to measure (e.g., "Baseline noise", "RT RSD", "Mass accuracy")' },
+            expected_value: { type: 'string', description: 'Acceptable value (e.g., "< 0.5 mAU", "< 0.5%", "< 5 ppm")' },
+            tolerance: { type: 'string', description: 'Acceptable range or deviation' },
+            method: { type: 'string', description: 'How to perform the measurement (e.g., "Run 6 replicate injections of system suitability standard")' },
+          },
+          required: ['parameter', 'expected_value', 'tolerance', 'method'],
+        },
+        description: 'Measurable acceptance criteria after correction. Use instrument-specific specs when model is known.',
       },
       stop_conditions: {
         type: 'array',
@@ -157,7 +204,7 @@ const TROUBLESHOOT_TOOL_V2: Anthropic.Messages.Tool = {
         description: 'All referenced sources with classification. Do NOT invent sources.',
       },
     },
-    required: ['reported_observations', 'hypotheses', 'checks', 'corrective_actions', 'stop_conditions', 'confidence', 'uncertainties', 'next_questions', 'sources_with_metadata'],
+    required: ['reported_observations', 'safety_warnings', 'hypotheses', 'checks', 'corrective_actions', 'stop_conditions', 'confidence', 'uncertainties', 'next_questions', 'sources_with_metadata'],
   },
 };
 
@@ -221,6 +268,7 @@ interface TroubleshootResult {
 
 interface TroubleshootResultV2 extends TroubleshootResult {
   reported_observations: string[];
+  safety_warnings: string[];
   hypotheses: Array<{
     cause: string;
     probability: 'high' | 'medium' | 'low';
@@ -230,6 +278,20 @@ interface TroubleshootResultV2 extends TroubleshootResult {
     expected_result: string;
   }>;
   verification_steps: string[];
+  verification_criteria: Array<{
+    parameter: string;
+    expected_value: string;
+    tolerance: string;
+    method: string;
+  }>;
+  action_details: Array<{
+    action: string;
+    condition: string;
+    materials: string[];
+    safety_level: string;
+    evidence_source: string;
+    rollback: string;
+  }>;
   method_dependent_flags: string[];
   sources_with_metadata: Array<{
     title: string;
@@ -308,7 +370,7 @@ async function callModel(model: string, userMessage: string): Promise<{ parsed: 
 async function callModelV2(model: string, userMessage: string): Promise<{ parsed: TroubleshootResultV2; modelUsed: string }> {
   const message = await client.messages.create({
     model,
-    max_tokens: 4096,
+    max_tokens: 8192,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userMessage }],
     tools: [TROUBLESHOOT_TOOL_V2],
@@ -331,6 +393,7 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
         uncertainties: arr(input.uncertainties),
         next_questions: arr(input.next_questions),
         reported_observations: arr(input.reported_observations),
+        safety_warnings: arr(input.safety_warnings),
         hypotheses: hypothesesRaw.map((h: Record<string, unknown>) => ({
           cause: typeof h.cause === 'string' ? h.cause : '',
           probability: (['high', 'medium', 'low'].includes(h.probability as string) ? h.probability : 'medium') as 'high' | 'medium' | 'low',
@@ -340,6 +403,24 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
           expected_result: typeof h.expected_result === 'string' ? h.expected_result : '',
         })),
         verification_steps: arr(input.verification_steps),
+        verification_criteria: Array.isArray(input.verification_criteria)
+          ? input.verification_criteria.map((vc: Record<string, unknown>) => ({
+              parameter: typeof vc.parameter === 'string' ? vc.parameter : '',
+              expected_value: typeof vc.expected_value === 'string' ? vc.expected_value : '',
+              tolerance: typeof vc.tolerance === 'string' ? vc.tolerance : '',
+              method: typeof vc.method === 'string' ? vc.method : '',
+            }))
+          : [],
+        action_details: Array.isArray(input.action_details)
+          ? input.action_details.map((ad: Record<string, unknown>) => ({
+              action: typeof ad.action === 'string' ? ad.action : '',
+              condition: typeof ad.condition === 'string' ? ad.condition : '',
+              materials: arr(ad.materials),
+              safety_level: typeof ad.safety_level === 'string' ? ad.safety_level : 'operator',
+              evidence_source: typeof ad.evidence_source === 'string' ? ad.evidence_source : '',
+              rollback: typeof ad.rollback === 'string' ? ad.rollback : '',
+            }))
+          : [],
         method_dependent_flags: arr(input.method_dependent_flags),
         sources_with_metadata: Array.isArray(input.sources_with_metadata)
           ? input.sources_with_metadata.map((s: Record<string, unknown>) => ({
@@ -360,7 +441,8 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
       confidence: 0.3,
       uncertainties: ['AI response could not be parsed. Please try rephrasing your query.'],
       next_questions: [],
-      reported_observations: [], hypotheses: [], verification_steps: [],
+      reported_observations: [], safety_warnings: [], hypotheses: [], verification_steps: [],
+      verification_criteria: [], action_details: [],
       method_dependent_flags: [], sources_with_metadata: [],
     },
     modelUsed: model,
@@ -451,9 +533,9 @@ export async function aiAnswerFallbackV2(
   confidence = parseFloat(confidence.toFixed(2));
 
   // Deduplicate
-  const dedupCauses = deduplicateItems(parsed.likely_causes, 6);
-  const dedupChecks = deduplicateItems(parsed.checks, 6);
-  const dedupActions = deduplicateItems(parsed.corrective_actions, 6);
+  const dedupCauses = deduplicateItems(parsed.likely_causes, DEDUP_LIMIT);
+  const dedupChecks = deduplicateItems(parsed.checks, DEDUP_LIMIT);
+  const dedupActions = deduplicateItems(parsed.corrective_actions, DEDUP_LIMIT);
 
   // Method context relevance filter — remove items contradicting user's stated method
   const methodContextFlags: string[] = [];
@@ -564,6 +646,22 @@ export async function aiAnswerFallbackV2(
     reported_observations: parsed.reported_observations ?? [query.symptom_description],
     confirmed_evidence: [],
     remaining_uncertainty: parsed.uncertainties,
+    // V3 comprehensive troubleshooting fields
+    safety_warnings: parsed.safety_warnings ?? [],
+    verification_criteria: (parsed.verification_criteria ?? []).map(vc => ({
+      parameter: vc.parameter,
+      expected_value: vc.expected_value,
+      tolerance: vc.tolerance,
+      method: vc.method,
+    })),
+    action_details: (parsed.action_details ?? []).map(ad => ({
+      action: ad.action,
+      condition: ad.condition,
+      materials: ad.materials,
+      safety_level: (['operator', 'maintenance', 'service_engineer'].includes(ad.safety_level) ? ad.safety_level : 'operator') as SafetyLevel,
+      evidence_source: ad.evidence_source,
+      rollback: ad.rollback,
+    })),
   };
 
   // Symptom/cause confusion check: remove causes that restate the symptom

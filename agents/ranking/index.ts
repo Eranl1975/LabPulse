@@ -190,10 +190,10 @@ export function rankItemsV2(query: RankingQueryV2, items: KnowledgeItem[]): Rank
 
   confidence = parseFloat(confidence.toFixed(2));
 
-  // 5. Deduplicate output sections
-  const dedupCauses = deduplicateItems(base.likely_causes, 6);
-  const dedupChecks = deduplicateItems(base.checks, 6);
-  const dedupActions = deduplicateItems(base.corrective_actions, 6);
+  // 5. Deduplicate output sections (raised limit for comprehensive responses)
+  const dedupCauses = deduplicateItems(base.likely_causes, 12);
+  const dedupChecks = deduplicateItems(base.checks, 12);
+  const dedupActions = deduplicateItems(base.corrective_actions, 12);
 
   // 6. Build hypotheses from scored items
   const hypotheses = buildHypotheses(scoredV2, base);
@@ -268,6 +268,14 @@ export function rankItemsV2(query: RankingQueryV2, items: KnowledgeItem[]): Rank
     reported_observations: [query.symptom_description],
     confirmed_evidence: [],
     remaining_uncertainty: base.uncertainties.filter(u => !u.startsWith('Low confidence match')),
+    // V3 comprehensive troubleshooting fields — populated from KB items when available
+    safety_warnings: dedup(
+      scoredV2.filter(s => s.score.total >= 0.45)
+        .flatMap(s => s.item.escalation_conditions)
+        .filter(c => /safety|hazard|caution|danger|voltage|vacuum|pressure|temperature|gas|laser|radiation/i.test(c))
+    ),
+    verification_criteria: [],   // populated by AI fallback when triggered
+    action_details: [],          // populated by AI fallback when triggered
   };
 }
 
@@ -294,7 +302,7 @@ function buildHypotheses(
   const hypotheses: Hypothesis[] = [];
   const sorted = [...causeMap.entries()].sort((a, b) => b[1].maxScore - a[1].maxScore);
 
-  for (let i = 0; i < Math.min(sorted.length, 6); i++) {
+  for (let i = 0; i < Math.min(sorted.length, 12); i++) {
     const [cause, data] = sorted[i];
     const supportingEvidence = data.items.map(it => `${it.source_id}: ${it.symptom}`);
     const contradicting = base.uncertainties

@@ -98,5 +98,34 @@ export function formatDeep(answer: RankedAnswer): TextOutput {
     sections.push(v2.method_dependent_flags.map(f => `- ${f}`).join('\n'));
   }
 
+  // V3: Safety warnings
+  if (v2?.safety_warnings && v2.safety_warnings.length > 0) {
+    sections.push(`## Safety & Preservation Warnings`);
+    sections.push(v2.safety_warnings.map(w => `- **WARNING:** ${w}`).join('\n'));
+  }
+
+  // V3: Detailed corrective actions
+  if (v2?.action_details && v2.action_details.length > 0) {
+    sections.push(`## Corrective Action Details`);
+    for (const ad of v2.action_details) {
+      const levelLabel = ad.safety_level === 'service_engineer' ? 'Service engineer only'
+        : ad.safety_level === 'maintenance' ? 'Trained maintenance' : 'Operator-level';
+      sections.push(`### ${ad.action}`);
+      sections.push(`- **Condition:** ${ad.condition}`);
+      if (ad.materials.length > 0) sections.push(`- **Materials:** ${ad.materials.join(', ')}`);
+      sections.push(`- **Safety level:** ${levelLabel}`);
+      sections.push(`- **Evidence:** ${ad.evidence_source}`);
+      if (ad.rollback) sections.push(`- **Rollback:** ${ad.rollback}`);
+    }
+  }
+
+  // V3: Verification acceptance criteria
+  if (v2?.verification_criteria && v2.verification_criteria.length > 0) {
+    sections.push(`## Verification Acceptance Criteria`);
+    for (const vc of v2.verification_criteria) {
+      sections.push(`- **${vc.parameter}:** ${vc.expected_value} (${vc.tolerance}) — ${vc.method}`);
+    }
+  }
+
   return { mode: 'deep', text: sections.join('\n\n') };
 }

@@ -34,8 +34,8 @@ export function runQualityChecks(
   checkSymptomCauseConfusion(answer, query, failures);
   checkPrematureCorrectiveActions(answer, failures);
   checkSectionContradictions(answer, failures);
-  removeMethodContextContradictions(answer, query, failures);
   checkMethodContextContradiction(answer, query, failures);
+  removeMethodContextContradictions(answer, query, failures);
 
   const errors = failures.filter(f => f.severity === 'error');
   const passed = errors.length === 0;

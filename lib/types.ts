@@ -146,6 +146,24 @@ export interface Hypothesis {
   status: 'suspected' | 'confirmed';
 }
 
+export type SafetyLevel = 'operator' | 'maintenance' | 'service_engineer';
+
+export interface VerificationCriterion {
+  parameter: string;          // e.g. "Baseline noise"
+  expected_value: string;     // e.g. "< 0.5 mAU"
+  tolerance: string;          // e.g. "±10%"
+  method: string;             // e.g. "Run blank gradient, measure peak-to-peak noise"
+}
+
+export interface ActionDetail {
+  action: string;
+  condition: string;              // When to perform this action
+  materials: string[];            // Required parts, tools, standards
+  safety_level: SafetyLevel;
+  evidence_source: string;        // Which source backs this recommendation
+  rollback: string;               // Recovery/undo if action fails or worsens problem
+}
+
 export type ConfidenceLabelV2 =
   | 'Insufficient evidence'      // 0–39%
   | 'Preliminary hypothesis'     // 40–59%
@@ -182,4 +200,8 @@ export interface RankedAnswerV2 extends RankedAnswer {
   reported_observations: string[];
   confirmed_evidence: string[];
   remaining_uncertainty: string[];
+  // V3 comprehensive troubleshooting fields
+  safety_warnings: string[];
+  verification_criteria: VerificationCriterion[];
+  action_details: ActionDetail[];
 }

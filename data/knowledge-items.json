@@ -6,11 +6,36 @@
     "model": null,
     "issue_category": "retention time shift",
     "symptom": "Retention times shifted earlier than expected",
-    "likely_causes": ["column degradation", "mobile phase composition change", "temperature fluctuation"],
-    "diagnostics": ["check column age and void volume", "verify mobile phase batch", "check column oven temperature log"],
-    "corrective_actions": ["replace column", "prepare fresh mobile phase", "recalibrate column oven"],
+    "likely_causes": [
+      "column degradation",
+      "mobile phase composition change",
+      "temperature fluctuation"
+    ],
+    "diagnostics": [
+      "Check column temperature: verify thermostat is stable at setpoint (plus/minus 0.1 C) — unstable temperature causes RT drift proportional to temperature change",
+      "Inspect mobile phase composition: verify %B and pH are correct — prepare fresh mobile phase and compare RTs. Aged or improperly prepared buffers shift retention",
+      "Run system suitability standard: compare RT to historical values — RT shift > 2% indicates column or mobile phase issue",
+      "Check for leaks at all fittings from pump to detector: use leak sensor or tissue paper at each connection — even minor leaks change flow rate and shift RT",
+      "Evaluate column condition: compare plate count (N) and asymmetry (As) to column qualification values — N decrease > 20% or As > 1.5 indicates column degradation",
+      "Verify pump flow accuracy: collect eluent for 10 min and weigh — actual flow should be within plus/minus 2% of setpoint",
+      "Check gradient delay volume: inject unretained marker with and without gradient — inconsistent delay volume shifts gradient-eluted peak RTs",
+      "Review recent maintenance log: column replacement, pump seal change, or solvent line replacement can introduce RT shifts"
+    ],
+    "corrective_actions": [
+      "Replace or replenish mobile phase with freshly prepared solution — use HPLC-grade solvents and analytical-grade buffer salts",
+      "Equilibrate column with at least 10 column volumes of starting mobile phase before analysis",
+      "Tighten or replace leaking fittings — use correct ferrule type for column end fitting (stainless steel for HPLC, PEEK for biocompatible)",
+      "If column degradation confirmed: replace column with same chemistry and dimensions. Verify new column with SST before sample analysis",
+      "Recalibrate column thermostat if temperature is drifting — verify with external thermometer",
+      "If pump flow is inaccurate: replace pump seals and check valves, then re-verify flow accuracy",
+      "For gradient methods: re-determine gradient delay volume after any plumbing change"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["shift > 10% of expected RT", "multiple analytes affected simultaneously"],
+    "escalation_conditions": [
+      "RT shift persists after column replacement and fresh mobile phase — may indicate pump mechanical failure requiring service",
+      "Column temperature cannot be stabilized — thermostat may need service calibration",
+      "SAFETY: Never attempt to service high-pressure pump components while system is pressurized — depressurize and power off first"
+    ],
     "source_id": "agilent-hplc-troubleshooting-guide",
     "confidence_score": 0.85,
     "evidence_strength": "strong",
@@ -23,11 +48,34 @@
     "model": null,
     "issue_category": "LCMS source contamination",
     "symptom": "Gradual loss of sensitivity over multiple injections",
-    "likely_causes": ["matrix buildup on source", "dirty spray shield", "blocked capillary"],
-    "diagnostics": ["inspect spray shield visually", "run solvent blank and compare background", "check capillary condition"],
-    "corrective_actions": ["clean source components", "replace spray shield", "flush capillary with strong solvent"],
+    "likely_causes": [
+      "matrix buildup on source",
+      "dirty spray shield",
+      "blocked capillary"
+    ],
+    "diagnostics": [
+      "Remove and visually inspect ESI spray shield, cone, and capillary for discoloration, salt deposits, or residue buildup",
+      "Run tuning compound (e.g., ESI-L Low Concentration Tuning Mix for Agilent, leucine enkephalin for Waters): compare peak widths and signal intensity to historical tune reports",
+      "Inject blank mobile phase after cleaning source: check for contamination peaks in TIC — residual contamination will show as chemical noise",
+      "Compare TIC baseline level before and after cleaning: baseline should drop significantly if source contamination was causing elevated noise",
+      "Check nebulizer needle and gas flow: partially blocked nebulizer produces poor spray quality similar to source contamination symptoms",
+      "Inspect sample introduction area: verify autosampler needle wash is functioning and carry-over is not contributing to source contamination"
+    ],
+    "corrective_actions": [
+      "Clean spray shield: remove and sonicate in 50:50 methanol:water for 15 min, then in pure methanol for 10 min. Dry with nitrogen gas before reinstalling",
+      "Clean ESI cone/sampling cone: sonicate in 50:50 methanol:water, rinse with HPLC-grade water. For stubborn deposits, use 0.1% formic acid sonication",
+      "Clean ESI capillary/needle: sonicate in methanol, inspect for corrosion or deformation — replace if damaged",
+      "If contamination is severe: disassemble source and clean all removable parts. Wipe source housing interior with lint-free cloth dampened with methanol",
+      "After cleaning: run autotune and verify sensitivity is restored. Run 5-10 blank injections to verify baseline is clean",
+      "Implement preventive maintenance schedule: clean source every 500-1000 samples for high-matrix work, or when tune sensitivity drops > 30%"
+    ],
     "severity": "high",
-    "escalation_conditions": ["sensitivity loss > 50%", "source cleaning does not restore signal"],
+    "escalation_conditions": [
+      "Sensitivity does not recover after thorough source cleaning — ion optics or detector may be contaminated (service engineer access required)",
+      "Source housing shows corrosion or physical damage — do not operate; contact manufacturer service",
+      "SAFETY: Never operate ESI source with shield removed — high voltage exposure risk. Always reinstall all shields before switching to standby or operate mode",
+      "SAFETY: Use appropriate PPE (gloves, safety glasses) when handling source components — mobile phase residue and sample matrix may contain hazardous chemicals"
+    ],
     "source_id": "waters-ms-source-maintenance",
     "confidence_score": 0.9,
     "evidence_strength": "strong",
@@ -40,11 +88,36 @@
     "model": null,
     "issue_category": "GC ghost peaks",
     "symptom": "Unexpected peaks appearing in blank injections",
-    "likely_causes": ["contaminated inlet liner", "septum bleed", "column bleed", "solvent impurity"],
-    "diagnostics": ["run solvent blank", "bake out column at high temperature", "replace inlet liner and septum"],
-    "corrective_actions": ["replace liner and septum", "bake out column", "use higher purity solvent"],
+    "likely_causes": [
+      "contaminated inlet liner",
+      "septum bleed",
+      "column bleed",
+      "solvent impurity"
+    ],
+    "diagnostics": [
+      "Run a blank injection (no sample): if ghost peaks appear, contamination is in the system (inlet, column, detector), not the sample",
+      "Bake out the column at maximum temperature for 30-60 min with carrier gas flow: if ghost peaks diminish, column contamination is the cause",
+      "Replace the inlet septum and liner: septum bleed and liner contamination are the most common sources of ghost peaks in GC",
+      "Run a solvent blank (injection solvent only): if ghost peaks appear, the solvent is contaminated — use GC-grade solvents",
+      "Check carrier gas purity: verify gas trap is not exhausted (indicator should show active) — moisture and oxygen in carrier gas cause baseline artifacts and ghost peaks",
+      "Inspect the syringe for residual contamination: wash syringe thoroughly with clean solvent and re-inject blank",
+      "Compare ghost peak retention times to known contamination markers: siloxane column bleed fragments (m/z 207, 281, 355 for silicone columns), septum bleed (m/z 73, 147, 207), phthalate plasticizers (m/z 149, 167, 279)"
+    ],
+    "corrective_actions": [
+      "Replace inlet septum with low-bleed, pre-conditioned septum — tighten to manufacturer-specified torque",
+      "Replace inlet liner: use deactivated liner appropriate for injection technique (split/splitless) — new liners should be conditioned at inlet temperature for 30 min before use",
+      "Condition (bake out) column: program oven from 50 C to 20 C below maximum column temperature at 10 C/min, hold 30-60 min with carrier gas flow",
+      "Replace carrier gas trap or purifier: oxygen and moisture traps should be replaced when indicator changes color",
+      "If contamination is persistent: trim 0.5-1 m from the inlet end of the column — inlet-end contamination from non-volatile sample matrix accumulates over time",
+      "Clean the inlet body: remove liner, wipe interior with lint-free tissue soaked in methanol, replace o-ring if discolored",
+      "For FID: clean jet and collector if ghost peaks are accompanied by unstable baseline — use fine wire to clear jet orifice"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["ghost peaks co-elute with target analytes", "persist after liner replacement"],
+    "escalation_conditions": [
+      "Ghost peaks persist after column replacement and inlet cleaning — possible contamination in transfer line or detector assembly requiring service",
+      "SAFETY: GC oven operates at high temperatures (up to 450 C) — always wait for oven to cool below 40 C before handling column or inlet components. Use heat-resistant gloves if oven is warm",
+      "SAFETY: FID uses hydrogen gas — verify hydrogen supply is properly secured and leak-free before operating. Never use an open flame near GC while hydrogen is flowing"
+    ],
     "source_id": "restek-gc-troubleshooting-guide",
     "confidence_score": 0.8,
     "evidence_strength": "strong",
@@ -313,7 +386,7 @@
       "indium calibration onset temperature deviates > 1°C from 156.6°C"
     ],
     "source_id": "ta-instruments-dsc-application-note-polymer-tg",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
   },
@@ -466,7 +539,7 @@
       "back-pressure exceeds pump maximum safe operating pressure"
     ],
     "source_id": "cytiva-akta-avant-system-guide",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
   },
@@ -802,7 +875,7 @@
       "Peptide precipitates in diethyl ether — possible incomplete deprotection, re-dissolve in AcOH/water"
     ],
     "source_id": "king-cleavage-side-reactions-spps-ijppr-1990",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-01-01T00:00:00Z"
   },
@@ -1009,23 +1082,31 @@
       "flow rate set above column maximum specification for the column internal diameter"
     ],
     "diagnostics": [
-      "bypass column and measure system pressure alone — if high, blockage is in pump or tubing, not column",
-      "replace in-line guard column or filter and re-measure pressure",
-      "inspect mobile phase for turbidity, precipitate, or particles before and after filtration",
-      "back-flush column (if allowed by manufacturer) at 50% flow with strong solvent to test frit permeability",
-      "confirm column specifications match method flow rate and column internal diameter"
+      "Disconnect column and run mobile phase through system: if pressure drops to near-zero, blockage is in the column; if pressure remains high, blockage is upstream",
+      "Replace inlet frit or guard column: clogged frits are the most common cause of high pressure. Normal frit pressure contribution is < 5 bar",
+      "Check in-line filter: inspect and replace if discolored or visibly contaminated",
+      "Verify mobile phase is properly degassed and filtered: air bubbles or particulates increase pressure and cause flow instability",
+      "Check for precipitated buffer or salt crystals in tubing: flush with water if using buffer-containing mobile phases",
+      "Measure pressure at different flow rates: plot pressure vs flow rate — a non-linear relationship suggests partial blockage",
+      "Inspect tubing connections for crimped or kinked capillary tubing: even minor kinks in 0.005 inch ID tubing cause significant pressure increase",
+      "Verify correct column dimensions and particle size for the method: sub-2 um columns at high flow generate much higher backpressure than 3.5 um or 5 um columns"
     ],
     "corrective_actions": [
-      "replace in-line filter or guard column cartridge as first corrective step",
-      "back-flush column at low flow rate if manufacturer protocol allows; replace column if pressure remains high",
-      "filter all mobile phases through 0.2 µm membrane filter before use",
-      "increase mobile phase temperature within column operating range to reduce viscosity",
-      "reduce pump flow rate to ≤ 80% of column maximum specification"
+      "Replace column inlet frit — use manufacturer-specified replacement frit (typically 0.5 um for HPLC, 0.2 um for UHPLC)",
+      "Install or replace guard column — guards protect the analytical column from sample particulates and strongly retained matrix components",
+      "Flush system with 100% organic solvent (methanol or acetonitrile) for 30 min to dissolve precipitated salts, then flush with water",
+      "Replace crimped or blocked capillary tubing — cut tubing squarely and verify with magnification if needed",
+      "If column is blocked: attempt column washing per manufacturer protocol (typically reverse-flush with strong solvent). If pressure does not drop, replace column",
+      "Filter all mobile phases through 0.22 um membrane filter before use. Filter samples through 0.45 um (HPLC) or 0.22 um (UHPLC) syringe filter",
+      "Clean autosampler needle and seat — contamination buildup in the injection valve restricts flow",
+      "For buffer methods: establish a shutdown procedure that flushes buffer from system with water before switching to organic storage solvent"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "system pressure exceeds pump maximum rated pressure — stop flow immediately to prevent damage",
-      "pressure remains high when column is removed — system-level blockage requires pump or tubing inspection"
+      "Pressure exceeds instrument maximum operating pressure (e.g., 600 bar for HPLC, 1300 bar for UHPLC) — system will shut down automatically to prevent damage",
+      "Pressure spike occurs during injection only — autosampler valve or rotor seal may need replacement (trained maintenance)",
+      "Persistent high pressure after replacing column, frit, and flushing system — pump check valve or seal failure requires service",
+      "SAFETY: Do not disconnect fittings while system is pressurized — always stop flow and wait for pressure to drop to zero before opening connections"
     ],
     "source_id": "agilent-hplc-troubleshooting-guide",
     "confidence_score": 0.88,
@@ -1085,23 +1166,30 @@
       "flow rate too high for ESI source — optimal ESI flow range is typically 0.1–0.5 mL/min"
     ],
     "diagnostics": [
-      "post-column infusion test: infuse pure standard via T-piece and inject blank matrix — signal dip identifies suppression window",
-      "compare stable isotope-labelled internal standard response in matrix versus neat standard",
-      "reduce injection volume 5-fold and compare signal normalised to injected mass",
-      "run HPLC-UV run with same gradient to visualise co-eluting UV-absorbing matrix components",
-      "switch mobile phase additive from TFA to 0.1% formic acid and compare signal"
+      "Post-column infusion test: continuously infuse analyte standard via T-piece into column eluent while injecting blank matrix — signal dip at analyte retention time confirms ion suppression at that elution window",
+      "Compare internal standard (ISTD) response in matrix vs neat standard: if ISTD area in matrix is < 80% of neat, significant ion suppression is present",
+      "Calculate matrix factor (MF): MF = (peak area in post-extraction spiked matrix) / (peak area in neat standard). ICH M10 recommends MF 0.8-1.2 for validated methods",
+      "Inject blank matrix with increasing injection volumes (1, 5, 10, 20 uL): if suppression worsens proportionally, matrix load is the primary driver",
+      "Run LC-UV chromatogram with same gradient: identify co-eluting UV-absorbing matrix peaks in the analyte retention time window — these are candidate suppressors",
+      "Compare ESI+ and ESI- modes: some suppressors affect one polarity more than the other — switching polarity may resolve suppression for specific analytes",
+      "Test different LC columns with alternative selectivity (C18 vs phenyl vs HILIC): changing retention mechanism can shift analyte away from matrix elution zone",
+      "Evaluate source parameters: gas temperature, gas flow, nebulizer pressure — suboptimal desolvation increases matrix effect impact"
     ],
     "corrective_actions": [
-      "optimise LC gradient to shift analyte elution away from matrix-dense region of the chromatogram",
-      "implement protein precipitation, LLE, or SPE cleanup to remove phospholipids and salts before injection",
-      "reduce TFA concentration to 0.01–0.05% or replace with 0.1% formic acid",
-      "add stable isotope-labelled internal standard co-eluting with analyte to correct for variable suppression",
-      "use online dilution or reduce injection volume to minimise matrix load on source"
+      "Optimize LC gradient to separate analyte from matrix-dense chromatographic region — add isocratic hold or shallow gradient at the analyte elution window",
+      "Implement sample cleanup: protein precipitation (PPT), liquid-liquid extraction (LLE), or solid-phase extraction (SPE) to remove matrix interferents before injection",
+      "Reduce injection volume to decrease matrix load on the ESI source — compensate with more concentrated sample if sensitivity allows",
+      "Add stable isotope-labeled internal standard (SIL-IS) co-eluting with analyte — SIL-IS corrects for variable ion suppression across samples",
+      "Reduce mobile phase additive concentration if > 0.1% — high additive concentrations compete with analyte for charge in the ESI process",
+      "Optimize ESI source parameters: increase gas temperature and gas flow to improve desolvation of matrix-laden droplets",
+      "Switch to APCI if analyte is thermally stable and non-polar — APCI is less susceptible to matrix effects than ESI for many compound classes",
+      "For biological matrices: add phospholipid removal SPE step (e.g., Ostro or HybridSPE) — phospholipids at m/z 496, 524, 758, 786 are major ESI suppressors"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "suppression > 50% in analyte elution window after matrix cleanup optimisation — method redesign required",
-      "quantitative accuracy fails validation criteria (> 15% bias from nominal) due to matrix effects"
+      "Matrix factor < 0.5 (> 50% suppression) persists after optimized cleanup and chromatographic separation — method redesign or alternative ionization technique required",
+      "Quantitative accuracy fails bioanalytical validation criteria (> 15% bias from nominal at QC levels) due to matrix effects — consult with method development team",
+      "SAFETY: APCI source operates at high temperature (400-500 C) — allow source to cool before handling. Wear heat-resistant gloves when removing APCI probe"
     ],
     "source_id": "waters-ms-source-maintenance",
     "confidence_score": 0.88,
@@ -1123,23 +1211,31 @@
       "transfer line temperature too low causing analyte condensation before reaching source"
     ],
     "diagnostics": [
-      "run instrument autotune and review tune report: poor ion ratios or high mass offset indicates source contamination",
-      "check filament status in data system (Chemstation, Xcalibur, LabSolutions) — filament fault alert",
-      "monitor vacuum gauge: ion source vacuum should be < 1×10⁻⁵ Torr; high pressure indicates vacuum system issue",
-      "run PFTBA mass calibration standard and compare peak heights against last good tune report",
-      "verify transfer line temperature setpoint is at least equal to the maximum column oven temperature"
+      "Check vacuum status: verify turbo pump is running at full speed and vacuum gauge shows normal operating pressure (typically < 5e-5 Torr for quadrupole GC-MS)",
+      "Run autotune (e.g., PFTBA for Agilent GC/MSD): compare tune report peaks (m/z 69, 219, 502) to previous reports — signal loss > 50% indicates detector or source degradation",
+      "Verify carrier gas flow: check column flow rate at the GC detector outlet with a flow meter — no flow indicates a leak or broken column",
+      "Inspect the GC-MS transfer line: verify temperature is adequate (typically 250-300 C) — cold transfer line causes condensation and peak broadening",
+      "Inject a known standard directly: if signal appears, the issue is in the GC (injection, column) not the MS — isolate the problem",
+      "Check filament status (EI source): verify filament is on and emission current is normal — filament failure causes complete signal loss",
+      "Review electron multiplier voltage (EMV): if EMV is near maximum (e.g., > 2500V), detector gain is exhausted",
+      "Check for air leaks: monitor m/z 28 (N2) and m/z 32 (O2) in tune mode — elevated signals indicate vacuum leak"
     ],
     "corrective_actions": [
-      "vent instrument and clean ion source (repeller, lenses, source block) per manufacturer cleaning protocol",
-      "replace filament if broken or if emission current in tune report is below specification",
-      "replace electron multiplier if detector gain < 10⁵ — service life typically 3–5 years",
-      "replace roughing pump oil or diaphragm pump diaphragm to restore vacuum",
-      "increase transfer line temperature to prevent condensation; set to 10–20°C above column maximum"
+      "If air leak detected: check all column connections, septum, and transfer line ferrule. Tighten or replace as needed. Re-check m/z 28/32 after each repair",
+      "Replace filament if broken or emission is low — follow manufacturer procedure for your source type (EI or CI)",
+      "Clean ion source: remove source, sonicate lens stack and repeller in methanol for 15 min, dry with nitrogen — reassemble in correct order per manufacturer diagram",
+      "Replace electron multiplier if EMV is near maximum and autotune sensitivity is below specification — this is typically a service engineer task",
+      "Verify transfer line temperature matches method requirements — increase if condensation is suspected",
+      "Re-tune after any source maintenance: autotune establishes new EMV and lens voltages for current source condition",
+      "If column is damaged: replace column, trim 10 cm from both ends, and re-install with correct insertion depth into source"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "source cleaning does not restore tune report to within specification — ion source component damaged",
-      "vacuum cannot reach operating pressure after pump maintenance — turbo pump failure requires service"
+      "Vacuum pump failure (turbo not reaching full speed, unusual noise) — do not operate MS. Contact service for pump replacement",
+      "Autotune fails consistently after source cleaning and filament replacement — quadrupole or electronics failure (service engineer)",
+      "SAFETY: GC-MS vacuum system — never vent the MS while turbo is at full speed. Follow the controlled vent-down procedure in the operator manual",
+      "SAFETY: EI source operates at 70 eV with heated filament — allow source to cool and vent MS before removing source for cleaning",
+      "SAFETY: PFTBA tuning compound is toxic — handle in a fume hood, wear nitrile gloves, and dispose as hazardous chemical waste"
     ],
     "source_id": "agilent-5977-gcms-users-guide",
     "confidence_score": 0.89,
@@ -1408,7 +1504,7 @@
       "count rate unstable and spiking > 20% during measurement — sample aggregating in real time, reformulate dispersant"
     ],
     "source_id": "malvern-zetasizer-user-guide",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-04-29T00:00:00Z"
   },
@@ -1712,7 +1808,7 @@
       "generation current does not respond to water injection — generator circuit fault, contact Metrohm service"
     ],
     "source_id": "metrohm-kf-coulometer-application-guide",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-04-29T00:00:00Z"
   },
@@ -1750,7 +1846,7 @@
       "cellulose standard recovery < 95% after optimisation — check oven heater element and transfer line integrity"
     ],
     "source_id": "metrohm-874-oven-sample-processor-manual",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2025-04-29T00:00:00Z"
   },
@@ -1846,27 +1942,32 @@
       "Incorrect ESI polarity (positive vs. negative) for the analyte of interest"
     ],
     "diagnostics": [
-      "Infuse Agilent tuning mix (G1969-85000) at 5 µL/min — verify ions at m/z 118, 322, 622, 922 in positive ESI",
-      "Run MassHunter Tune autotune to optimise capillary, fragmentor, skimmer, and octopole RF",
-      "Check scan range: narrow to analyte region ± 50 Da; note SIM mode gives 10–100× sensitivity improvement",
-      "Verify drying gas: temperature 350 °C, flow 12 L/min; nebuliser pressure 45 psi",
-      "Inspect ESI capillary tip and spray shield for brown or white deposits; check nebuliser needle for blockage",
-      "Test both ESI+ and ESI− polarity on a known standard to confirm correct polarity selection"
+      "Run autotune in MassHunter: verify tune report shows acceptable peak widths, resolution, and sensitivity — compare to previous tune reports for degradation trends",
+      "Check ESI capillary and spray needle for blockage or contamination: remove and inspect visually — discolored or encrusted capillary reduces spray quality",
+      "Verify nebulizer gas pressure and drying gas flow: Agilent 6120B/6130B typical settings — nebulizer 35 psi, drying gas 12 L/min, 350 C",
+      "Inject known concentration standard in SIM mode and full-scan mode: compare signal — if SIM shows adequate signal but full-scan does not, the issue is scan-mode sensitivity (expected)",
+      "Check fragmentor voltage: optimize for target analyte by ramping fragmentor from 50-200V — plot signal vs fragmentor voltage to find optimum",
+      "Inspect spray chamber for contamination: remove spray shield and check for salt deposits or discoloration on nebulizer and spray chamber walls",
+      "Verify mobile phase flow rate is within ESI optimum range (0.1-0.5 mL/min for standard ESI, up to 1 mL/min with flow splitter)",
+      "Check vacuum system: verify rough pump oil level and color (should be clear), check foreline pressure — Agilent MSD typical foreline < 5 Torr",
+      "Review MassHunter EMV (electron multiplier voltage): if EMV has increased > 200V above original value, detector is aging — note that increasing EMV improves signal but also increases noise"
     ],
     "corrective_actions": [
-      "Switch from full scan to SIM mode targeting analyte [M+H]+ (or [M−H]−) ± 0.5 Da — delivers 10–100× sensitivity gain",
-      "Re-optimise fragmentor voltage by direct infusion: ramp 50–250 V in 20 V steps, record signal at each step",
-      "Clean ESI source: remove capillary, wipe spray shield with lint-free tissue soaked in 50:50 MeOH:water, clean nebuliser tip",
-      "Set drying gas to 350 °C and 12 L/min N2; set nebuliser to 45 psi",
-      "Run full MassHunter autotune to restore optimal capillary, fragmentor, skimmer, octopole RF settings",
-      "If no signal after cleaning and tuning: replace ESI capillary (Agilent PN 5190-2426 or equivalent)"
+      "Clean ESI capillary: sonicate in 50:50 methanol:water for 15 min, then in 0.1% formic acid for 15 min — allow to dry completely before reinstalling",
+      "Clean spray shield and cone: remove, sonicate in methanol for 10 min — reinstall and verify spray stability with continuous infusion",
+      "Optimize fragmentor voltage for each analyte in SIM mode — use MassHunter Optimizer or manual ramping",
+      "Replace nebulizer needle if worn or corroded — Agilent P/N G1946-20045 or equivalent for your model",
+      "Adjust drying gas temperature and flow: increase temperature 10-20 C increments to improve desolvation (max 350 C for standard ESI)",
+      "If EMV is high: run autotune to update EMV, or replace electron multiplier if gain is insufficient (service engineer action)",
+      "Install flow splitter if LC flow rate > 0.5 mL/min — direct 100-200 uL/min to MS, remainder to waste",
+      "Flush source with mobile phase containing 0.1% formic acid to remove salt contamination from source region"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Signal absent in direct infusion of tuning mix after source cleaning and autotune",
-      "Arcing noise or electrical discharge from ESI source",
-      "API vacuum not maintained — turbo pump fault",
-      "MSD error code persists after full power cycle"
+      "Sensitivity does not improve after source cleaning, capillary replacement, and tune optimization — electron multiplier or quadrupole may need replacement (service engineer)",
+      "Vacuum pressure is abnormally high (foreline > 10 Torr) — possible rough pump failure or vacuum leak requiring service",
+      "Autotune fails repeatedly — may indicate RF generator or power supply issue (service engineer)",
+      "SAFETY: ESI source operates at high voltage (3-5 kV) — never open the spray chamber or touch the capillary while the instrument is in operate/standby mode. Switch to OFF and wait 30 seconds before accessing source components"
     ],
     "source_id": "agilent-6100-series-msd-hardware-manual",
     "confidence_score": 0.88,
@@ -2040,11 +2141,10 @@
       "Instrument vacuum or high-voltage systems affected by communication fault (safety concern)"
     ],
     "source_id": "agilent-6100-series-msd-hardware-manual",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2025-05-06T00:00:00Z"
   },
-
   {
     "id": "cd-001",
     "technique": "CD",
@@ -2192,7 +2292,7 @@
       "Spectra differ by > 10% after all corrective actions — sample stability or instrument calibration issue"
     ],
     "source_id": "jasco-cd-spectroscopy-application-note",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
@@ -2259,7 +2359,7 @@
       "Sample cannot be transferred to compatible buffer without denaturation — consider near-UV CD (250–320 nm) instead"
     ],
     "source_id": "jasco-cd-spectroscopy-application-note",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
@@ -2295,7 +2395,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "sem-001",
     "technique": "SEM",
@@ -2471,11 +2570,10 @@
       "Drift continues on inorganic reference sample — stage or electronics issue, contact Thermo Fisher service"
     ],
     "source_id": "thermo-fisher-phenom-pro-user-manual",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "sputter-001",
     "technique": "Sputter",
@@ -2615,11 +2713,10 @@
       "Base vacuum cannot be achieved even with empty chamber after O-ring and pump service — contact Denton Vacuum for system leak test"
     ],
     "source_id": "denton-vacuum-desk-series-user-manual",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "bet-001",
     "technique": "BET",
@@ -2798,7 +2895,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "dls-ext-001",
     "technique": "DLS",
@@ -2909,7 +3005,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "secmals-001",
     "technique": "SECMALS",
@@ -2942,7 +3037,7 @@
       "MW error persists after dn/dc correction and delay volume recalibration — contact Wyatt Technology support for detector normalization check"
     ],
     "source_id": "wyatt-dawn-heleos-ii-user-manual",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
@@ -3084,7 +3179,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "tem-001",
     "technique": "TEM",
@@ -3254,7 +3348,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "raman-001",
     "technique": "Raman",
@@ -3286,7 +3379,7 @@
       "Fluorescence saturates detector even with 1064 nm excitation — sample incompatible with Raman; use FTIR"
     ],
     "source_id": "renishaw-invia-user-manual",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
@@ -3424,7 +3517,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "ssnmr-001",
     "technique": "ssNMR",
@@ -3565,7 +3657,6 @@
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
-
   {
     "id": "nmr-001",
     "technique": "NMR",
@@ -3598,7 +3689,7 @@
       "Lock cannot be obtained with standard CDCl₃ — lock channel hardware fault; contact Bruker NMR service"
     ],
     "source_id": "bruker-avance-neo-user-manual",
-    "confidence_score": 0.90,
+    "confidence_score": 0.9,
     "evidence_strength": "strong",
     "updated_at": "2026-06-05T00:00:00Z"
   },
@@ -3923,7 +4014,7 @@
       "Noise spike pattern is systematic (every N seconds) — piston seal or check valve failure; replace seals"
     ],
     "source_id": "knauer-gmi-troubleshooting-guide",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2026-06-14T00:00:00Z"
   },
@@ -4134,7 +4225,7 @@
       "Baseline noise > 5 mAU after degassing and flow cell flush — UV cell contamination; clean with 0.1 M NaOH flush"
     ],
     "source_id": "knauer-azura-bio-lab-user-guide",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2026-06-14T00:00:00Z"
   },
@@ -4312,7 +4403,7 @@
       "Detector flat-top peaks cause fraction collection trigger failure — use conductivity or ELSD as fraction trigger instead"
     ],
     "source_id": "knauer-azura-prep-uvd-guide",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2026-06-14T00:00:00Z"
   },
@@ -4466,11 +4557,30 @@
     "model": "InfinityLab Pro iQ Plus (G6170A)",
     "issue_category": "LCMS source contamination",
     "symptom": "Loss of sensitivity or unstable signal on Agilent InfinityLab Pro iQ Plus",
-    "likely_causes": ["ESI/AJS spray chamber contamination", "nebulizer needle blockage", "ion transfer capillary contamination", "dirty spray shield"],
-    "diagnostics": ["Run autotune and compare with last passing tune report", "Check spray chamber for salt deposits or discoloration", "Inspect nebulizer needle for clogs", "Review system health dashboard in OpenLab CDS"],
-    "corrective_actions": ["Clean ESI spray shield with methanol/water (50:50)", "Sonicate ion transfer capillary in 50:50 isopropanol:water for 15 minutes", "Replace nebulizer needle if clogged", "Run Auto Acquire after cleaning to verify recovery", "If using AJS source, clean sheath gas nozzle and dry gas heater"],
+    "likely_causes": [
+      "ESI/AJS spray chamber contamination",
+      "nebulizer needle blockage",
+      "ion transfer capillary contamination",
+      "dirty spray shield"
+    ],
+    "diagnostics": [
+      "Run autotune and compare with last passing tune report",
+      "Check spray chamber for salt deposits or discoloration",
+      "Inspect nebulizer needle for clogs",
+      "Review system health dashboard in OpenLab CDS"
+    ],
+    "corrective_actions": [
+      "Clean ESI spray shield with methanol/water (50:50)",
+      "Sonicate ion transfer capillary in 50:50 isopropanol:water for 15 minutes",
+      "Replace nebulizer needle if clogged",
+      "Run Auto Acquire after cleaning to verify recovery",
+      "If using AJS source, clean sheath gas nozzle and dry gas heater"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["Sensitivity not restored after full source cleaning — contact Agilent service", "Autotune fails repeatedly after cleaning"],
+    "escalation_conditions": [
+      "Sensitivity not restored after full source cleaning — contact Agilent service",
+      "Autotune fails repeatedly after cleaning"
+    ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.88,
     "evidence_strength": "strong",
@@ -4483,11 +4593,30 @@
     "model": "InfinityLab Pro iQ Plus (G6170A)",
     "issue_category": "low sensitivity",
     "symptom": "Low signal intensity or poor detection limits on Pro iQ Plus G6170A",
-    "likely_causes": ["Suboptimal fragmentor voltage", "Wrong ion source mode for analyte (ESI vs AJS vs APCI)", "Mobile phase contains non-volatile buffers or ion-pairing agents", "Incorrect polarity setting", "Dirty ion optics"],
-    "diagnostics": ["Check fragmentor and capillary voltage in method parameters", "Verify ion source mode matches analyte properties (AJS for maximum sensitivity)", "Review mobile phase composition for MS compatibility", "Run system suitability check with reference standard"],
-    "corrective_actions": ["Optimise fragmentor voltage using MassHunter Optimizer", "Switch to AJS ion source for sub-30 fg sensitivity if not already in use", "Replace non-volatile buffers (phosphate, TRIS) with volatile alternatives (ammonium formate, ammonium acetate)", "Clean ion transfer capillary and spray shield", "Verify gas pressures — nebulizer (15-60 psi), drying gas (5-13 L/min), sheath gas (AJS: 250-400°C)"],
+    "likely_causes": [
+      "Suboptimal fragmentor voltage",
+      "Wrong ion source mode for analyte (ESI vs AJS vs APCI)",
+      "Mobile phase contains non-volatile buffers or ion-pairing agents",
+      "Incorrect polarity setting",
+      "Dirty ion optics"
+    ],
+    "diagnostics": [
+      "Check fragmentor and capillary voltage in method parameters",
+      "Verify ion source mode matches analyte properties (AJS for maximum sensitivity)",
+      "Review mobile phase composition for MS compatibility",
+      "Run system suitability check with reference standard"
+    ],
+    "corrective_actions": [
+      "Optimise fragmentor voltage using MassHunter Optimizer",
+      "Switch to AJS ion source for sub-30 fg sensitivity if not already in use",
+      "Replace non-volatile buffers (phosphate, TRIS) with volatile alternatives (ammonium formate, ammonium acetate)",
+      "Clean ion transfer capillary and spray shield",
+      "Verify gas pressures — nebulizer (15-60 psi), drying gas (5-13 L/min), sheath gas (AJS: 250-400°C)"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["Sensitivity below specification after cleaning and optimisation — schedule Agilent PM visit"],
+    "escalation_conditions": [
+      "Sensitivity below specification after cleaning and optimisation — schedule Agilent PM visit"
+    ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.85,
     "evidence_strength": "strong",
@@ -4500,11 +4629,29 @@
     "model": "InfinityLab Pro iQ Plus (G6170A)",
     "issue_category": "instrument communication fault",
     "symptom": "Pro iQ Plus G6170A not connecting or communication error in OpenLab CDS",
-    "likely_causes": ["LAN cable disconnected or faulty", "IP address conflict on lab network", "OpenLab CDS instrument configuration incorrect", "Firmware needs update"],
-    "diagnostics": ["Check LAN cable connection at rear of instrument and network switch", "Ping instrument IP address from workstation", "Verify instrument configuration in OpenLab CDS Control Panel", "Check instrument front panel for error indicators"],
-    "corrective_actions": ["Power cycle the Pro iQ Plus (off → wait 2 minutes for turbo pump deceleration → on)", "Replace LAN cable", "Assign static IP to avoid DHCP conflicts", "Reinstall instrument driver in OpenLab CDS", "Update firmware via Agilent OpenLab CDS instrument update utility"],
+    "likely_causes": [
+      "LAN cable disconnected or faulty",
+      "IP address conflict on lab network",
+      "OpenLab CDS instrument configuration incorrect",
+      "Firmware needs update"
+    ],
+    "diagnostics": [
+      "Check LAN cable connection at rear of instrument and network switch",
+      "Ping instrument IP address from workstation",
+      "Verify instrument configuration in OpenLab CDS Control Panel",
+      "Check instrument front panel for error indicators"
+    ],
+    "corrective_actions": [
+      "Power cycle the Pro iQ Plus (off → wait 2 minutes for turbo pump deceleration → on)",
+      "Replace LAN cable",
+      "Assign static IP to avoid DHCP conflicts",
+      "Reinstall instrument driver in OpenLab CDS",
+      "Update firmware via Agilent OpenLab CDS instrument update utility"
+    ],
     "severity": "high",
-    "escalation_conditions": ["Instrument does not appear after power cycle and cable replacement — possible mainboard failure; contact Agilent service"],
+    "escalation_conditions": [
+      "Instrument does not appear after power cycle and cable replacement — possible mainboard failure; contact Agilent service"
+    ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.82,
     "evidence_strength": "strong",
@@ -4517,13 +4664,31 @@
     "model": "InfinityLab Pro iQ Plus (G6170A)",
     "issue_category": "ion suppression",
     "symptom": "Ion suppression observed on Pro iQ Plus affecting quantitation accuracy",
-    "likely_causes": ["Co-eluting matrix components", "High buffer concentration in mobile phase", "Late-eluting compounds from previous injection", "Contaminated LC system introducing background ions"],
-    "diagnostics": ["Perform post-column infusion experiment to map suppression regions", "Compare neat standard vs matrix-matched calibration", "Check for ghost peaks from previous injections", "Evaluate LC gradient and column selectivity"],
-    "corrective_actions": ["Increase chromatographic separation to resolve analyte from matrix", "Reduce buffer concentration to minimum effective level", "Add wash steps between injections to eliminate carryover", "Use AJS source which provides improved desolvation and reduced matrix effects", "Consider sample preparation cleanup (SPE, protein precipitation)"],
+    "likely_causes": [
+      "Co-eluting matrix components",
+      "High buffer concentration in mobile phase",
+      "Late-eluting compounds from previous injection",
+      "Contaminated LC system introducing background ions"
+    ],
+    "diagnostics": [
+      "Perform post-column infusion experiment to map suppression regions",
+      "Compare neat standard vs matrix-matched calibration",
+      "Check for ghost peaks from previous injections",
+      "Evaluate LC gradient and column selectivity"
+    ],
+    "corrective_actions": [
+      "Increase chromatographic separation to resolve analyte from matrix",
+      "Reduce buffer concentration to minimum effective level",
+      "Add wash steps between injections to eliminate carryover",
+      "Use AJS source which provides improved desolvation and reduced matrix effects",
+      "Consider sample preparation cleanup (SPE, protein precipitation)"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["Ion suppression persists above 50% despite method optimisation — consider alternative sample preparation or different ionisation mode"],
+    "escalation_conditions": [
+      "Ion suppression persists above 50% despite method optimisation — consider alternative sample preparation or different ionisation mode"
+    ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
-    "confidence_score": 0.80,
+    "confidence_score": 0.8,
     "evidence_strength": "moderate",
     "updated_at": "2026-08-28T00:00:00Z"
   },
@@ -4534,11 +4699,29 @@
     "model": "InfinityLab Pro iQ Plus (G6170A)",
     "issue_category": "noisy baseline",
     "symptom": "Excessive baseline noise in MS signal on Pro iQ Plus",
-    "likely_causes": ["Contaminated mobile phase solvents", "Air leak in LC system or spray chamber", "Electrical noise from nearby equipment", "Worn electron multiplier"],
-    "diagnostics": ["Run blank gradient with fresh LC-MS grade solvents", "Check for air bubbles in LC flow path", "Inspect spray chamber seal and nebulizer assembly", "Review autotune electron multiplier voltage — increasing voltage indicates aging"],
-    "corrective_actions": ["Replace solvents with fresh LC-MS grade reagents", "Degas mobile phases thoroughly", "Tighten all LC fittings and check for leaks", "Replace spray chamber seal if worn", "If EM voltage is >200V above original setting, schedule EM replacement"],
+    "likely_causes": [
+      "Contaminated mobile phase solvents",
+      "Air leak in LC system or spray chamber",
+      "Electrical noise from nearby equipment",
+      "Worn electron multiplier"
+    ],
+    "diagnostics": [
+      "Run blank gradient with fresh LC-MS grade solvents",
+      "Check for air bubbles in LC flow path",
+      "Inspect spray chamber seal and nebulizer assembly",
+      "Review autotune electron multiplier voltage — increasing voltage indicates aging"
+    ],
+    "corrective_actions": [
+      "Replace solvents with fresh LC-MS grade reagents",
+      "Degas mobile phases thoroughly",
+      "Tighten all LC fittings and check for leaks",
+      "Replace spray chamber seal if worn",
+      "If EM voltage is >200V above original setting, schedule EM replacement"
+    ],
     "severity": "medium",
-    "escalation_conditions": ["Baseline noise does not improve after solvent replacement and system cleaning — possible EM failure or vacuum leak"],
+    "escalation_conditions": [
+      "Baseline noise does not improve after solvent replacement and system cleaning — possible EM failure or vacuum leak"
+    ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.82,
     "evidence_strength": "strong",

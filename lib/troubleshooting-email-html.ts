@@ -102,6 +102,19 @@ export function buildTroubleshootingEmailHtml(
   </div>`;
   }
 
+  // Safety Warnings (V3)
+  if (v2?.safety_warnings && v2.safety_warnings.length > 0) {
+    html += `
+  <div style="margin:0 0 16px;padding:12px 16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;">
+    <h3 style="margin:0 0 8px;font-size:12px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:0.5px;">⚠ Safety & Preservation</h3>
+    <ul style="margin:0;padding-left:20px;">
+      ${v2.safety_warnings.map(w =>
+        `<li style="font-size:13px;color:#991b1b;margin:0 0 4px;line-height:1.5;">${esc(w)}</li>`
+      ).join('\n      ')}
+    </ul>
+  </div>`;
+  }
+
   // Likely Causes
   if (answer.likely_causes.length > 0) {
     html += `
@@ -164,6 +177,25 @@ export function buildTroubleshootingEmailHtml(
         `<li style="font-size:12px;color:#64748b;margin:0 0 3px;line-height:1.5;">${esc(u)}</li>`
       ).join('\n      ')}
     </ul>
+  </div>`;
+  }
+
+  // Verification Criteria (V3)
+  if (v2?.verification_criteria && v2.verification_criteria.length > 0) {
+    html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Verification Acceptance Criteria</h3>
+    <table cellpadding="4" cellspacing="0" style="margin:0;width:100%;border-collapse:collapse;font-size:12px;">
+      <tr style="background:#f1f5f9;">
+        <th style="text-align:left;color:#475569;font-size:11px;padding:4px 8px;border-bottom:1px solid #e2e8f0;">Parameter</th>
+        <th style="text-align:left;color:#475569;font-size:11px;padding:4px 8px;border-bottom:1px solid #e2e8f0;">Expected</th>
+        <th style="text-align:left;color:#475569;font-size:11px;padding:4px 8px;border-bottom:1px solid #e2e8f0;">Tolerance</th>
+        <th style="text-align:left;color:#475569;font-size:11px;padding:4px 8px;border-bottom:1px solid #e2e8f0;">Method</th>
+      </tr>
+      ${v2.verification_criteria.map(vc =>
+        `<tr><td style="padding:4px 8px;color:#334155;border-bottom:1px solid #f1f5f9;">${esc(vc.parameter)}</td><td style="padding:4px 8px;color:#334155;border-bottom:1px solid #f1f5f9;">${esc(vc.expected_value)}</td><td style="padding:4px 8px;color:#334155;border-bottom:1px solid #f1f5f9;">${esc(vc.tolerance)}</td><td style="padding:4px 8px;color:#334155;border-bottom:1px solid #f1f5f9;">${esc(vc.method)}</td></tr>`
+      ).join('\n      ')}
+    </table>
   </div>`;
   }
 

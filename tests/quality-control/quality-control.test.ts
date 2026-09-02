@@ -33,6 +33,9 @@ function makeAnswer(overrides: Partial<RankedAnswerV2> = {}): RankedAnswerV2 {
     reported_observations: ['symptom'],
     confirmed_evidence: [],
     remaining_uncertainty: [],
+    safety_warnings: [],
+    verification_criteria: [],
+    action_details: [],
     ...overrides,
   };
 }
