@@ -4,6 +4,47 @@ export type Technique = 'LCMS' | 'HPLC' | 'GC' | 'GCMS' | 'UHPLC' | 'IC' | 'CE' 
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type EvidenceStrength = 'strong' | 'moderate' | 'weak' | 'anecdotal';
 
+// ─── V5 Types: SST, Column Tracking, Maintenance, Matrix ────────────
+
+export interface SSTData {
+  sst_plates?: number | null;
+  sst_tailing_factor?: number | null;
+  sst_resolution?: number | null;
+  sst_rsd_percent?: number | null;
+}
+
+export interface ColumnProfile {
+  id: string;
+  type: string;                          // e.g. "C18", "HILIC", "Ion Exchange"
+  particle_size: string;                 // e.g. "1.8 µm", "3.5 µm"
+  length_mm: number;
+  id_mm: number;                         // internal diameter
+  injection_count: number;
+  last_cleaned: string | null;           // ISO 8601
+  conditioning_status: 'new' | 'conditioned' | 'degraded';
+  max_pressure_observed: number | null;  // bar
+}
+
+export type MaintenanceEventType = 'pm' | 'repair' | 'cleaning' | 'calibration' | 'column_change' | 'lamp_replacement' | 'seal_replacement' | 'other';
+
+export interface MaintenanceEvent {
+  id: string;
+  instrument_id: string;
+  event_type: MaintenanceEventType;
+  date: string;                          // ISO 8601
+  notes: string;
+  next_due: string | null;              // ISO 8601
+}
+
+export type SampleMatrixType =
+  | 'plasma' | 'serum' | 'urine' | 'whole_blood'
+  | 'soil' | 'water' | 'wastewater'
+  | 'food' | 'beverage'
+  | 'API' | 'formulation' | 'tablet_extract'
+  | 'environmental' | 'biological_tissue'
+  | 'organic_solvent' | 'polymer_solution'
+  | 'other';
+
 export interface KnowledgeItem {
   id: string;
   technique: Technique;
@@ -125,7 +166,8 @@ export type MissingInfoField =
   | 'flow_rate' | 'injection_volume' | 'gradient' | 'retention_time'
   | 'ionization_mode' | 'source_params' | 'acquisition_mode'
   | 'recent_maintenance' | 'qc_results' | 'raw_data'
-  | 'chromatographic_method' | 'expected_result';
+  | 'chromatographic_method' | 'expected_result'
+  | 'sst_data' | 'sample_matrix_type' | 'method_transfer_source';
 
 export interface MissingInfoResult {
   missing_fields: MissingInfoField[];

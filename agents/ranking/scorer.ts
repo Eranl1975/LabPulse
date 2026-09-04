@@ -146,7 +146,12 @@ export function scoreItemV2(
     SCORE_WEIGHTS.RECENCY             * recency +
     SCORE_WEIGHTS.EVIDENCE_STRENGTH   * evidence_strength;
 
-  const total = Math.max(0, Math.min(1, weighted + agreement_bonus - already_checked_penalty));
+  // V5 additive bonuses
+  const matrixBonus = scoreMatrixRelevance(query, item);
+  const columnBonus = scoreColumnAgeFactor(query, item);
+  const sstBonus = scoreSSTContext(query, item);
+
+  const total = Math.max(0, Math.min(1, weighted + agreement_bonus - already_checked_penalty + matrixBonus + columnBonus + sstBonus));
 
   return {
     item_id: item.id,
@@ -161,4 +166,57 @@ export function scoreItemV2(
     evidence_classification: authorityResult.classification,
     confidence_caps: [],  // populated at ranking level
   };
+}
+
+// --- V5 Scoring Extensions (additive bonuses) ---
+
+/** Matrix-specific issue relevance boost */
+export function scoreMatrixRelevance(query: RankingQueryV2, item: KnowledgeItem): number {
+  if (!query.sample_matrix_type) return 0;
+  const matrixKeywords: Record<string, string[]> = {
+    plasma:             ['ion suppression', 'matrix effect', 'phospholipid', 'protein precipitation', 'endogenous'],
+    serum:              ['ion suppression', 'matrix effect', 'phospholipid', 'protein'],
+    urine:              ['ion suppression', 'matrix', 'salt', 'urea'],
+    whole_blood:        ['hemolysis', 'ion suppression', 'protein', 'matrix'],
+    soil:               ['humic acid', 'matrix effect', 'extraction', 'interference'],
+    water:              ['trace', 'ppb', 'preconcentration', 'matrix'],
+    food:               ['fat', 'matrix effect', 'cleanup', 'QuEChERS', 'interference'],
+    API:                ['impurity', 'degradation', 'stability', 'purity'],
+    formulation:        ['excipient', 'interference', 'extraction', 'dissolution'],
+    environmental:      ['trace', 'interference', 'preconcentration', 'matrix'],
+    biological_tissue:  ['homogenization', 'extraction', 'matrix effect', 'protein'],
+  };
+  const keywords = matrixKeywords[query.sample_matrix_type] ?? [];
+  if (keywords.length === 0) return 0;
+  const itemText = [...item.likely_causes, ...item.diagnostics, item.symptom].join(' ').toLowerCase();
+  return keywords.some(kw => itemText.includes(kw)) ? 0.1 : 0;
+}
+
+/** Column age degradation boost when injection count is high */
+export function scoreColumnAgeFactor(query: RankingQueryV2, item: KnowledgeItem): number {
+  if (!query.column_injection_count || query.column_injection_count < 1000) return 0;
+  const degradationKeywords = ['column degradation', 'void volume', 'backpressure', 'peak shape', 'column life', 'frit', 'column bed'];
+  const itemText = [...item.likely_causes, item.symptom].join(' ').toLowerCase();
+  return degradationKeywords.some(kw => itemText.includes(kw)) ? 0.08 : 0;
+}
+
+/** SST-informed issue boost based on system suitability test data */
+export function scoreSSTContext(query: RankingQueryV2, item: KnowledgeItem): number {
+  let bonus = 0;
+  const itemText = [...item.likely_causes, item.symptom, item.issue_category].join(' ').toLowerCase();
+
+  if (query.sst_tailing_factor && query.sst_tailing_factor > 2.0) {
+    if (itemText.includes('tailing') || itemText.includes('peak shape') || itemText.includes('silanol')) bonus += 0.05;
+  }
+  if (query.sst_plates && query.sst_plates < 2000) {
+    if (itemText.includes('efficiency') || itemText.includes('plate') || itemText.includes('column') || itemText.includes('band broadening')) bonus += 0.05;
+  }
+  if (query.sst_resolution && query.sst_resolution < 1.5) {
+    if (itemText.includes('resolution') || itemText.includes('selectivity') || itemText.includes('separation')) bonus += 0.05;
+  }
+  if (query.sst_rsd_percent && query.sst_rsd_percent > 2.0) {
+    if (itemText.includes('precision') || itemText.includes('reproducibility') || itemText.includes('injection') || itemText.includes('autosampler')) bonus += 0.05;
+  }
+
+  return Math.min(0.1, bonus);
 }

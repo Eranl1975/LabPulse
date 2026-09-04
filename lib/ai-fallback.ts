@@ -747,6 +747,42 @@ function buildUserMessageV2(query: RankingQueryV2, kbResult?: RankedAnswer): str
   if (query.qc_results)        lines.push(`QC results: ${query.qc_results}`);
   if (query.expected_result)   lines.push(`Expected result: ${query.expected_result}`);
 
+  // V5 SST context
+  if (query.sst_plates || query.sst_tailing_factor || query.sst_resolution || query.sst_rsd_percent) {
+    lines.push('');
+    lines.push('=== SYSTEM SUITABILITY TEST (SST) DATA ===');
+    if (query.sst_plates)           lines.push(`Theoretical plates (N): ${query.sst_plates}`);
+    if (query.sst_tailing_factor)   lines.push(`Tailing factor (T): ${query.sst_tailing_factor}`);
+    if (query.sst_resolution)       lines.push(`Resolution (Rs): ${query.sst_resolution}`);
+    if (query.sst_rsd_percent)      lines.push(`%RSD: ${query.sst_rsd_percent}`);
+    lines.push('Use SST data to narrow diagnostic hypotheses. Tailing > 2.0 suggests silanol activity or column degradation. Plates < 2000 suggests poor efficiency. Resolution < 1.5 indicates selectivity issues. %RSD > 2.0 points to injection or flow precision problems.');
+  }
+
+  // V5 sample matrix type
+  if (query.sample_matrix_type) {
+    lines.push(`Sample matrix type: ${query.sample_matrix_type}`);
+    lines.push('Consider matrix-specific effects: ion suppression for biological matrices (plasma, serum, whole_blood), humic acid interference for soil/environmental, excipient interference for formulations.');
+  }
+
+  // V5 column injection count
+  if (query.column_injection_count) {
+    lines.push(`Column injection count: ${query.column_injection_count}`);
+    if (query.column_injection_count >= 1000) {
+      lines.push('HIGH INJECTION COUNT — consider column degradation (void volume growth, frit blockage, stationary phase loss, increased backpressure) as a contributing factor.');
+    }
+  }
+
+  // V5 method transfer context
+  if (query.is_method_transfer) {
+    lines.push('');
+    lines.push('=== METHOD TRANSFER CONTEXT ===');
+    lines.push('This is a METHOD TRANSFER troubleshooting scenario.');
+    if (query.source_instrument) lines.push(`Source instrument: ${query.source_instrument}`);
+    if (query.source_vendor)     lines.push(`Source vendor: ${query.source_vendor}`);
+    if (query.source_model)      lines.push(`Source model: ${query.source_model}`);
+    lines.push('Consider instrument-to-instrument variability: dwell volume differences, gradient delay volume, detector response factors, extra-column volume, injection precision, column thermostat design. Focus on systematic differences between source and target instruments.');
+  }
+
   lines.push(`Symptom description: ${query.symptom_description}`);
 
   if (query.already_checked.length > 0) {

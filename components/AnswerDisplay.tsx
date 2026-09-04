@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
 import type { DisplayMode } from './ModeSwitcher';
+import type { RankedAnswerV2 } from '@/lib/types';
 
 interface Props {
   modes: {
@@ -11,6 +12,8 @@ interface Props {
   };
   confidence: number;
   selected: DisplayMode;
+  rankedAnswer?: RankedAnswerV2;
+  technique?: string;
 }
 
 function confidenceInfo(c: number): { label: string; pct: number; color: string; bg: string; border: string } {
@@ -272,8 +275,59 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
   );
 }
 
+// ── PDF Download Button ───────────────────────────────────────────────────────
+function PdfDownloadButton({ rankedAnswer, technique }: { rankedAnswer: RankedAnswerV2; technique: string }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleDownload() {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/troubleshooting/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ranked_answer: rankedAnswer, technique }),
+      });
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LabPulse-${technique}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.375rem',
+        padding: '0.375rem 0.75rem',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        color: 'var(--color-teal-600)',
+        background: 'transparent',
+        border: '1px solid var(--color-teal-600)',
+        borderRadius: '6px',
+        cursor: loading ? 'wait' : 'pointer',
+        opacity: loading ? 0.6 : 1,
+      }}
+    >
+      {loading ? 'Generating...' : 'Download PDF'}
+    </button>
+  );
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function AnswerDisplay({ modes, confidence, selected }: Props) {
+export default function AnswerDisplay({ modes, confidence, selected, rankedAnswer, technique }: Props) {
   return (
     <div style={{
       background: '#fff',
@@ -282,7 +336,12 @@ export default function AnswerDisplay({ modes, confidence, selected }: Props) {
       padding: '1.625rem 1.75rem',
       boxShadow: '0 2px 14px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04)',
     }}>
-      <ConfidenceBar confidence={confidence} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <ConfidenceBar confidence={confidence} />
+        {rankedAnswer && technique && (
+          <PdfDownloadButton rankedAnswer={rankedAnswer} technique={technique} />
+        )}
+      </div>
 
       {selected === 'manager' ? (
         <ManagerView output={modes.manager} />

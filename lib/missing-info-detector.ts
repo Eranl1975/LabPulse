@@ -29,11 +29,12 @@ const CRITICAL_BY_TECHNIQUE: Partial<Record<Technique, FieldSet>> = {
 };
 
 const OPTIONAL_BY_TECHNIQUE: Partial<Record<Technique, FieldSet>> = {
-  LCMS:  ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'gradient', 'retention_time', 'source_params', 'acquisition_mode', 'recent_maintenance', 'qc_results', 'expected_result'],
-  HPLC:  ['analyte', 'sample_matrix', 'injection_volume', 'gradient', 'retention_time', 'recent_maintenance', 'qc_results', 'expected_result'],
-  UHPLC: ['analyte', 'sample_matrix', 'injection_volume', 'gradient', 'retention_time', 'recent_maintenance', 'qc_results', 'expected_result'],
-  GC:    ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'retention_time', 'recent_maintenance'],
-  GCMS:  ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'retention_time', 'recent_maintenance', 'acquisition_mode'],
+  LCMS:   ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'gradient', 'retention_time', 'source_params', 'acquisition_mode', 'recent_maintenance', 'qc_results', 'expected_result', 'sst_data', 'sample_matrix_type'],
+  HPLC:   ['analyte', 'sample_matrix', 'injection_volume', 'gradient', 'retention_time', 'recent_maintenance', 'qc_results', 'expected_result', 'sst_data', 'sample_matrix_type'],
+  UHPLC:  ['analyte', 'sample_matrix', 'injection_volume', 'gradient', 'retention_time', 'recent_maintenance', 'qc_results', 'expected_result', 'sst_data', 'sample_matrix_type'],
+  GC:     ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'retention_time', 'recent_maintenance'],
+  GCMS:   ['analyte', 'sample_matrix', 'flow_rate', 'injection_volume', 'retention_time', 'recent_maintenance', 'acquisition_mode'],
+  PrepLC: ['analyte', 'sample_matrix', 'injection_volume', 'gradient', 'retention_time', 'recent_maintenance', 'qc_results', 'expected_result', 'sst_data'],
 };
 
 // ─── Follow-Up Question Templates ───────────────────────────────────
@@ -58,6 +59,9 @@ const QUESTION_TEMPLATES: Record<MissingInfoField, string> = {
   raw_data:              'Can you provide representative raw data or chromatograms?',
   chromatographic_method: 'What is the chromatographic method (reference or SOP number)?',
   expected_result:       'What result did you expect vs. what are you observing?',
+  sst_data:              'What are your System Suitability Test results (plates, tailing factor, resolution, %RSD)?',
+  sample_matrix_type:    'What type of sample matrix are you analyzing (e.g., plasma, soil, food, API)?',
+  method_transfer_source: 'What instrument/site is the method being transferred from?',
 };
 
 // ─── Main Detection Function ────────────────────────────────────────
@@ -127,6 +131,9 @@ function hasValue(query: RankingQueryV2, field: MissingInfoField): boolean {
     case 'raw_data':            return false; // not yet in query
     case 'chromatographic_method': return !!query.method_conditions;
     case 'expected_result':     return !!query.expected_result;
+    case 'sst_data':            return !!(query.sst_plates || query.sst_tailing_factor || query.sst_resolution || query.sst_rsd_percent);
+    case 'sample_matrix_type':  return !!query.sample_matrix_type;
+    case 'method_transfer_source': return !!(query.is_method_transfer && query.source_instrument);
     default:                    return false;
   }
 }

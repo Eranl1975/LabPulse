@@ -5,6 +5,48 @@ import { checkRateLimit } from '@/lib/rate-limit';
 const AUTH_ROUTES = new Set(['/login', '/register', '/forgot-password']);
 const PUBLIC_ROUTES = new Set(['/', '/login', '/register', '/forgot-password', '/reset-password']);
 
+// ── Profile cache (5-min TTL) to avoid DB query on every navigation ──
+interface CachedProfile { role: string; trial_ends_at: string | null; locked_until: string | null }
+const profileCache = new Map<string, { data: CachedProfile; expiresAt: number }>();
+const PROFILE_CACHE_TTL = 5 * 60 * 1000;
+
+async function getCachedProfile(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string,
+): Promise<CachedProfile | null> {
+  const cached = profileCache.get(userId);
+  if (cached && Date.now() < cached.expiresAt) return cached.data;
+
+  const { data } = await supabase
+    .from('profiles')
+    .select('role, trial_ends_at, locked_until')
+    .eq('id', userId)
+    .single();
+
+  if (data) {
+    profileCache.set(userId, { data, expiresAt: Date.now() + PROFILE_CACHE_TTL });
+  }
+  return data;
+}
+
+// ── Auth audit helper (best-effort) ──
+async function logAuthEvent(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string,
+  action: string,
+  reason: string,
+) {
+  try {
+    await supabase.from('audit_logs').insert({
+      entity_type: 'profile',
+      entity_id: userId,
+      action,
+      actor: 'system',
+      old_values: { reason },
+    });
+  } catch { /* best-effort */ }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -75,11 +117,7 @@ export async function middleware(request: NextRequest) {
         url.searchParams.set('redirect', pathname);
         return NextResponse.redirect(url);
       }
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+      const profile = await getCachedProfile(supabase, user.id);
       if (profile?.role !== 'admin') {
         return NextResponse.redirect(new URL('/ask', request.url));
       }
@@ -103,18 +141,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Fetch profile for role/lock checks
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, trial_ends_at, locked_until')
-      .eq('id', user.id)
-      .single();
+    // Fetch profile with cache
+    const profile = await getCachedProfile(supabase, user.id);
 
     if (profile) {
       if (profile.role === 'blocked_user') {
+        await logAuthEvent(supabase, user.id, 'auth_blocked', 'blocked_user');
         return NextResponse.redirect(new URL('/login?error=blocked', request.url));
       }
       if (profile.locked_until && new Date(profile.locked_until) > new Date()) {
+        await logAuthEvent(supabase, user.id, 'auth_locked', 'account_locked');
         return NextResponse.redirect(new URL('/login?error=locked', request.url));
       }
       if (
@@ -123,6 +159,7 @@ export async function middleware(request: NextRequest) {
         new Date(profile.trial_ends_at) < new Date() &&
         !pathname.startsWith('/upgrade')
       ) {
+        await logAuthEvent(supabase, user.id, 'auth_trial_expired', 'trial_expired');
         return NextResponse.redirect(new URL('/upgrade?reason=trial_expired', request.url));
       }
     }

@@ -1,0 +1,342 @@
+// ── Option constants extracted from QueryForm ────────────────────────────────
+// All data arrays used by the multi-step wizard steps.
+
+export const TECHNIQUE_OPTIONS = ['HPLC', 'LCMS', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC'] as const;
+
+export const VENDOR_OPTIONS = [
+  'Agilent', 'Waters', 'Thermo Fisher', 'Dionex', 'TA Instruments', 'Cytiva', 'Shimadzu', 'SCIEX',
+  'Restek', 'PerkinElmer', 'Bruker', 'Phenomenex', 'Sigma-Aldrich', 'Bio-Rad',
+  'NETZSCH', 'Mettler Toledo', 'Hitachi', 'Beckman Coulter', 'CSBio', 'CEM Corporation',
+  'Biotage', 'Gyros Protein Technologies',
+  'Metrohm', 'Malvern Panalytical', 'Rigaku',
+  // Physical characterization (v3.0)
+  'JASCO', 'Denton Vacuum', 'Micromeritics',
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  'Wyatt Technology', 'Tosoh Bioscience', 'Renishaw', 'HORIBA', 'JEOL',
+  // KNAUER LC (v3.3)
+  'KNAUER',
+] as const;
+
+export const MODELS_BY_TECHNIQUE_AND_VENDOR: Record<string, Record<string, string[]>> = {
+  HPLC: {
+    'Agilent':       ['1100 Series HPLC', '1200 Series HPLC', '1220 Infinity II LC', '1260 Infinity HPLC', '1260 Infinity II', '1260 Infinity II Bio-inert LC'],
+    'Waters':        ['Alliance 2695', 'Alliance e2695', 'Alliance HPLC', 'Arc Premier', 'Breeze HPLC', 'ACQUITY ARC', 'ACQUITY ARC Bio'],
+    'Shimadzu':      ['Prominence HPLC', 'Nexera HPLC'],
+    'Thermo Fisher': ['UltiMate 3000 HPLC', 'UltiMate 3000 SD'],
+    'KNAUER':        ['AZURA P 2.1S Pump (400 bar)', 'AZURA P 4.1S Pump (150 bar)', 'AZURA UVD 2.1L UV Detector', 'AZURA DAD 2.1L Diode Array Detector', 'AZURA RID 2.1L Refractive Index Detector', 'AZURA FLD 2.1L Fluorescence Detector', 'AZURA AS 6.1L Autosampler', 'AZURA CT 2.1 Column Thermostat', 'AZURA Analytical HPLC System (862 bar)', 'AZURA Educational HPLC System'],
+  },
+  UHPLC: {
+    'Agilent':       ['1290 Bio LC', '1290 Infinity UHPLC', '1290 Infinity II', '1290 Infinity II Bio LC', '1290 Infinity II Flexible Pump System', '1290 Infinity II Multisampler', '1290 Infinity II UHPLC'],
+    'Waters':        ['ACQUITY Premier UPLC', 'ACQUITY UPLC', 'ACQUITY UPLC H-Class', 'ACQUITY UPLC H-Class PLUS', 'ACQUITY UPLC I-Class', 'ACQUITY UPLC I-Class PLUS'],
+    'Thermo Fisher': ['Vanquish UHPLC', 'Vanquish Core UHPLC', 'Vanquish Flex UHPLC', 'Vanquish Horizon UHPLC'],
+    'Shimadzu':      ['Nexera X2', 'Nexera XR', 'Nexera X3'],
+    'KNAUER':        ['AZURA P 2.1L UHPLC Pump (1000 bar)', 'AZURA UHPLC System (1240 bar)', 'AZURA HTQC UHPLC System (High-Throughput QC)'],
+  },
+  LCMS: {
+    'Agilent':       [
+      // Single quadrupole
+      '6120B Compact LC/MSD', '6125B LC/MSD', '6130B LC/MSD', '6135B LC/MSD',
+      // InfinityLab single quadrupole (v4.1)
+      'InfinityLab LC/MSD iQ (G6301)', 'InfinityLab Pro iQ (G6160B)', 'InfinityLab Pro iQ Plus (G6170A)',
+      // Triple quadrupole
+      '6460 Triple Quad LC/MS', '6470 Triple Quad LC/MS', '6495 Triple Quad LC/MS', '6495C Triple Quad LC/MS',
+      // Q-TOF
+      '6530 LC/Q-TOF', '6545 LC/Q-TOF', '6546 LC/Q-TOF', '6560 Ion Mobility LC/Q-TOF',
+    ],
+    'Waters':        [
+      // Single quadrupole
+      'QDa Mass Detector', 'QDa Performance Mass Detector', 'Xevo SQ Detector 2',
+      // Triple quadrupole
+      'Xevo TQ-S', 'Xevo TQ-XS', 'Xevo TQ-S micro',
+      // Q-TOF
+      'Xevo G2-XS QTof', 'Xevo G3 QTof', 'Synapt XS', 'SELECT SERIES Cyclic IMS',
+    ],
+    'Thermo Fisher': ['TSQ Altis', 'TSQ Altis Plus', 'TSQ Quantis', 'Q Exactive', 'Q Exactive Plus', 'Q Exactive HF', 'Orbitrap Exploris 480', 'Orbitrap Astral'],
+    'Shimadzu':      ['LCMS-2050', 'LCMS-2020', 'LCMS-8045', 'LCMS-8060', 'LCMS-8060NX', 'LCMS-9030 Q-TOF', 'LCMS-9050 Q-TOF'],
+    'SCIEX':         ['QTRAP 4500', 'QTRAP 5500', 'QTRAP 6500+', 'Triple Quad 5500+', 'Triple Quad 6500+', 'TripleTOF 6600+', 'ZenoTOF 7600'],
+  },
+  GC: {
+    'Agilent':       ['7890A GC', '7890B GC', '8860 GC', '8890 GC'],
+    'Thermo Fisher': ['Trace 1310 GC', 'Trace 1600 GC', 'FOCUS GC'],
+    'Shimadzu':      ['GC-2010', 'GC-2030', 'GC-2014'],
+    'PerkinElmer':   ['Clarus 590 GC', 'Clarus 690 GC'],
+  },
+  GCMS: {
+    'Agilent':       ['5975C GC/MS', '5977B GC/MS', '7000D GC/MS Triple Quad', '7010B GC/MS Triple Quad'],
+    'Thermo Fisher': ['ISQ 7000 GC-MS', 'TSQ 9000 GC-MS/MS'],
+    'Shimadzu':      ['GCMS-QP2010 SE', 'GCMS-QP2020 NX', 'GCMS-TQ8050 NX'],
+  },
+  IC: {
+    'Dionex':        ['Aquion IC System', 'Integrion HPIC System', 'ICS-900', 'ICS-1100', 'ICS-1600', 'ICS-2000', 'ICS-2100', 'ICS-3000', 'ICS-4000', 'ICS-5000', 'ICS-5000+', 'ICS-6000', 'ICS-6000 HPIC', 'ICS-6000 Capillary HPIC'],
+    'Thermo Fisher': ['Aquion IC System', 'Integrion HPIC System', 'ICS-6000', 'ICS-6000 HPIC', 'ICS-6000 Capillary HPIC'],
+  },
+  CE: {
+    'Agilent':          ['7100 Capillary Electrophoresis', 'G7100A CE'],
+    'Beckman Coulter':  ['PA 800 Plus CE', 'CESI 8000 Plus'],
+    'SCIEX':            ['PA 800 Plus Pharmaceutical Analysis System'],
+  },
+  SFC: {
+    'Waters':   ['ACQUITY UPC\u00B2 System', 'ACQUITY UPC\u00B2 Bio System'],
+    'Agilent':  ['1260 Infinity II SFC System', '1260 Infinity II Analytical SFC'],
+    'Shimadzu': ['Nexera UC SFC-MS'],
+  },
+  TGA: {
+    'TA Instruments': ['Discovery TGA 5500', 'Discovery TGA 5000', 'Discovery TGA 550', 'Discovery TGA 55', 'Discovery TGA 5500 IR', 'SDT 650', 'SDT Q600', 'Q50 TGA', 'Q500 TGA', 'Q5000 IR TGA', 'HiRes TGA 2950'],
+    'NETZSCH':        ['TG 209 F1 Libra', 'TG 209 F3 Tarsus', 'STA 449 F1 Jupiter', 'STA 449 F3 Jupiter', 'TG 209 F1 Iris'],
+    'Mettler Toledo': ['TGA/DSC 3+', 'TGA 2', 'TGA/DSC 1', 'TGA 1'],
+    'PerkinElmer':    ['TGA 8000', 'TGA 4000', 'STA 8000'],
+  },
+  DSC: {
+    'TA Instruments': ['Discovery DSC 250', 'Discovery DSC 2500', 'Discovery DSC 25', 'Discovery DSC 750 (HP)', 'Discovery Nano DSC', 'Q10 DSC', 'Q20 DSC', 'Q100 DSC', 'Q200 DSC', 'Q1000 DSC', 'Q2000 DSC'],
+    'NETZSCH':        ['DSC 200 F3 Maia', 'DSC 214 Polyma', 'DSC 300 Caliris Select', 'DSC 404 F1 Pegasus', 'DSC 404 F3 Pegasus'],
+    'Mettler Toledo': ['DSC 3+', 'DSC 2', 'DSC 1', 'Flash DSC 2+'],
+    'PerkinElmer':    ['DSC 8500', 'DSC 4000', 'Pyris 1 DSC', 'DSC 6000'],
+  },
+  FPLC: {
+    'Cytiva':  ['\u00C4KTA avant 25', '\u00C4KTA avant 150', '\u00C4KTA OligoPilot 10 Plus', '\u00C4KTA OligoPilot 100 Plus', '\u00C4KTA pure 25', '\u00C4KTA pure 150', '\u00C4KTA start', '\u00C4KTA go'],
+    'Bio-Rad': ['NGC Quest 10 Plus', 'NGC Quest 100 Plus', 'NGC Chromatography System'],
+    'KNAUER':  ['AZURA Bio Lab FPLC System (240 bar)', 'AZURA Bio AC FPLC System', 'AZURA Bio SEC System (50 bar)', 'AZURA Bio Compact FPLC System'],
+  },
+  SPPS: {
+    'CSBio':                    ['CS136X', 'CS336X', 'CS536X', 'CS136XT', 'CS336XT', 'CS536XT', 'CS336Xi', 'CSBio 6200', 'CSBio 396'],
+    'CEM Corporation':          ['Liberty Blue', 'Liberty Blue HT', 'Liberty Prime', 'Liberty Lite', 'Liberty Classic'],
+    'Biotage':                  ['Syro I', 'Syro Wave', 'Biotage SP Wave', 'Biotage SP Wave Duo'],
+    'Gyros Protein Technologies': ['Prelude X', 'Symphony X', 'Symphony 12'],
+  },
+  XRD: {
+    'Bruker':               ['D2 Phaser', 'D8 Advance', 'D8 Discover', 'D8 ENDEAVOR', 'D8 QUEST', 'D8 VENTURE'],
+    'Malvern Panalytical':  ['Empyrean', "X'Pert Pro", 'Aeris', 'Zetium', 'Epsilon 4'],
+    'Rigaku':               ['MiniFlex 600', 'MiniFlex 600-C', 'SmartLab SE', 'SmartLab Studio II', 'Ultima IV', 'Synergy'],
+    'Shimadzu':             ['XRD-6100', 'XRD-7000', 'XRD-7000L', 'XRD-8000'],
+    'Thermo Fisher':        ['ARL EQUINOX 100', 'ARL EQUINOX 1000', 'ARL PERFORM X'],
+  },
+  DLS: {
+    'Malvern Panalytical':  ['Zetasizer Nano S', 'Zetasizer Nano ZS', 'Zetasizer Nano ZSP', 'Zetasizer Ultra Red', 'Zetasizer Pro', 'Zetasizer Lab', 'Mastersizer 3000', 'Mastersizer 3000E', 'NanoSight NS300', 'NanoSight NS500', 'Viscosizer TD'],
+    'Brookhaven':           ['NanoBrook 90Plus PALS', 'NanoBrook Omni', 'NanoBrook ZetaPALS'],
+    'Malvern':              ['Zetasizer Nano S', 'Zetasizer Nano ZS', 'Zetasizer Nano ZSP'],
+  },
+  Titration: {
+    'Metrohm':        ['905 Titrando', '888 Titrando', '877 Titrino Plus', '848 Titrino Plus', '809 Titrando', 'Eco Titrator', '916 Ti-Touch', '756 KF Coulometer'],
+    'Mettler Toledo': ['T5 Excellence Titrator', 'T7 Excellence Titrator', 'T9 Excellence Titrator', 'EasyPlus T5', 'EasyPlus T7'],
+    'Hanna Instruments': ['HI 932', 'HI 931 Dual Acid-Base'],
+  },
+  KF: {
+    'Metrohm':        ['870 KF Titrino Plus', '851 Titrando KF', '899 Coulometer', '917 Coulometer', 'Aqua 40.00 Coulometer', '756 KF Coulometer', '831 KF Coulometer'],
+    'Mettler Toledo': ['C51 Compact KF Coulometer', 'C30 Compact KF Coulometer', 'V20 Compact KF Volumetric', 'V30 Compact KF Volumetric'],
+  },
+  KFO: {
+    'Metrohm':        ['874 Oven Sample Processor', '885 Compact Oven Sample Processor', 'KF Oven 703 Sample Processor'],
+    'Mettler Toledo': ['DO308 Drying Oven KF', 'DO308M Drying Oven'],
+  },
+  // ── Physical Characterization (v3.0) ───────────────────────────────────────
+  CD: {
+    'JASCO': ['J-1500 CD Spectrometer', 'J-1700 CD Spectrometer', 'J-815 CD Spectrometer', 'J-1100 CD Spectrometer', 'J-810 CD Spectrometer', 'J-820 CD Spectrometer'],
+  },
+  SEM: {
+    'Thermo Fisher': ['Phenom Pro', 'Phenom ProX', 'Phenom XL', 'Phenom XL G2', 'Phenom Pharos', 'Phenom Essentis'],
+  },
+  Sputter: {
+    'Denton Vacuum': ['Desk V', 'Desk VI HP', 'Desk VI BTD', 'Turbo-Desk', 'Explorer'],
+  },
+  BET: {
+    'Micromeritics': ['Gemini VII 2390', 'Gemini VII 2385', 'TriStar II Plus', 'ASAP 2020', 'ASAP 2460', 'ASAP 2020 Plus', 'Flowsorb III'],
+  },
+  // ── Spectroscopy / NMR / SEC-MALS / TEM (v3.1) ───────────────────────────
+  SECMALS: {
+    'Wyatt Technology':  ['DAWN HELEOS II', 'DAWN 8+', 'miniDAWN TREOS II', 'Optilab T-rEX', 'microDAWN'],
+    'Malvern Panalytical': ['OMNISEC Resolve', 'OMNISEC Reveal', 'OMNISEC Tetra'],
+    'Tosoh Bioscience':  ['HLC-8321GPC/HT', 'EcoSEC Elite', 'EcoSEC HLC-8320GPC'],
+    'Shimadzu':          ['Nexera GPC System', 'Prominence GPC-20A'],
+  },
+  TEM: {
+    'Thermo Fisher':  ['Talos F200C', 'Talos L120C', 'Tecnai T12', 'Tecnai G2 F20', 'Glacios Cryo-TEM', 'Titan Krios G4'],
+    'JEOL':           ['JEM-1400 Plus', 'JEM-2100', 'JEM-2100F', 'JEM-F200', 'JEM-ARM200F', 'JEM-Z300FSC'],
+    'Hitachi':        ['HT7800', 'HT9500', 'HT7700', 'HT5000'],
+  },
+  Raman: {
+    'Renishaw':       ['inVia Raman', 'inVia Qontor', 'inVia Reflex', 'Smiths Detection RA816'],
+    'HORIBA':         ['LabRAM Odyssey', 'LabRAM HR Evolution', 'LabRAM HR800', 'XploRA PLUS'],
+    'Thermo Fisher':  ['DXR3 Raman', 'DXR3xi Raman Imaging', 'DXR3 SmartRaman'],
+    'Bruker':         ['Senterra II', 'BRAVO', 'MultiRAM'],
+  },
+  ssNMR: {
+    'Bruker': ['Avance Neo 400 MHz (ssNMR)', 'Avance Neo 600 MHz (ssNMR)', 'Avance Neo 800 MHz (ssNMR)', 'Avance III HD 400 MHz', 'NEO 1 GHz (ssNMR)'],
+    'JEOL':   ['ECZ-R 400 MHz', 'ECZ-R 600 MHz'],
+  },
+  NMR: {
+    'Bruker': ['Avance Neo 300 MHz', 'Avance Neo 400 MHz', 'Avance Neo 500 MHz', 'Avance Neo 600 MHz', 'Avance Neo 800 MHz', 'Avance Neo 1 GHz', 'Fourier 300', 'Avance III HD 400'],
+    'JEOL':   ['ECZL 400', 'ECZL 500', 'ECZL 600', 'ECZS 600', 'ECZL 800', 'ECX 400'],
+  },
+  // ── Preparative LC (v3.3) ─────────────────────────────────────────────────
+  PrepLC: {
+    'KNAUER':        ['AZURA Lab Prep System (50 mL/min, 200 bar)', 'AZURA Compact Prep System', 'AZURA Pilot Prep System (1000 mL/min)', 'AZURA P 6.1L Semi-Prep Pump (50 mL/min, 400 bar)', 'AZURA P 2.1L Prep Pump (500 mL/min, 100 bar)', 'AZURA P 4.1S Prep Pump (50 mL/min, 150 bar)'],
+    'Waters':        ['Delta Prep 4000', 'Prep-LC 2000 System', 'PrepLC/MS System'],
+    'Agilent':       ['1290 Infinity II Prep LC/MS System', '1260 Infinity II Prep-Scale LC/MS System'],
+    'Shimadzu':      ['LC-20AP Prep LC System', 'LC-20AR Prep Pump'],
+    'Thermo Fisher': ['Dionex UltiMate 3000 Preparative LC'],
+  },
+};
+
+export const ISSUES_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['retention time shift', 'peak tailing', 'peak broadening', 'split peaks', 'noisy baseline', 'high backpressure', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak', 'void volume issue', 'column overloading', 'pressure surge at injection'],
+  UHPLC: ['retention time shift', 'peak tailing', 'peak broadening', 'split peaks', 'noisy baseline', 'high backpressure', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak', 'void volume issue', 'pressure surge at injection'],
+  LCMS:  ['LCMS source contamination', 'ion suppression', 'adduct formation', 'low sensitivity', 'no peak', 'carryover', 'loss of resolution', 'retention time shift', 'peak tailing', 'noisy baseline', 'instrument communication fault'],
+  GC:    ['GC ghost peaks', 'poor GC peak shape', 'retention time shift', 'noisy baseline', 'split peaks', 'baseline drift', 'loss of resolution', 'carryover', 'low sensitivity', 'no peak'],
+  GCMS:  ['GCMS signal loss', 'GC ghost peaks', 'poor GC peak shape', 'ion suppression', 'adduct formation', 'low sensitivity', 'retention time shift', 'noisy baseline', 'instrument communication fault'],
+  IC:    ['IC suppressor failure', 'IC baseline rise', 'IC peak distortion', 'IC wrong retention time', 'noisy baseline', 'high backpressure', 'low sensitivity', 'no peak'],
+  CE:    ['noisy baseline', 'baseline drift', 'poor resolution', 'loss of resolution', 'retention time shift', 'low sensitivity', 'no peak', 'peak broadening'],
+  SFC:   ['retention time shift', 'peak tailing', 'peak broadening', 'high backpressure', 'noisy baseline', 'baseline drift', 'carryover', 'loss of resolution'],
+  TGA:   ['unstable mass signal', 'TGA wrong decomposition temperature', 'TGA buoyancy artifact', 'TGA oxidation in inert atmosphere', 'poor TGA reproducibility'],
+  DSC:   ['DSC noisy baseline', 'DSC Tg shift', 'DSC broad melting peak', 'poor enthalpy reproducibility', 'DSC baseline curvature'],
+  FPLC:  ['high system pressure', 'FPLC poor peak resolution', 'FPLC air bubbles', 'FPLC UV baseline noise', 'FPLC gradient inaccuracy', 'oligonucleotide poor separation'],
+  SPPS:  ['incomplete coupling', 'deletion sequences', 'aggregation during synthesis', 'incomplete Fmoc deprotection', 'cleavage and deprotection issues', 'racemization', 'instrument delivery failure', 'low crude purity', 'aspartimide formation', 'diketopiperazine formation'],
+  XRD:   ['XRD peak shift', 'XRD broad peaks', 'XRD low intensity', 'XRD background noise', 'XRD preferred orientation', 'XRD split peaks', 'XRD detector malfunction', 'XRD sample preparation error', 'XRD calibration drift'],
+  DLS:   ['DLS high PDI', 'DLS flat correlogram', 'DLS inconsistent size', 'DLS unreliable zeta potential', 'DLS dust contamination', 'DLS large particle artifact', 'DLS poor autocorrelation', 'DLS sample instability'],
+  Titration: ['endpoint not detected', 'titration high drift', 'wrong titre volume', 'electrode sluggish response', 'titration carryover', 'reagent instability', 'burette calibration error', 'blank too high'],
+  KF:    ['KF endpoint drift', 'KF low water recovery', 'KF negative reading', 'KF high blank', 'KF reagent decomposition', 'KF cell conditioning failure', 'KF coulometric error'],
+  KFO:   ['KFO incomplete water transfer', 'KFO high blank', 'KFO sample charring', 'KFO low recovery', 'KFO condensation in transfer line', 'KFO oven temperature error'],
+  // Physical Characterization (v3.0)
+  CD:      ['CD high HT voltage', 'CD excessive noise below 200 nm', 'CD baseline drift', 'CD duplicate spectra differ', 'CD signal inversion', 'CD buffer incompatibility', 'CD lamp aging', 'CD thermal melt artifact'],
+  SEM:     ['SEM blurry image', 'SEM charging artifacts', 'SEM poor contrast', 'SEM vacuum failure', 'SEM focus instability', 'SEM detector error', 'SEM stage movement failure', 'SEM beam alignment issue'],
+  Sputter: ['Sputter non-uniform coating', 'Sputter arcing', 'Sputter poor film adhesion', 'Sputter excessive grain size', 'Sputter vacuum instability', 'Sputter plasma ignition failure'],
+  BET:     ['BET negative constant', 'BET poor linearity', 'BET low reproducibility', 'BET degassing failure', 'BET leak', 'BET unexpected surface area', 'BET outlier adsorption points'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['SECMALS light scattering noise', 'SECMALS incorrect molecular weight', 'SECMALS negative peaks', 'SECMALS RI baseline drift', 'SECMALS detector alignment error', 'SECMALS peak broadening', 'SECMALS aggregation artifact'],
+  TEM:     ['TEM poor image quality', 'TEM sample drift', 'TEM charging', 'TEM beam damage', 'TEM vacuum failure', 'TEM astigmatism', 'TEM grid contamination', 'TEM ice contamination'],
+  Raman:   ['Raman high fluorescence', 'Raman weak signal', 'Raman cosmic ray spike', 'Raman baseline drift', 'Raman sample burning', 'Raman peak shift', 'Raman wavelength calibration failure'],
+  ssNMR:   ['ssNMR MAS failure', 'ssNMR rotor instability', 'ssNMR probe tuning failure', 'ssNMR low sensitivity', 'ssNMR peak broadening', 'ssNMR arcing', 'ssNMR probe overheating'],
+  NMR:     ['NMR lock failure', 'NMR poor shimming', 'NMR broad peaks', 'NMR solvent suppression failure', 'NMR baseline distortion', 'NMR low sensitivity', 'NMR probe failure', 'NMR gradient failure'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['PrepLC high backpressure', 'PrepLC poor peak resolution', 'PrepLC fraction contamination', 'PrepLC pump flow instability', 'PrepLC solvent recycling failure', 'PrepLC UV detector overload', 'PrepLC air bubble'],
+};
+
+export const ALL_ISSUES = [...new Set(Object.values(ISSUES_BY_TECHNIQUE).flat())];
+
+export const URGENCY_OPTIONS = [
+  'routine \u2014 can wait a few days',
+  'moderate \u2014 impacting analysis schedule',
+  'urgent \u2014 samples held',
+  'critical \u2014 production / QC stopped',
+] as const;
+
+export const SYMPTOMS_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['peak tailing', 'peak broadening', 'split peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal'],
+  UHPLC: ['peak tailing', 'peak broadening', 'split peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal'],
+  LCMS:  ['peak tailing', 'retention time shift', 'baseline noise', 'low signal', 'no signal', 'ion suppression', 'carryover', 'adduct peaks', 'instrument error code', 'communication error', 'module not responding', 'instrument offline'],
+  GC:    ['ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'split peaks', 'loss of resolution', 'low signal', 'no signal', 'carryover'],
+  GCMS:  ['ghost peaks', 'signal loss', 'ion suppression', 'retention time shift', 'low signal', 'adduct peaks', 'instrument error code', 'communication error', 'module not responding'],
+  IC:    ['baseline rise', 'peak distortion', 'wrong retention time', 'suppressor failure', 'high backpressure', 'low signal', 'no signal'],
+  CE:    ['baseline noise', 'baseline drift', 'poor resolution', 'low signal', 'retention time shift', 'peak broadening'],
+  SFC:   ['peak tailing', 'peak broadening', 'high backpressure', 'baseline noise', 'retention time shift', 'carryover', 'loss of resolution'],
+  TGA:   ['unstable signal', 'wrong decomposition temp', 'buoyancy artifact', 'oxidation artifact', 'poor reproducibility'],
+  DSC:   ['noisy baseline', 'Tg shift', 'broad melting peak', 'poor enthalpy', 'baseline curvature', 'exotherm artifact'],
+  FPLC:  ['high pressure', 'poor peak resolution', 'air bubbles', 'UV baseline noise', 'gradient inaccuracy', 'oligonucleotide separation issue'],
+  SPPS:  ['deletion sequences', 'low crude purity', 'aggregated resin', 'incomplete coupling', 'Fmoc deprotection failure', 'racemization', 'cleavage failure', 'tBu adduct', 'Pbf adduct', 'missed delivery'],
+  XRD:   ['peak shift', 'broad peaks', 'low intensity', 'high background', 'split peaks', 'weak signal', 'no diffraction', 'preferred orientation artifact'],
+  DLS:   ['high PDI', 'flat correlogram', 'inconsistent size', 'no autocorrelation signal', 'large particle artifacts', 'unstable zeta potential', 'sample aggregation'],
+  Titration: ['no endpoint detected', 'drifting endpoint', 'wrong volume', 'sluggish electrode', 'high blank', 'inconsistent results'],
+  KF:    ['high drift', 'low water result', 'negative reading', 'no endpoint', 'unstable baseline', 'reagent failure'],
+  KFO:   ['incomplete water transfer', 'high blank', 'charring', 'low recovery', 'condensation', 'temperature error'],
+  // Physical Characterization (v3.0)
+  CD:      ['HT voltage too high', 'excessive noise', 'baseline drift', 'signal inversion', 'poor reproducibility', 'buffer interference', 'lamp intensity low', 'thermal melt artifact'],
+  SEM:     ['blurry image', 'charging artifacts', 'poor contrast', 'vacuum failure', 'focus drift', 'detector error', 'stage stuck', 'beam alignment issue'],
+  Sputter: ['non-uniform coating', 'arcing', 'poor film adhesion', 'excessive grain size', 'vacuum instability', 'plasma not igniting'],
+  BET:     ['negative BET constant', 'poor linearity', 'low reproducibility', 'degassing incomplete', 'gas leak', 'unexpected surface area', 'outlier adsorption points'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['light scattering noise', 'incorrect molecular weight', 'negative peaks', 'RI baseline drift', 'detector alignment error', 'peak broadening', 'aggregation artifact'],
+  TEM:     ['blurry image', 'sample drift', 'charging artifact', 'beam damage', 'vacuum failure', 'astigmatism', 'grid contamination', 'ice contamination'],
+  Raman:   ['high fluorescence background', 'weak signal', 'cosmic ray spike', 'baseline drift', 'sample burning', 'peak shift', 'wavelength calibration failure'],
+  ssNMR:   ['MAS spinning failure', 'rotor instability', 'probe tuning failure', 'low sensitivity', 'broad peaks', 'arcing', 'probe overheating'],
+  NMR:     ['lock failure', 'poor shimming', 'broad peaks', 'solvent suppression failure', 'baseline distortion', 'low sensitivity', 'probe failure', 'gradient failure'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['high backpressure', 'poor peak resolution', 'fraction contamination', 'pump flow instability', 'solvent recycling failure', 'UV detector overload', 'air bubbles in pump'],
+};
+
+export const ALL_SYMPTOMS = ['peak tailing', 'peak broadening', 'split peaks', 'ghost peaks', 'retention time shift', 'baseline noise', 'baseline drift', 'pressure spike', 'high backpressure', 'loss of resolution', 'carryover', 'low signal', 'no signal', 'ion suppression'];
+
+export const CHECKED_BY_TECHNIQUE: Record<string, string[]> = {
+  HPLC:  ['replaced column', 'replaced guard column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'],
+  UHPLC: ['replaced column', 'replaced guard column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'],
+  LCMS:  ['cleaned source/ion block', 'replaced column', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'checked mobile phase composition', 'restarted instrument software', 'recalibrated mass', 'power cycled instrument', 'reseated USB/LAN cable', 'restarted MassHunter/data system', 'checked Windows Device Manager for USB errors'],
+  GC:    ['replaced septa / liner', 'replaced column', 'cleaned injector', 'restarted instrument software', 'checked carrier gas flow', 'baked out column', 'checked split ratio', 'replaced inlet liner'],
+  GCMS:  ['replaced septa / liner', 'cleaned ion source', 'replaced column', 'cleaned injector', 'restarted instrument software', 'tuned mass spectrometer', 'baked out column', 'power cycled instrument', 'reseated communication cable', 'restarted data system software'],
+  IC:    ['replaced suppressor', 'replaced eluent', 'checked pump', 'replaced column', 'restarted instrument software', 'purged eluent lines', 'checked eluent concentration'],
+  CE:    ['replaced capillary', 'flushed capillary', 'replaced buffer', 'cleaned electrodes', 'restarted instrument software', 'reconditioned capillary'],
+  SFC:   ['replaced column', 'checked CO2 pressure', 'flushed co-solvent lines', 'checked connections', 'restarted instrument software', 'degassed mobile phase'],
+  TGA:   ['calibrated temperature', 'calibrated mass', 'checked purge gas flow', 'cleaned furnace', 'replaced crucible', 'checked baseline', 'verified tare'],
+  DSC:   ['calibrated temperature', 'calibrated enthalpy', 'checked purge gas flow', 'cleaned DSC cell', 'replaced pans', 'checked baseline', 'calibrated with indium'],
+  FPLC:  ['cleaned column', 'regenerated column', 'replaced tubing', 'checked pump seals', 'degassed buffers', 'calibrated UV detector', 'checked column pressure limits'],
+  SPPS:  ['double coupled residue', 'extended coupling time', 'replaced coupling reagent', 'switched to HATU/HOAt', 'added DMSO to solvent', 'used NMP instead of DMF', 're-cleaved with fresh TFA', 'recalibrated syringe pump', 'primed delivery lines', 'replaced resin'],
+  XRD:   ['recalibrated 2\u03B8 zero offset', 'cleaned sample holder', 'verified sample preparation', 'realigned goniometer', 'replaced detector', 'checked X-ray tube current', 'verified sample height'],
+  DLS:   ['cleaned cuvette', 'filtered sample through 0.2 \u00B5m', 'temperature equilibrated', 'replaced DTS1070 cell', 'centrifuged sample 2000g', 'diluted sample', 'checked laser alignment'],
+  Titration: ['replaced pH/ISE electrode', 'recalibrated burette', 'replaced titrant reagent', 'cleaned electrode junction', 'recalibrated with buffer standard', 'checked for CO2 absorption'],
+  KF:    ['reconditioned KF cell', 'replaced KF reagent', 'dried cell with blank titration', 'refreshed working medium', 'replaced electrode', 'checked for moisture ingress'],
+  KFO:   ['cleaned transfer line', 'replaced septum/seal', 'recalibrated oven temperature', 'replaced drying tube', 'checked carrier gas flow', 'purged transfer lines'],
+  // Physical Characterization (v3.0)
+  CD:      ['checked nitrogen purge flow', 'replaced cuvette', 're-ran baseline correction', 'checked buffer blank', 'checked HT voltage limit', 'cleaned cuvette holder', 'restarted JASCO Spectra Manager'],
+  SEM:     ['cleaned SEM chamber', 'reseated sample stub', 'applied sputter coating', 'checked vacuum status', 'realigned beam', 'replaced detector', 'restarted Phenom software'],
+  Sputter: ['cleaned sputter chamber', 'replaced target material', 'checked argon gas supply', 'verified vacuum pump operation', 'cleaned substrate', 'replaced O-ring seals'],
+  BET:     ['degassed sample at higher temperature', 'cleaned sample tube', 'checked nitrogen gas supply', 'leak tested manifold', 'replaced sample tube O-ring', 'restarted Gemini software', 'ran blank tube analysis'],
+  // Spectroscopy / NMR / SEC-MALS / TEM (v3.1)
+  SECMALS: ['adjusted inter-detector delay volumes', 'cleaned SEC columns', 'verified dn/dc value', 'recalibrated RI detector', 'replaced flow cell', 'filtered sample through 0.2 \u00B5m', 'restarted ASTRA or OmniSEC software'],
+  TEM:     ['plasma-cleaned grid', 'prepared fresh negative stain', 'cleaned specimen holder', 'degassed column overnight', 'corrected astigmatism', 'lowered beam current', 'loaded fresh grid'],
+  Raman:   ['adjusted laser power', 'replaced calibration standard', 're-calibrated wavenumber axis', 'cleaned sample stage', 'changed excitation wavelength', 'applied baseline correction', 'used cosmic ray filter'],
+  ssNMR:   ['replaced rotor', 'retuned probe', 're-optimized MAS speed', 'recalibrated magic angle', 'reduced RF power', 'replaced probe', 'cooled probe with nitrogen'],
+  NMR:     ['re-locked on deuterium solvent', 'reshimmed manually', 'retuned probe', 'increased NS (number of scans)', 'optimized solvent suppression parameters', 'replaced NMR tube', 'recalibrated gradient coil'],
+  // Preparative LC (v3.3)
+  PrepLC:  ['replaced prep column', 'cleaned guard column', 'flushed pump heads', 'checked pump seals and pistons', 'replaced check valves', 'degassed solvents', 're-optimised gradient', 'cleaned UV flow cell', 'checked fraction collector tubing'],
+};
+
+export const ALL_CHECKED = ['replaced column', 'replaced guard column', 'cleaned source/ion block', 'flushed mobile phase lines', 'checked connections and fittings', 'primed pump', 'replaced septa / liner', 'cleaned injector', 'checked mobile phase composition', 'restarted instrument software'];
+
+export const SAMPLE_MATRIX_TYPE_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Select matrix type...' },
+  { value: 'plasma', label: 'Plasma' },
+  { value: 'serum', label: 'Serum' },
+  { value: 'urine', label: 'Urine' },
+  { value: 'whole_blood', label: 'Whole Blood' },
+  { value: 'soil', label: 'Soil' },
+  { value: 'water', label: 'Water' },
+  { value: 'wastewater', label: 'Wastewater' },
+  { value: 'food', label: 'Food' },
+  { value: 'beverage', label: 'Beverage' },
+  { value: 'API', label: 'API (Active Pharmaceutical Ingredient)' },
+  { value: 'formulation', label: 'Formulation' },
+  { value: 'tablet_extract', label: 'Tablet Extract' },
+  { value: 'environmental', label: 'Environmental' },
+  { value: 'biological_tissue', label: 'Biological Tissue' },
+  { value: 'organic_solvent', label: 'Organic Solvent' },
+  { value: 'polymer_solution', label: 'Polymer Solution' },
+  { value: 'other', label: 'Other' },
+];
+
+// ── Helper functions ─────────────────────────────────────────────────────────
+
+export function getFilteredVendors(technique: string): string[] {
+  if (!technique.trim()) return [...VENDOR_OPTIONS];
+  return Object.keys(MODELS_BY_TECHNIQUE_AND_VENDOR[technique] ?? {});
+}
+
+export function getFilteredModels(technique: string, vendor: string): string[] {
+  const hasT = Boolean(technique.trim());
+  const hasV = Boolean(vendor.trim());
+  if (!hasT && !hasV) return [];
+  if (hasT && hasV) return MODELS_BY_TECHNIQUE_AND_VENDOR[technique]?.[vendor] ?? [];
+  if (hasT) return [...new Set(Object.values(MODELS_BY_TECHNIQUE_AND_VENDOR[technique] ?? {}).flat())];
+  return [...new Set(Object.values(MODELS_BY_TECHNIQUE_AND_VENDOR).flatMap(m => m[vendor] ?? []))];
+}
+
+export function getFilteredIssues(technique: string): string[] {
+  return technique.trim() ? (ISSUES_BY_TECHNIQUE[technique] ?? ALL_ISSUES) : ALL_ISSUES;
+}
+
+export function getFilteredSymptoms(technique: string): string[] {
+  return technique.trim() ? (SYMPTOMS_BY_TECHNIQUE[technique] ?? ALL_SYMPTOMS) : ALL_SYMPTOMS;
+}
+
+export function getFilteredChecked(technique: string): string[] {
+  return technique.trim() ? (CHECKED_BY_TECHNIQUE[technique] ?? ALL_CHECKED) : ALL_CHECKED;
+}
+
+// ── Techniques that show SST section ─────────────────────────────────────────
+export const SST_TECHNIQUES = new Set(['HPLC', 'UHPLC', 'LCMS', 'PrepLC']);

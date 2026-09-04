@@ -44,7 +44,7 @@ export interface TieredResults {
 
 // ─── V2 Types ────────────────────────────────────────────────────────
 
-import type { EvidenceClassification } from '@/lib/types';
+import type { EvidenceClassification, SampleMatrixType } from '@/lib/types';
 
 /** Extended query with additional technical context fields */
 export interface RankingQueryV2 extends RankingQuery {
@@ -62,6 +62,20 @@ export interface RankingQueryV2 extends RankingQuery {
   recent_maintenance?: string | null;
   qc_results?: string | null;
   expected_result?: string | null;
+  // V5: System Suitability Test data
+  sst_plates?: number | null;
+  sst_tailing_factor?: number | null;
+  sst_resolution?: number | null;
+  sst_rsd_percent?: number | null;
+  // V5: Sample matrix type
+  sample_matrix_type?: SampleMatrixType | null;
+  // V5: Column tracking
+  column_injection_count?: number | null;
+  // V5: Method transfer mode
+  is_method_transfer?: boolean;
+  source_instrument?: string | null;
+  source_vendor?: string | null;
+  source_model?: string | null;
 }
 
 export interface ScoreBreakdownV2 extends ScoreBreakdown {

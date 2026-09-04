@@ -1,3 +1,5 @@
+// ISR: revalidate every hour (static generation with on-demand revalidation)
+export const revalidate = 3600;
 
 // ── Decorative chromatogram trace for the hero ──────────────────────────────
 function ChromatogramHero() {
@@ -440,7 +442,7 @@ export default function HomePage() {
             HPLC · UHPLC · LCMS · GC · GCMS · IC · CE · SFC · TGA · DSC · FPLC · PrepLC · SPPS · XRD · DLS · Titration · KF · KFO · CD · SEM · Sputter · BET · SEC-MALS · TEM · Raman · ssNMR · NMR · Rule-based diagnostics
           </span>
           <span style={{ fontSize: '.8125rem', color: 'rgba(255,255,255,.3)' }}>
-            v3.3.1 · 27 techniques
+            v5.0.0 · 27 techniques
           </span>
         </div>
       </footer>

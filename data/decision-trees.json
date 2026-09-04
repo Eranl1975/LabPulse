@@ -1,0 +1,275 @@
+{
+  "hplc-peak-tailing": {
+    "title": "HPLC Peak Tailing Troubleshooting",
+    "nodes": {
+      "start": {
+        "id": "start",
+        "question": "Is the tailing observed on all peaks or only specific analytes?",
+        "options": [
+          { "label": "All peaks", "next": "all-peaks" },
+          { "label": "Specific analytes only", "next": "specific-analytes" }
+        ]
+      },
+      "all-peaks": {
+        "id": "all-peaks",
+        "question": "Has the column been used for more than 500 injections or exposed to extreme pH?",
+        "options": [
+          { "label": "Yes, column is old or pH-stressed", "next": "column-degraded" },
+          { "label": "No, column is relatively new", "next": "dead-volume" }
+        ]
+      },
+      "specific-analytes": {
+        "id": "specific-analytes",
+        "question": "Are the tailing analytes basic compounds (amines, N-heterocycles)?",
+        "options": [
+          { "label": "Yes, basic compounds", "next": "secondary-interactions" },
+          { "label": "No, neutral or acidic", "next": "overload-check" }
+        ]
+      },
+      "column-degraded": {
+        "id": "column-degraded",
+        "recommendation": "Column stationary phase is likely degraded. Replace the column. If using non-endcapped C18, switch to a base-deactivated or endcapped column. Verify with a column test mix before running samples."
+      },
+      "dead-volume": {
+        "id": "dead-volume",
+        "question": "Do you see tailing that improves when you reduce tubing length or replace fittings?",
+        "options": [
+          { "label": "Yes, fittings/tubing help", "next": "fix-dead-volume" },
+          { "label": "No change", "next": "column-degraded" }
+        ]
+      },
+      "fix-dead-volume": {
+        "id": "fix-dead-volume",
+        "recommendation": "Extra-column dead volume is causing band broadening and tailing. Replace or re-cut tubing connections, ensure all fittings are finger-tight plus 1/4 turn, and use zero-dead-volume unions. Check the detector flow cell for blockages."
+      },
+      "secondary-interactions": {
+        "id": "secondary-interactions",
+        "recommendation": "Basic analytes are experiencing secondary silanol interactions. Add 0.1% TFA or 10-20 mM ammonium formate to the mobile phase, or switch to a column with superior base deactivation (e.g., Waters BEH C18, Agilent Poroshell HPH). Operating at lower pH (2.0-3.0) protonates silanols and reduces tailing."
+      },
+      "overload-check": {
+        "id": "overload-check",
+        "recommendation": "Tailing on neutral/acidic analytes with a new column suggests mass or volume overload. Reduce injection volume by 50% and/or dilute the sample. If tailing persists, check for in-column precipitation by flushing with strong solvent."
+      }
+    }
+  },
+  "hplc-rt-shift": {
+    "title": "HPLC Retention Time Shift Troubleshooting",
+    "nodes": {
+      "start": {
+        "id": "start",
+        "question": "Is the retention time shift gradual (over days/weeks) or sudden?",
+        "options": [
+          { "label": "Gradual drift", "next": "gradual" },
+          { "label": "Sudden shift", "next": "sudden" }
+        ]
+      },
+      "gradual": {
+        "id": "gradual",
+        "question": "Is the column temperature controlled and stable within +/- 0.5 C?",
+        "options": [
+          { "label": "Temperature is unstable or uncontrolled", "next": "temp-fix" },
+          { "label": "Temperature is stable", "next": "mobile-phase-age" }
+        ]
+      },
+      "sudden": {
+        "id": "sudden",
+        "question": "Was any system component recently changed (column, mobile phase, pump seal, tubing)?",
+        "options": [
+          { "label": "Yes, something was changed", "next": "component-check" },
+          { "label": "No recent changes", "next": "air-bubble" }
+        ]
+      },
+      "temp-fix": {
+        "id": "temp-fix",
+        "recommendation": "Temperature fluctuations directly affect retention. Enable the column thermostat and set to 30-40 C. A 1 C change typically causes 1-2% retention time shift for reversed-phase HPLC. Allow 30 min equilibration after temperature changes."
+      },
+      "mobile-phase-age": {
+        "id": "mobile-phase-age",
+        "question": "Is the mobile phase more than 48 hours old or made from a different reagent lot?",
+        "options": [
+          { "label": "Yes, old or different lot", "next": "fresh-mobile-phase" },
+          { "label": "No, freshly prepared same lot", "next": "column-equilibration" }
+        ]
+      },
+      "fresh-mobile-phase": {
+        "id": "fresh-mobile-phase",
+        "recommendation": "Mobile phase degradation or lot-to-lot variation is the likely cause. Prepare fresh mobile phase from the same reagent lots. For buffered systems, verify pH with a calibrated meter. Volatile buffers (ammonium formate/acetate) evaporate over time, shifting pH and retention."
+      },
+      "column-equilibration": {
+        "id": "column-equilibration",
+        "recommendation": "The column may not be fully equilibrated. Flush with 20-30 column volumes of mobile phase before starting the sequence. For ion-pair or HILIC methods, equilibration may require 50-100 column volumes. Monitor baseline and retention of a standard to confirm stability."
+      },
+      "component-check": {
+        "id": "component-check",
+        "recommendation": "A changed component introduced the shift. Verify: (1) correct column installed (check serial number), (2) mobile phase composition matches method, (3) no leaks at new fittings, (4) pump delivering accurate flow (collect 1 min output in a graduated cylinder). Revert to the last known-good configuration to isolate the variable."
+      },
+      "air-bubble": {
+        "id": "air-bubble",
+        "recommendation": "An air bubble in the pump head or mixer can cause sudden RT shifts with flow instability. Purge all channels at 5 mL/min for 5 minutes. Check the purge valve, inlet filters, and solvent reservoir levels. Degas solvents thoroughly (inline degasser or helium sparging)."
+      }
+    }
+  },
+  "lcms-sensitivity-loss": {
+    "title": "LC-MS Sensitivity Loss Troubleshooting",
+    "nodes": {
+      "start": {
+        "id": "start",
+        "question": "Is sensitivity loss observed for all compounds or only specific analytes?",
+        "options": [
+          { "label": "All compounds affected", "next": "global-loss" },
+          { "label": "Only specific analytes", "next": "specific-loss" }
+        ]
+      },
+      "global-loss": {
+        "id": "global-loss",
+        "question": "When was the ion source last cleaned?",
+        "options": [
+          { "label": "More than 2 weeks / unknown", "next": "source-contamination" },
+          { "label": "Recently cleaned (< 1 week)", "next": "spray-check" }
+        ]
+      },
+      "specific-loss": {
+        "id": "specific-loss",
+        "question": "Are the affected analytes thermally labile or have they been stored for extended time?",
+        "options": [
+          { "label": "Yes, labile or old standards", "next": "standard-degradation" },
+          { "label": "No, stable compounds with fresh standards", "next": "ion-suppression" }
+        ]
+      },
+      "source-contamination": {
+        "id": "source-contamination",
+        "recommendation": "Source contamination is the most common cause of global sensitivity loss. Remove and clean the ESI/APCI source: sonicate capillary, skimmer/cone, and spray shield in 50:50 MeOH:H2O then 100% isopropanol. For stubborn deposits, use 1% formic acid soak. Inspect and replace the nebulizer needle if corroded."
+      },
+      "spray-check": {
+        "id": "spray-check",
+        "question": "Is the spray stable and visible? Check spray chamber for liquid pooling or erratic spray.",
+        "options": [
+          { "label": "Spray is unstable or absent", "next": "spray-fix" },
+          { "label": "Spray looks normal", "next": "detector-check" }
+        ]
+      },
+      "spray-fix": {
+        "id": "spray-fix",
+        "recommendation": "Unstable or absent spray indicates: (1) blocked nebulizer -- remove and sonicate or replace needle, (2) incorrect gas pressures -- verify nebulizer gas 30-60 psi and drying gas 8-12 L/min, (3) capillary voltage incorrect -- verify 2500-4500 V for ESI. Also check for leaks in LC connections before the source."
+      },
+      "detector-check": {
+        "id": "detector-check",
+        "recommendation": "If source is clean and spray is stable, the electron multiplier (EM) may be nearing end of life. Run an autotune/calibration and check EM voltage. If EM voltage is >300 V above nominal, the detector gain is failing. Contact service for EM replacement. Also verify vacuum pressures are within specification."
+      },
+      "standard-degradation": {
+        "id": "standard-degradation",
+        "recommendation": "Prepare fresh calibration standards from primary stock. Store light-sensitive compounds in amber vials. For thermally labile analytes, keep standards at -20 C and minimize freeze-thaw cycles. Compare response of fresh vs. old standard to confirm degradation as root cause."
+      },
+      "ion-suppression": {
+        "id": "ion-suppression",
+        "question": "Does the analyte co-elute with matrix components or early-eluting salts?",
+        "options": [
+          { "label": "Yes, co-elution is likely", "next": "fix-ion-suppression" },
+          { "label": "No, analyte is well-resolved", "next": "standard-degradation" }
+        ]
+      },
+      "fix-ion-suppression": {
+        "id": "fix-ion-suppression",
+        "recommendation": "Ion suppression from co-eluting matrix components. Remedies: (1) improve chromatographic separation -- use longer gradient or different selectivity column, (2) add a sample cleanup step (SPE, protein precipitation, liquid-liquid extraction), (3) use post-column infusion experiment to map suppression regions, (4) switch polarity or ionization mode if possible, (5) add a stable isotope-labeled internal standard for accurate quantitation despite suppression."
+      }
+    }
+  },
+  "gc-ghost-peaks": {
+    "title": "GC Ghost Peaks Troubleshooting",
+    "nodes": {
+      "start": {
+        "id": "start",
+        "question": "Do ghost peaks appear in blank injections (no sample)?",
+        "options": [
+          { "label": "Yes, present in blanks", "next": "contamination-source" },
+          { "label": "No, only with samples", "next": "carryover" }
+        ]
+      },
+      "contamination-source": {
+        "id": "contamination-source",
+        "question": "Do the ghost peaks persist after baking out the column (ramp to max temp, hold 30 min)?",
+        "options": [
+          { "label": "Yes, still present after bakeout", "next": "inlet-contamination" },
+          { "label": "No, bakeout eliminated them", "next": "column-bleed" }
+        ]
+      },
+      "carryover": {
+        "id": "carryover",
+        "question": "Do the ghost peaks correspond to analytes from the previous injection?",
+        "options": [
+          { "label": "Yes, same retention times", "next": "fix-carryover" },
+          { "label": "No, different peaks", "next": "contamination-source" }
+        ]
+      },
+      "inlet-contamination": {
+        "id": "inlet-contamination",
+        "recommendation": "The inlet is contaminated. Replace the inlet liner and O-ring. Clean or replace the gold seal. If using a split/splitless inlet, check for nonvolatile residue buildup. For persistent contamination, disconnect the column from the inlet and run a blank -- if peaks disappear, the column itself is contaminated and may need trimming (cut 0.5-1 m from the inlet end) or replacement."
+      },
+      "column-bleed": {
+        "id": "column-bleed",
+        "recommendation": "The column had accumulated semi-volatile contaminants that were released during bakeout. Condition the column at 10-20 C below max temp for 1-2 hours before analytical runs. Avoid exposing the column to oxygen at high temperatures (check carrier gas for leaks). If column bleed baseline is elevated, the stationary phase may be degrading -- check column age and history."
+      },
+      "fix-carryover": {
+        "id": "fix-carryover",
+        "recommendation": "Sample carryover from the previous injection. Solutions: (1) increase the number of solvent washes between injections (3-5 washes), (2) use a stronger wash solvent, (3) replace the syringe needle and plunger, (4) increase inlet temperature by 10-20 C to improve vaporization, (5) run a solvent blank between high-concentration and low-concentration samples."
+      }
+    }
+  },
+  "hplc-high-backpressure": {
+    "title": "HPLC High Backpressure Troubleshooting",
+    "nodes": {
+      "start": {
+        "id": "start",
+        "question": "Did the high backpressure develop gradually or appear suddenly?",
+        "options": [
+          { "label": "Gradual increase over time", "next": "gradual-increase" },
+          { "label": "Sudden spike", "next": "sudden-spike" }
+        ]
+      },
+      "gradual-increase": {
+        "id": "gradual-increase",
+        "question": "Does pressure drop significantly when you remove the column and connect tubing directly?",
+        "options": [
+          { "label": "Yes, pressure drops (column is the source)", "next": "column-blockage" },
+          { "label": "No, pressure stays high without column", "next": "system-blockage" }
+        ]
+      },
+      "sudden-spike": {
+        "id": "sudden-spike",
+        "question": "Was the mobile phase recently changed or was a precipitate-prone buffer used?",
+        "options": [
+          { "label": "Yes, recent MP change or buffer issue", "next": "precipitation" },
+          { "label": "No, same mobile phase", "next": "blockage-location" }
+        ]
+      },
+      "column-blockage": {
+        "id": "column-blockage",
+        "question": "Is the column frit visibly discolored or does backflushing reduce pressure?",
+        "options": [
+          { "label": "Yes, frit is dirty / backflush helps", "next": "frit-fix" },
+          { "label": "No improvement with backflush", "next": "column-replace" }
+        ]
+      },
+      "system-blockage": {
+        "id": "system-blockage",
+        "recommendation": "The blockage is in the system plumbing, not the column. Systematically disconnect components from detector back to pump: (1) remove detector flow cell connection, (2) remove post-column tubing, (3) remove pre-column tubing. At each step check pressure to isolate the blocked segment. Common culprits: inline filter, mixer frits, or kinked tubing. Replace the blocked component."
+      },
+      "precipitation": {
+        "id": "precipitation",
+        "recommendation": "Buffer or mobile phase precipitation has blocked the system. Never mix high-concentration phosphate buffer with >60% organic. Flush entire system with warm water (40 C) at low flow (0.2 mL/min), then 50:50 MeOH:H2O. For phosphate precipitates in the column, reverse-flush with water. Prevent recurrence by using soluble buffers (ammonium formate/acetate) or ensuring miscibility at all gradient compositions."
+      },
+      "blockage-location": {
+        "id": "blockage-location",
+        "recommendation": "A sudden blockage with unchanged mobile phase suggests: (1) particulate contamination from a sample -- install a guard column or inline filter, (2) a failed pump check valve (pressure fluctuations + high pressure), (3) a kinked or crushed capillary tube. Disconnect and test each segment systematically. For check valve issues, sonicate valves in isopropanol or replace."
+      },
+      "frit-fix": {
+        "id": "frit-fix",
+        "recommendation": "The column inlet frit is partially blocked with particulates. If replaceable, swap the frit. Otherwise, backflush the column with 100% organic at low flow (0.2 mL/min) for 30 min. Install a guard column (same chemistry, 5-10 mm) upstream to protect the analytical column. Always filter samples through 0.2-0.45 um filters before injection."
+      },
+      "column-replace": {
+        "id": "column-replace",
+        "recommendation": "The column is irreversibly blocked, likely due to accumulated particulates or irreversibly adsorbed matrix deep in the bed. Replace the column. To prevent recurrence: (1) always use guard columns, (2) filter all samples and mobile phases through 0.2 um filters, (3) avoid injecting crude biological matrices without cleanup, (4) store columns in recommended storage solvent when not in use."
+      }
+    }
+  }
+}

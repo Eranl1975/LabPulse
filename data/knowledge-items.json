@@ -968,26 +968,30 @@
       "auxiliary cryogenic cooling system failure: LN2 or CO2 solenoid valve not opening"
     ],
     "diagnostics": [
-      "listen for cooling fan operation immediately after oven cycle ends — no fan noise indicates fan failure",
-      "inspect rear oven vent outlet for blockage; check for detectable airflow with hand near exhaust",
-      "compare actual cool-down time against instrument specification (typical: 300°C to 50°C in 10–15 min)",
-      "check instrument diagnostic menu or front-panel display for oven temperature sensor error codes",
-      "verify ambient laboratory temperature is ≤ 30°C — high ambient significantly slows cooling",
-      "for cryogenic cooling: check LN2 or CO2 supply pressure and listen for solenoid valve actuation"
+      "Listen for cooling fan operation immediately after oven cycle ends — no fan noise indicates fan failure; partial fan noise (grinding, intermittent) indicates bearing wear requiring replacement before complete failure",
+      "Inspect rear oven vent outlet for blockage: check for detectable airflow with hand near exhaust — lint, dust, and paper towel fragments commonly accumulate on exhaust screens in shared lab environments",
+      "Compare actual cool-down time against instrument specification (typical: 300 °C to 50 °C in 10–15 min) — log cool-down time monthly as part of preventive maintenance to detect gradual fan degradation",
+      "Check instrument diagnostic menu or front-panel display for oven temperature sensor error codes — Agilent 8890/7890: navigate to Maintenance > Diagnostics > Oven; Shimadzu 2030: navigate to System Monitor > Oven Status",
+      "Verify ambient laboratory temperature is ≤ 30 °C — high ambient (> 30 °C) can double cool-down time; measure at instrument exhaust level, not at thermostat across the room",
+      "For cryogenic cooling: check LN2 or CO2 supply pressure and listen for solenoid valve actuation during cool-down — LN2 Dewar pressure should be 3–5 psig; CO2 cylinder regulator should read 60 psig delivery",
+      "Open oven door manually and check if cool-down accelerates compared to normal fan-assisted cooling — if manual door opening cools faster, the oven vent flap mechanism may be mechanically stuck closed",
+      "Measure voltage at fan motor terminals during cool-down cycle with a multimeter — 0 V indicates controller not sending cool signal; correct voltage with no rotation confirms motor failure"
     ],
     "corrective_actions": [
-      "replace oven cooling fan if no airflow detected at exhaust vent; consult Agilent/Shimadzu/Thermo Fisher service manual for part number",
-      "clear oven vent blockage: remove back panel and clean vent duct with compressed air or soft brush",
-      "improve lab ventilation or reduce ambient temperature to below 30°C; relocate instrument away from heat sources",
-      "run instrument self-diagnostics from front panel or data system (Chemstation, OpenLAB, LabSolutions) to retrieve controller error codes",
-      "call service engineer if temperature controller error persists after power cycle — may require PID recalibration or board replacement",
-      "for LN2/CO2 cooling: verify solenoid valve opens during cool-down cycle; replace valve if stuck closed"
+      "Replace oven cooling fan if no airflow detected at exhaust vent — consult Agilent/Shimadzu/Thermo Fisher service manual for OEM part number; aftermarket fans may have incorrect airflow direction or RPM",
+      "Clear oven vent blockage: remove back panel and clean vent duct with compressed air or soft brush — schedule quarterly cleaning as preventive maintenance in high-particulate lab environments",
+      "Improve lab ventilation or reduce ambient temperature to below 30 °C; relocate instrument away from heat sources (other ovens, autoclaves, windows with direct sunlight)",
+      "Run instrument self-diagnostics from front panel or data system (ChemStation, OpenLAB, LabSolutions) to retrieve controller error codes — document codes before calling service",
+      "Call service engineer if temperature controller error persists after power cycle — may require PID recalibration or controller board replacement; do not attempt board-level repair",
+      "For LN2/CO2 cooling: verify solenoid valve opens during cool-down cycle; replace valve if stuck closed — label the replacement date on the valve body for maintenance tracking",
+      "Verify oven vent flap mechanism moves freely: manually actuate the flap linkage with oven off and cool — lubricate pivot points with high-temperature silicone grease if stiff"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "oven temperature does not decrease below 100°C within 30 min of program end — severe cooling failure",
-      "instrument reports oven temperature sensor fault or hardware error on front panel display",
-      "oven fan replacement does not restore normal cooling — internal duct or controller fault requires service engineer"
+      "Oven temperature does not decrease below 100 °C within 30 min of program end — severe cooling failure; halt all GC runs until resolved",
+      "Instrument reports oven temperature sensor fault or hardware error on front panel display — do not override; contact service",
+      "Oven fan replacement does not restore normal cooling — internal duct or controller fault requires service engineer",
+      "SAFETY: Never reach into a hot GC oven (> 50 °C) to inspect fan or ductwork — severe burn hazard; always wait for complete cool-down and verify temperature on display before opening oven door"
     ],
     "source_id": "agilent-8890-gc-user-guide",
     "confidence_score": 0.92,
@@ -1009,23 +1013,29 @@
       "power supply fluctuation or ground fault affecting the heater control circuit"
     ],
     "diagnostics": [
-      "run isothermal method and log temperature vs. time — normal deviation is ± 0.1°C; overshoot > 2°C indicates PID issue",
-      "verify oven temperature against external calibrated thermocouple placed inside oven",
-      "run oven temperature ramp and compare setpoint vs. actual temperature trace in instrument software",
-      "inspect oven door seal and insulation panels for visible damage, gaps, or deformation",
-      "check instrument error log for heater fault codes or temperature sensor alarms"
+      "Run isothermal method at 100 °C, 200 °C, and 300 °C and log temperature vs. time for 30 min at each — normal deviation is ±0.1 °C; overshoot > 2 °C indicates PID tuning issue; cycling (oscillation) indicates controller instability",
+      "Verify oven temperature against external calibrated thermocouple placed inside oven at column level — deviation > 1 °C from display indicates sensor drift; deviation > 3 °C requires sensor replacement",
+      "Run oven temperature ramp (10 °C/min from 50 °C to 300 °C) and compare setpoint vs. actual temperature trace in instrument software — lag > 5 °C during ramp indicates heater capacity issue",
+      "Inspect oven door seal and insulation panels for visible damage, gaps, or deformation — hold a tissue near the door seal during isothermal operation; movement indicates air leak affecting temperature control",
+      "Check instrument error log for heater fault codes or temperature sensor alarms — Agilent error 'oven temperature not reached' codes distinguish heater failure from sensor failure",
+      "Monitor retention time precision of a test compound over 10 injections: RT RSD > 0.5% correlates with oven temperature instability even when the display appears stable",
+      "Check oven air circulation fan (internal) for correct operation — some GCs have a separate internal circulation fan that distributes heat evenly; failure causes temperature gradients across the oven",
+      "Verify the GC is on a stable electrical circuit: use a voltmeter to check line voltage during oven heating — voltage drops > 5% during ramp indicate shared circuit with high-power equipment (centrifuges, autoclaves)"
     ],
     "corrective_actions": [
-      "run oven PID autotune procedure from instrument diagnostics menu (Agilent: Maintenance > Oven Calibration)",
-      "replace oven temperature sensor if external thermocouple comparison shows deviation > 2°C",
-      "replace oven door seal and insulation panels if heat loss is confirmed by thermal inspection",
-      "verify and stabilise laboratory power supply; use a dedicated circuit for the GC system",
-      "contact service engineer if heater element failure is confirmed — requires oven disassembly"
+      "Run oven PID autotune procedure from instrument diagnostics menu: Agilent 8890/7890: Maintenance > Oven Calibration; Shimadzu 2030: Parameter > System > Oven PID; allow 1 hour for full autotune cycle",
+      "Replace oven temperature sensor if external thermocouple comparison shows deviation > 2 °C — use manufacturer OEM sensor to ensure correct thermal response characteristics",
+      "Replace oven door seal and insulation panels if heat loss is confirmed — check seal compression by closing door on a piece of paper; if paper slides out easily, seal is worn",
+      "Verify and stabilise laboratory power supply: use a dedicated 20 A circuit for the GC system; install a UPS or voltage regulator if power fluctuations are frequent",
+      "Contact service engineer if heater element failure is confirmed — requires oven disassembly; do not attempt heater replacement without manufacturer training",
+      "For temperature gradients within the oven: verify that the internal circulation fan is operational and that column is installed symmetrically on the column hanger — asymmetric column installation creates localized temperature differences",
+      "After any oven service (sensor, heater, seal replacement), re-run the PID autotune procedure and verify temperature accuracy at 3 points before resuming analytical work"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "oven temperature deviation > 5°C from setpoint after PID autotune — hardware fault requiring service",
-      "temperature sensor replacement does not resolve oscillation — heater or controller board failure"
+      "Oven temperature deviation > 5 °C from setpoint after PID autotune — hardware fault requiring service engineer",
+      "Temperature sensor replacement does not resolve oscillation — heater or controller board failure",
+      "SAFETY: Oven heater operates at mains voltage — never open the oven electrical panel or attempt heater replacement unless the instrument is powered off, unplugged, and cooled; qualified service personnel only"
     ],
     "source_id": "agilent-8890-gc-user-guide",
     "confidence_score": 0.88,
@@ -1046,21 +1056,29 @@
       "solvent with high boiling point causing flooding and residue deposition in liner"
     ],
     "diagnostics": [
-      "visually inspect liner under magnification for brown discolouration, deposits, or char",
-      "run a solvent blank injection and compare background chromatogram against reference blank",
-      "trim 15–30 cm from column inlet and rerun blank — improvement confirms column inlet contamination",
-      "check if ghost peaks have consistent elution temperatures matching septum bleed profile"
+      "Visually inspect liner under magnification for brown discolouration, deposits, or char — a clean deactivated liner is translucent; any visible residue indicates contamination from non-volatile sample matrix",
+      "Run a solvent blank injection and compare background chromatogram against reference blank — new peaks indicate contamination source; consistent peaks at known RT suggest septum or liner origin",
+      "Trim 15–30 cm from column inlet and rerun blank — improvement confirms column inlet contamination from accumulated non-volatile matrix residue deposited by repeated injections",
+      "Check if ghost peaks have consistent elution temperatures matching septum bleed profile: common septum fragments appear as siloxane peaks at characteristic temperatures — compare mass spectrum to septum bleed library",
+      "Run blank injection with a new syringe: if ghost peaks disappear, the syringe is contaminated — residual high-boiling analytes on the plunger or barrel cause persistent carryover",
+      "Compare chromatogram with and without liner: remove liner and inject through open inlet — if ghost peaks disappear, liner is the contamination source",
+      "Check carrier gas purity: verify gas trap indicators (moisture and oxygen traps) — exhausted traps allow impurities that produce background peaks and accelerate column degradation",
+      "Monitor detector baseline stability alongside ghost peaks: FID baseline drift concurrent with ghost peaks suggests detector contamination (jet or collector) in addition to inlet contamination"
     ],
     "corrective_actions": [
-      "replace inlet liner and septum; use deactivated liners for trace-level analyses",
-      "bake column at 10°C below maximum rated temperature for 30–60 min under carrier gas flow",
-      "trim 15–30 cm from column inlet to remove contaminated section",
-      "switch to low-bleed septum (Merlin Microseal or equivalent) if septum bleed is confirmed"
+      "Replace inlet liner and septum with fresh deactivated components: use single-taper liner with glass wool for splitless injection, split liner for split injection — condition new liner at inlet temperature for 30 min before sample injection",
+      "Bake column at 10 °C below maximum rated temperature for 30–60 min under carrier gas flow — this drives off accumulated semi-volatile contaminants from the column stationary phase",
+      "Trim 15–30 cm from column inlet to remove contaminated section — use a ceramic scoring wafer to make a clean, square cut; verify cut quality under magnification before reinstalling",
+      "Switch to low-bleed septum (Merlin Microseal, Agilent Advanced Green septum, or equivalent) if septum bleed is confirmed — these septa have significantly lower bleed than standard septa",
+      "Clean the inlet body: remove liner, wipe interior with lint-free tissue soaked in methanol, replace inlet O-ring if discolored or hardened — apply thin film of high-temperature grease to new O-ring",
+      "Replace carrier gas traps (moisture, oxygen, hydrocarbon) if indicator shows exhaustion — document trap replacement date in instrument logbook",
+      "For FID ghost peaks accompanied by unstable baseline: clean FID jet with fine wire (0.3 mm) and collector with acetone-wetted lint-free swab — ensure jet orifice is clear before relighting"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "ghost peaks persist after full inlet maintenance and column bakeout — possible column damage or core contamination",
-      "sensitivity loss > 50% after inlet maintenance — detector or column end-of-life"
+      "Ghost peaks persist after full inlet maintenance, column trim, and column bakeout — possible core contamination or column degradation requiring column replacement",
+      "Sensitivity loss > 50% after inlet maintenance — detector contamination or column end-of-life",
+      "SAFETY: GC inlet operates at 150–350 °C — always wait for inlet to cool below 50 °C before removing liner or septum; use heat-resistant gloves and tweezers when handling hot components"
     ],
     "source_id": "restek-gc-troubleshooting-guide",
     "confidence_score": 0.87,
@@ -1128,23 +1146,29 @@
       "column overloading — sample mass exceeds linear capacity causing asymmetric peak distortion"
     ],
     "diagnostics": [
-      "measure tailing factor using a low-concentration standard injection (< 1 µg on-column)",
-      "inject progressively smaller sample volumes — if tailing improves with dilution, column is overloaded",
-      "check all connection fittings for dead volume; measure from injector to detector with unretained marker",
-      "add 0.1% formic acid or 10 mM ammonium formate to mobile phase — silanophilic tailing improves with mobile-phase additives",
-      "run unretained marker (uracil) — broad or tailing void peak indicates dead volume at column inlet"
+      "Measure tailing factor using a low-concentration standard injection (< 1 µg on-column): calculate As = W0.05 / (2 × f) where W0.05 is peak width at 5% height and f is front half-width — USP tailing factor should be ≤ 2.0",
+      "Inject progressively smaller sample volumes (10 µL, 5 µL, 2 µL, 1 µL) — if tailing improves with dilution, column is overloaded and the issue is thermodynamic, not kinetic",
+      "Check all connection fittings for dead volume: measure extra-column band broadening by injecting uracil with column replaced by zero-dead-volume union — peak width should be < 15 µL at 4σ for HPLC, < 5 µL for UHPLC",
+      "Add 0.1% formic acid or 10 mM ammonium formate to mobile phase and re-inject — silanophilic tailing from acidic silanols specifically affects basic analytes and responds to mobile phase pH or additive changes",
+      "Run unretained marker (uracil at 254 nm) — broad or tailing void peak indicates dead volume at column inlet from worn ferrule or void in column packing",
+      "Check column plate count (N) alongside tailing factor: calculate N = 5.54 × (tR/W1/2)² — plate count decrease > 30% from column certificate value confirms degraded column performance",
+      "Inspect column inlet fitting with magnification: a gap between the tubing end and the column frit creates dead volume that causes tailing of all peaks regardless of chemistry",
+      "Test with a neutral test compound (e.g., naphthalene or toluene): if tailing is absent for neutral compounds but present for basic compounds, the issue is confirmed as silanol interaction"
     ],
     "corrective_actions": [
-      "replace column if void at inlet confirmed (tailing unresponsive to additive and concentration changes)",
-      "add amine modifier to mobile phase (0.1% triethylamine) for basic analytes to reduce silanol interactions",
-      "dilute sample 5–10x; if tailing improves, reduce injection volume or switch to more dilute standard",
-      "re-make all column connections using correct ferrule size; replace worn compression fittings",
-      "switch to an end-capped C18 phase or a column with low silanol activity (e.g., BEH, HSS) for basic analytes"
+      "Replace column if void at inlet confirmed (tailing unresponsive to additive and concentration changes) — verify new column with SST before sample analysis",
+      "Add amine modifier to mobile phase (0.1% triethylamine for isocratic, or 10 mM ammonium formate for LC-MS compatible methods) to suppress basic analyte-silanol interactions",
+      "Dilute sample 5–10×; if tailing improves, reduce injection volume or switch to more dilute standard — also reduce injection solvent strength to match or be weaker than initial mobile phase",
+      "Re-make all column connections using correct ferrule size: ensure tubing bottoms out against the column frit with zero dead volume — use fingertight fittings and verify with a gap gauge if available",
+      "Switch to an end-capped C18 phase or a column with low silanol activity (e.g., Waters BEH C18, Waters HSS T3, Agilent Poroshell EC-C18) for basic analytes",
+      "Lower mobile phase pH to < 3.0 (e.g., 0.1% TFA or 25 mM phosphoric acid) to protonate surface silanols and eliminate electrostatic interaction with basic analytes",
+      "If tailing due to column overload: switch to a higher capacity column (wider bore, larger particle size, or higher carbon loading) or reduce on-column mass"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "tailing factor > 2.5 with small injection volume on a new column — possible column batch defect",
-      "peak tailing prevents meeting USP system suitability tailing factor requirement (≤ 2.0)"
+      "Tailing factor > 2.5 with small injection volume on a new column — possible column batch defect; contact column manufacturer with batch certificate comparison",
+      "Peak tailing prevents meeting USP system suitability tailing factor requirement (≤ 2.0) — document and escalate to method development for potential method revision",
+      "SAFETY: When using triethylamine as mobile phase additive, ensure adequate fume hood ventilation — TEA is a volatile amine with strong odor and respiratory irritant properties"
     ],
     "source_id": "waters-column-care-guide",
     "confidence_score": 0.87,
@@ -1295,23 +1319,29 @@
       "temperature fluctuation in column compartment affecting conductivity baseline"
     ],
     "diagnostics": [
-      "run blank eluent injection and observe baseline stability over 30 min — drift > 0.1 µS/cm indicates suppressor issue",
-      "check suppressor current and voltage in Chromeleon software — abnormal values indicate suppressor wear",
-      "verify EG cartridge concentration output by measuring eluent conductivity with external meter",
-      "check column equilibration volume — most ICS columns require 10–15 min at 1 mL/min before stable baseline",
-      "monitor column oven temperature stability — should be ± 0.1°C for stable conductivity"
+      "Run blank eluent injection and observe baseline stability over 30 min — drift > 0.1 µS/cm indicates suppressor issue; stable drift in one direction suggests suppressor exhaustion, while oscillating drift suggests temperature fluctuation",
+      "Check suppressor current and voltage in Chromeleon software — abnormal values (current below setpoint or voltage at maximum) indicate suppressor membrane wear or fouling requiring maintenance",
+      "Verify EG cartridge concentration output by measuring eluent conductivity with an external calibrated conductivity meter — expected conductivity for 30 mM KOH is approximately 63 mS/cm; deviation > 5% indicates EG depletion",
+      "Check column equilibration volume — most ICS columns require 10–15 min at 1 mL/min (10–15 mL) before stable baseline; for gradient methods, run 3 blank gradients before sample injection",
+      "Monitor column oven temperature stability — should be ±0.1 °C for stable conductivity baseline; use Chromeleon system monitor to log temperature during blank runs",
+      "Inspect suppressor waste line for continuous flow — blocked waste line causes back-pressure on suppressor membrane, degrading suppression efficiency and increasing baseline noise",
+      "Check eluent deionized water quality: measure resistivity with inline meter — water should be > 18.2 MΩ·cm; dissolved CO2 in water causes carbonate system peak and baseline artifacts",
+      "Run system suitability standard (7-anion standard at 10 ppm each) and compare peak heights and resolution to historical values — degraded suppressor causes broad peaks and reduced sensitivity alongside baseline drift"
     ],
     "corrective_actions": [
-      "regenerate suppressor per Dionex protocol: run deionised water for 30 min at full suppressor current",
-      "replace EG cartridge if eluent concentration deviates > 2% from setpoint",
-      "extend column equilibration time to 20–30 min before beginning sample sequence",
-      "clean suppressor with 5 mM oxalic acid (anion suppressor) per Thermo Fisher ICS maintenance protocol",
-      "recalibrate column oven temperature to ± 0.1°C; avoid placing instrument near air conditioning vents"
+      "Regenerate suppressor per Dionex protocol: run deionised water for 30 min at full suppressor current — for ASRS 300/ASRS 4-mm, set regenerant current to 50–300 mA depending on eluent concentration",
+      "Replace EG cartridge if eluent concentration deviates > 2% from setpoint — note cartridge installation date and expiry; typical lifetime is 12–18 months for standard IC workflows",
+      "Extend column equilibration time to 20–30 min before beginning sample sequence — program equilibration as first step in Chromeleon sequence to automate this",
+      "Clean suppressor with 5 mM oxalic acid flush (anion suppressor) or 100 mM sulfuric acid flush (cation suppressor) per Thermo Fisher ICS maintenance protocol — flush for 20 min at 0.5 mL/min",
+      "Recalibrate column oven temperature to ±0.1 °C; position instrument away from air conditioning vents, windows, and doors — use Chromeleon diagnostics to verify oven temperature log",
+      "Replace suppressor if regeneration and cleaning do not restore baseline stability — ASRS suppressors have finite membrane lifetime (typically 2–3 years under normal use)",
+      "Install fresh deionized water reservoir with CO2 trap (soda lime cartridge on vent) to prevent dissolved CO2 from causing carbonate baseline artifacts"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "baseline drift > 1 µS/cm over 10 min after full suppressor regeneration — suppressor membrane replacement needed",
-      "EG cartridge replacement does not restore eluent concentration — EG module fault, contact Thermo Fisher service"
+      "Baseline drift > 1 µS/cm over 10 min after full suppressor regeneration — suppressor membrane replacement needed",
+      "EG cartridge replacement does not restore eluent concentration — EG module fault; contact Thermo Fisher service",
+      "SAFETY: IC eluent generators use concentrated NaOH/KOH or MSA — wear splash goggles and nitrile gloves when handling or replacing EG cartridges; flush spills with copious water immediately"
     ],
     "source_id": "thermo-dionex-ics-6000-user-guide",
     "confidence_score": 0.87,
@@ -1990,20 +2020,23 @@
       "QDa USB/Ethernet communication failure — detector not receiving acquisition start trigger from MassLynx"
     ],
     "diagnostics": [
-      "Check QDa status in MassLynx Instrument Console — verify green ready indicator and no fault codes",
-      "Infuse 100 ng/mL leucine enkephalin in 50:50 MeOH:0.1% formic acid — expect [M+H]+ at m/z 556.3",
-      "Inspect cone voltage in method Instrument tab — try ramping 10 V → 50 V in 10 V steps by direct infusion",
-      "Visually inspect QDa cone for brown/white deposits; remove cone and examine for fouling",
-      "Confirm mobile phase is MS-compatible: formic acid or ammonium formate/acetate only; no phosphate or involatile salts",
-      "Check acquisition start/stop times and scan range in the MS method file match the analyte window"
+      "Check QDa status in MassLynx Instrument Console — verify green ready indicator and no fault codes; amber or red status requires investigation before analysis can proceed",
+      "Infuse 100 ng/mL leucine enkephalin in 50:50 MeOH:0.1% formic acid — expect [M+H]+ at m/z 556.3 in positive ESI; absence of signal at known m/z confirms hardware or method issue",
+      "Inspect cone voltage in method Instrument tab — try ramping 10 V, 20 V, 30 V, 40 V, 50 V in direct infusion mode and plot signal intensity vs. cone voltage to find optimum for each analyte",
+      "Visually inspect QDa cone for brown/white deposits — remove cone and examine for fouling; even thin protein film can reduce ion transmission by > 80%",
+      "Confirm mobile phase is MS-compatible: formic acid (0.1%) or ammonium formate/acetate (5–10 mM) only; phosphate, borate, or TRIS buffers cause severe source fouling and signal loss within hours",
+      "Check acquisition start/stop times and scan range in the MS method file: ensure the method mass range includes the expected [M+H]+ or [M-H]- ion for the analyte — QDa range is 30–2000 Da",
+      "Verify LC flow rate is within QDa specification: optimal 0.2–0.8 mL/min for standard probe; flow > 1 mL/min overwhelms the source and reduces signal",
+      "Check QDa probe position: the probe must be correctly inserted into the LC flow path — a disconnected or partially inserted probe causes zero MS signal while UV detection remains normal"
     ],
     "corrective_actions": [
-      "Optimise cone voltage by infusion of target analyte: test 10, 20, 30, 40, 50 V and select value giving maximum signal",
-      "Clean QDa cone: remove and wipe with lint-free tissue wetted with 50:50 MeOH:water; allow to air-dry 5 min before reinstalling",
-      "Replace phosphate-based mobile phase with 0.1% formic acid or 10 mM ammonium formate equivalent",
-      "Correct ESI polarity setting in MassLynx method to match analyte ionisation mode",
-      "Restart QDa from MassLynx Console (Restart Detector); power-cycle detector if communication fault persists",
-      "Run QDa System Suitability test using leucine enkephalin standard to confirm baseline mass accuracy and sensitivity"
+      "Optimise cone voltage by infusion of target analyte: test 10–50 V in 10 V steps and select the voltage giving maximum signal — save optimised cone voltage in the MassLynx method",
+      "Clean QDa cone: remove and wipe with lint-free tissue wetted with 50:50 MeOH:water; for stubborn deposits, sonicate cone in 50:50 MeOH:0.1% formic acid for 10 min; allow to air-dry 5 min before reinstalling",
+      "Replace phosphate-based mobile phase with 0.1% formic acid or 10 mM ammonium formate equivalent — re-equilibrate column with new mobile phase for 30 min before analysis",
+      "Correct ESI polarity setting in MassLynx method to match analyte ionisation mode — basic analytes (amines, peptides) typically positive ESI; acidic analytes (carboxylic acids, sulfonates) typically negative ESI",
+      "Restart QDa from MassLynx Console (Restart Detector); if this fails, power-cycle the detector by toggling the front panel switch off → wait 30 s → on → wait for ready status",
+      "Run QDa System Suitability test using leucine enkephalin standard to confirm mass accuracy (m/z 556.3 ± 0.3) and sensitivity meets specification",
+      "If QDa probe was disconnected: reconnect probe, verify flow reaches detector by monitoring baseline current, then run blank injection to confirm normal operation"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -2310,19 +2343,27 @@
       "Wrong file loaded or data processed with sign flip"
     ],
     "diagnostics": [
-      "Measure camphorsulfonic acid (CSA) standard — should show positive band at 290 nm and negative at 192 nm",
-      "Re-measure standard in both cuvette orientations to identify orientation dependence",
-      "Check software polarity setting (Setup > Instrument > Detector Polarity)",
-      "Verify sample identity and chirality by orthogonal method (optical rotation, NMR)"
+      "Measure camphorsulfonic acid (CSA) standard: expect positive band at 290.5 nm (+190 mdeg per mm pathlength per 1 mg/mL) and negative band at 192.5 nm — inverted CSA confirms instrument polarity error",
+      "Re-measure standard in both cuvette orientations (rotate 180° around vertical axis) — if spectrum inverts with rotation, the cuvette is inserted backwards and has a wedge error or is not optically symmetric",
+      "Check software polarity setting: Spectra Manager > Setup > Instrument > Detector Polarity — accidental software inversion produces mirror-image of true spectrum",
+      "Verify sample identity and chirality by orthogonal method: optical rotation (polarimeter), chiral HPLC, or NMR with chiral shift reagent — confirms whether inversion is real or instrumental",
+      "Run known L-amino acid standard (e.g., 0.5 mg/mL L-alanine in water, 0.1 mm cell): expect characteristic negative band at 222 nm — inverted result confirms instrument error",
+      "Check if spectrum inversion is wavelength-dependent: partial inversion in one spectral region but correct in another indicates detector or optical component misalignment, not global polarity error",
+      "Inspect linear polarizer and quarter-wave plate for correct installation orientation after any recent maintenance — incorrect optical element orientation causes systematic polarity inversion",
+      "Compare spectrum to published literature or database spectrum for the same compound — Protein Circular Dichroism Data Bank (PCDDB) provides reference spectra for common proteins"
     ],
     "corrective_actions": [
-      "Rotate cuvette 180° and re-measure to confirm orientation effect",
-      "Validate instrument calibration with CSA standard and correct polarity in software if needed",
-      "Contact JASCO service if polarity inversion persists with correct orientation and CSA passes"
+      "Rotate cuvette 180° and re-measure to confirm orientation effect — mark cuvette with permanent indicator to ensure consistent orientation for all future measurements",
+      "Validate instrument calibration with CSA standard (1 mg/mL in water, 10 mm cell) and correct polarity in software if needed — CSA Δε(290.5 nm) = +2.36, Δε(192.5 nm) = −4.9",
+      "Contact JASCO service if polarity inversion persists with correct orientation and CSA passes — possible photo-elastic modulator (PEM) phase error requiring factory recalibration",
+      "If sample has opposite chirality (confirmed by polarimetry): document the finding and report to the project team — enantiomeric contamination may indicate synthesis or purification failure",
+      "After any calibration correction, re-run the full standard verification suite: CSA, ammonium d-camphorsulfonate, and L-amino acid standard to confirm all wavelength regions are correct",
+      "Document the polarity correction in the instrument logbook with date, operator, and corrective action taken for audit trail compliance"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "CSA standard also shows inverted spectrum — instrument calibration error, contact JASCO service"
+      "CSA standard also shows inverted spectrum — instrument calibration error; contact JASCO service immediately; do not use instrument for sample measurements until resolved",
+      "SAFETY: Xenon lamp housing produces intense UV radiation — never open lamp housing while lamp is energized; UV exposure can cause severe eye damage (photokeratitis)"
     ],
     "source_id": "jasco-j-1500-operation-manual",
     "confidence_score": 0.85,
@@ -2343,20 +2384,28 @@
       "Glycerol at high concentration increases solution viscosity and scatter"
     ],
     "diagnostics": [
-      "Measure buffer-only UV absorbance spectrum — compare against accepted UV cutoffs",
-      "Check HT voltage with buffer blank only — should be < 500 V at measurement wavelengths",
-      "Identify UV cutoff of buffer: chloride 195 nm, phosphate 195 nm, HEPES 240 nm, Tris 220 nm"
+      "Measure buffer-only UV absorbance spectrum from 190–260 nm using a UV-Vis spectrophotometer — absorbance > 1.0 at the target CD measurement wavelength renders CD data unreliable",
+      "Check HT voltage with buffer blank only — should be < 500 V at all measurement wavelengths; HT > 600 V means the buffer absorbs too strongly for reliable CD signal",
+      "Identify UV cutoff of buffer components: chloride 195 nm, phosphate 195 nm, HEPES 240 nm, Tris 220 nm, imidazole 230 nm, DTT 210 nm — compounds absorbing above the target wavelength are problematic",
+      "Test buffer compatibility by measuring HT voltage across the full scan range with buffer in the planned cuvette and pathlength — identify the lowest wavelength where HT < 600 V",
+      "Calculate total buffer absorbance contribution: A = ε × c × l for each buffer component — use published molar absorptivity values to predict HT voltage before running CD experiment",
+      "Compare buffer CD baseline (buffer vs. water) — any non-zero CD signal from the buffer itself will contaminate sample measurements and must be subtracted",
+      "Check for buffer decomposition products: old HEPES, Tris, or DTT solutions develop UV-absorbing degradation products — always use freshly prepared buffers for CD measurements",
+      "Verify water quality: use 18.2 MΩ·cm ultrapure water for buffer preparation — trace organics in lower-grade water contribute UV absorbance in the far-UV region"
     ],
     "corrective_actions": [
-      "Dialyze or buffer-exchange sample into CD-compatible buffer: 10 mM sodium phosphate, 10 mM sodium fluoride, or 10 mM potassium fluoride",
-      "Reduce NaCl concentration below 50 mM; substitute NaF if ionic strength is critical",
-      "Reduce DTT concentration to < 0.5 mM or replace with TCEP (lower UV absorbance)",
-      "Limit glycerol to < 5% for far-UV measurements",
-      "Shorten pathlength (0.1 mm) to reduce absolute buffer absorbance"
+      "Dialyze or buffer-exchange sample into CD-compatible buffer: 10 mM sodium phosphate pH 7.4, 10 mM sodium fluoride — use Amicon Ultra centrifugal filters (10 kDa MWCO) for rapid exchange of protein samples",
+      "Reduce NaCl concentration below 50 mM; substitute NaF if ionic strength is critical — fluoride has negligible UV absorbance down to 190 nm compared to chloride",
+      "Reduce DTT concentration to < 0.5 mM or replace with TCEP (0.5–1 mM) which has lower UV absorbance — TCEP maintains reducing environment without significant far-UV interference",
+      "Limit glycerol to < 5% (v/v) for far-UV measurements — glycerol both absorbs UV and increases solution viscosity, broadening CD bands",
+      "Shorten pathlength from 10 mm or 1 mm to 0.1 mm or 0.01 mm to reduce absolute buffer absorbance — increase sample concentration proportionally to maintain adequate CD signal amplitude",
+      "For high-salt samples that cannot be buffer-exchanged: perform near-UV CD (250–320 nm) instead of far-UV — near-UV CD reports on aromatic side chain environment and is unaffected by buffer absorbance",
+      "Record buffer-only CD spectrum under identical conditions and subtract from sample spectrum — this corrects for any residual buffer CD contribution and improves data quality"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "Sample cannot be transferred to compatible buffer without denaturation — consider near-UV CD (250–320 nm) instead"
+      "Sample cannot be transferred to compatible buffer without denaturation or loss of activity — consider near-UV CD (250–320 nm) or synchrotron radiation CD (SRCD) which provides higher photon flux for far-UV measurements in absorbing buffers",
+      "SAFETY: Concentrated NaF solutions are toxic — handle with nitrile gloves and safety glasses; fluoride is corrosive to glass — use plastic containers for NaF buffer storage"
     ],
     "source_id": "jasco-cd-spectroscopy-application-note",
     "confidence_score": 0.9,
@@ -2376,19 +2425,28 @@
       "Contamination of lamp optics from improper purge or chemical exposure"
     ],
     "diagnostics": [
-      "Check lamp hour counter in Spectra Manager (Help > About Lamp or File > Lamp Information)",
-      "Measure CSA standard and compare signal magnitude to historical data",
-      "Compare HT voltage at 250 nm with water blank versus historical baseline — HT increase > 50 V indicates lamp aging"
+      "Check lamp hour counter in Spectra Manager (Help > About Lamp or File > Lamp Information) — typical xenon lamp lifetime is 500–1500 hours; note hours and compare to manufacturer replacement threshold",
+      "Measure CSA standard (1 mg/mL in water, 10 mm cell) and compare signal magnitude to historical data — signal intensity decrease > 30% from baseline performance indicates significant lamp degradation",
+      "Compare HT voltage at 250 nm with water blank versus historical baseline — HT increase > 50 V at the same wavelength indicates lamp photon output decrease requiring lamp replacement",
+      "Plot HT voltage at 200 nm monthly to track lamp aging trend — gradual increase is expected; sudden jumps indicate lamp arc instability or impending failure",
+      "Check signal-to-noise ratio by measuring 5 consecutive CSA spectra: calculate S/N as (peak amplitude) / (baseline standard deviation in 320–350 nm region) — S/N < 100:1 for CSA at 290 nm indicates degraded performance",
+      "Verify nitrogen purge is active: check N2 flow meter reading — minimum 4 L/min continuous flow during operation; insufficient purge accelerates lamp window fouling from ozone-generated deposits",
+      "Inspect lamp housing viewing port (if equipped) during operation: arc should be bright, stable, and centered — flickering, wandering, or dim arc indicates imminent lamp failure",
+      "Compare lamp output spectrum shape at 200, 250, and 300 nm using water blank: disproportionate output loss in the far-UV (< 220 nm) vs. near-UV indicates selective window coating from oxidation products"
     ],
     "corrective_actions": [
-      "Replace xenon lamp if hours exceed manufacturer threshold",
-      "Run post-replacement calibration with CSA standard to confirm correct polarity and amplitude",
-      "Ensure nitrogen purge is maintained during lamp operation to extend lamp lifetime",
-      "Contact JASCO service for lamp replacement and optical alignment verification"
+      "Replace xenon lamp if hours exceed manufacturer threshold (typically 1000 h for J-1500) — order Agilent/JASCO OEM lamp to ensure correct arc geometry and spectrum",
+      "Run post-replacement calibration with CSA standard to confirm correct polarity, wavelength accuracy (±1 nm at 290.5 nm), and signal amplitude matches manufacturer specification",
+      "Ensure nitrogen purge is maintained during lamp operation to extend lamp lifetime — N2 purge prevents ozone formation which deposits UV-absorbing film on lamp window and optics",
+      "Contact JASCO service for lamp replacement and optical alignment verification — improper lamp installation can cause misaligned arc position, reducing signal by up to 50%",
+      "After lamp replacement, allow 30 min burn-in before measurements — new lamps require stabilization time for arc position and intensity to settle",
+      "Clean lamp housing window (exterior) with lens tissue and ethanol if accessible — accumulated dust reduces UV transmission, mimicking lamp aging",
+      "Document lamp replacement date, hours at replacement, and post-replacement CSA qualification data in the instrument logbook for trend tracking"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Signal-to-noise ratio does not improve after lamp replacement — optical bench contamination or detector issue, contact JASCO service"
+      "Signal-to-noise ratio does not improve after lamp replacement — optical bench contamination or detector degradation; contact JASCO service for internal optics inspection",
+      "SAFETY: Xenon lamps are under high pressure even when cold — handle with protective gloves and face shield during installation; follow manufacturer disposal procedure for used lamps"
     ],
     "source_id": "jasco-j-1500-operation-manual",
     "confidence_score": 0.83,
@@ -2447,17 +2505,23 @@
       "Bulk insulator material (polymer, ceramic, pharmaceutical excipient)"
     ],
     "diagnostics": [
-      "Reduce accelerating voltage — lower kV reduces charge deposition rate",
-      "Switch from SE to BSE detector — BSE is less sensitive to surface charging",
-      "Observe if bright areas shift or bloom over time — classic charging signature",
-      "Check if sample was sputter coated before loading"
+      "Reduce accelerating voltage from 15 kV to 5 kV and compare: lower kV reduces charge deposition rate into the sample surface — if charging diminishes, the sample needs better conductivity",
+      "Switch from SE to BSE detector — BSE is less sensitive to surface charging because backscattered electrons originate from deeper in the sample where charge buildup is less severe",
+      "Observe if bright areas shift or bloom over time during live imaging — classic charging signature; stable brightness indicates compositional contrast, not charge",
+      "Check if sample was sputter coated before loading — uncoated non-conductive samples always charge; verify coating thickness by examining fracture edge or using profilometer",
+      "Reduce scan speed or use frame integration — fast single-frame scans allow less charge accumulation than slow line-by-line scanning on marginally conductive samples",
+      "Test grounding continuity from sample surface through adhesive to stub: use a multimeter to check resistance from sample surface to stub base — resistance > 10 MΩ indicates poor grounding",
+      "Check for local charging hotspots: high-magnification imaging concentrates beam on a small area, depositing more charge per unit area — try lower magnification to see if charging disappears",
+      "Examine sample edges and protrusions: sharp features concentrate electric field and charge preferentially — these features glow brightest and confirm charging vs. compositional contrast"
     ],
     "corrective_actions": [
-      "Apply gold, gold-palladium, or platinum sputter coating (3–10 nm) before imaging",
-      "Mount sample using carbon adhesive tabs instead of standard double-sided tape",
-      "Reduce accelerating voltage to minimum needed for adequate contrast (e.g., 5 kV for polymers)",
-      "Image in low-vacuum mode if Phenom ProX or XL — environmental mode reduces surface charge",
-      "Ground sample edges to stub with conductive silver paint"
+      "Apply gold, gold-palladium, or platinum sputter coating (3–10 nm thickness) before imaging: Au for general pharmaceutical imaging, Pt for highest resolution, Au-Pd for reduced grain size",
+      "Mount sample using carbon adhesive tabs instead of standard double-sided tape — carbon tape provides conductive path from sample to stub ground",
+      "Reduce accelerating voltage to minimum needed for adequate contrast: 5 kV for polymers and organic crystals, 10–15 kV for inorganic pharmaceutical excipients and metals",
+      "Image in low-vacuum mode if Phenom ProX or XL is available — environmental mode (0.1–1 mbar water vapor) neutralizes surface charge through gas ionization without requiring coating",
+      "Ground sample edges to stub with conductive silver paint — create a conductive bridge from the sample surface to the grounded stub; allow silver paint to dry fully (30 min) before loading",
+      "For beam-sensitive or coating-incompatible samples: use charge-neutralization techniques such as reduced beam current, shorter dwell time, or line-averaging instead of frame-averaging",
+      "Apply carbon coating instead of metal coating when EDS/EDX analysis is planned — metal coating interferes with elemental analysis of the sample surface"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -2519,16 +2583,22 @@
       "Image brightness/contrast settings mis-adjusted in software"
     ],
     "diagnostics": [
-      "Switch between SE and BSE detector modes and compare images",
-      "Increase accelerating voltage (10–15 kV) to improve BSE atomic number contrast",
-      "Check if sample and substrate have similar average atomic number",
-      "Reset image brightness and contrast to auto-optimize"
+      "Switch between SE and BSE detector modes and compare images: SE provides topographic contrast (surface morphology); BSE provides compositional (Z-number) contrast — choose mode based on analytical question",
+      "Increase accelerating voltage from 5 kV to 10–15 kV to improve BSE atomic number contrast — higher kV generates more backscattered electrons from deeper interaction volume, enhancing compositional differences",
+      "Check if sample and substrate have similar average atomic number: pharmaceutical powder (organic, Z ~6–8) on carbon tape (Z = 6) gives minimal BSE contrast — use aluminum stub (Z = 13) instead",
+      "Reset image brightness and contrast to auto-optimize — manual adjustment may have clipped dynamic range; auto-optimize recalculates histogram stretch for optimal contrast distribution",
+      "Try mix-mode imaging if available: combining SE and BSE signals in a weighted overlay can reveal both topographic and compositional features simultaneously",
+      "Use EDS spot analysis on regions of different contrast to confirm whether contrast differences are compositional (different elements) or topographic (surface angle effects)",
+      "Adjust working distance: BSE contrast is maximized at shorter working distance where collection solid angle is largest — try 5–10 mm working distance for maximum BSE signal",
+      "For organic pharmaceutical samples with similar Z: consider chemical staining (RuO4 or OsO4 vapor) to introduce heavy-metal contrast between different polymer or crystal domains"
     ],
     "corrective_actions": [
-      "Use BSD (backscattered electron) detector for atomic number contrast — heavier elements appear brighter",
-      "Mount sample on aluminum stub with carbon tape for better contrast with pharmaceutical materials",
-      "Increase accelerating voltage to 10–15 kV for BSE contrast applications",
-      "Apply manual brightness/contrast correction in Phenom software"
+      "Use BSD (backscattered electron) detector for atomic number contrast — heavier elements appear brighter; ideal for distinguishing API crystals from excipient particles",
+      "Mount sample on aluminum stub (Z = 13) with carbon tape for better contrast with pharmaceutical materials (Z ~6–8) — the Z-difference provides a natural contrast reference",
+      "Increase accelerating voltage to 10–15 kV for BSE contrast applications — note that higher voltage also increases penetration depth, so fine surface features may be lost",
+      "Apply manual brightness/contrast correction in Phenom software: set brightness to center the histogram and contrast to use full dynamic range — save settings for reproducible imaging across samples",
+      "For samples where BSE contrast is insufficient: apply chemical staining with heavy-metal vapor (RuO4 for 5 min or OsO4 for 15 min) to differentially stain polymer phases — perform staining in fume hood",
+      "Use optimized working distance and scan parameters: shorter working distance (5–8 mm) maximizes BSE collection efficiency; slower scan speed improves signal averaging"
     ],
     "severity": "low",
     "escalation_conditions": [
@@ -2661,16 +2731,22 @@
       "Argon inlet valve or MFC malfunction"
     ],
     "diagnostics": [
-      "Check argon gas cylinder pressure and open cylinder valve fully",
-      "Verify chamber pressure on system gauge — should be in 0.03–0.15 mbar range for ignition",
-      "Try increasing target current setpoint slightly during ignition phase",
-      "Check that all chamber connections are leak-free (proper seal after last sample load)"
+      "Check argon gas cylinder pressure and open cylinder valve fully — minimum delivery pressure should be 5–10 psig at the regulator; empty cylinder (< 200 psig tank pressure) will not maintain adequate flow",
+      "Verify chamber pressure on system gauge — should be in 0.03–0.15 mbar range for plasma ignition; too low (< 0.02 mbar) provides insufficient gas density for breakdown, too high (> 0.2 mbar) prevents electron mean free path from reaching ignition threshold",
+      "Try increasing target current setpoint slightly (10–20%) during ignition phase — higher voltage at the target increases electric field, lowering the breakdown threshold for plasma initiation",
+      "Check that all chamber connections are leak-free after last sample load — use helium leak detector if available, or test by applying IPA around O-ring and monitoring pressure gauge for response",
+      "Verify the argon gas line from regulator to sputter coater is not kinked, blocked, or contains moisture from condensation — disconnect and blow through with nitrogen to clear",
+      "Check HV power supply indicator lights: green = ready, amber = standby — if red fault indicator is lit, record the fault code before resetting; repeated faults indicate hardware degradation",
+      "Test by briefly increasing argon pressure to 0.2 mbar during ignition attempt, then reducing to operating pressure after plasma strikes — higher initial pressure facilitates ignition; normal sputtering occurs at lower pressure",
+      "Inspect target-to-anode gap distance: if target was recently changed, verify correct spacer installation — incorrect gap distance changes the electric field geometry needed for plasma initiation"
     ],
     "corrective_actions": [
-      "Replace or open argon gas supply",
-      "Adjust argon inlet needle valve or MFC to achieve correct pressure range",
-      "Pre-clean target with brief high-current pre-sputter",
-      "Contact Denton Vacuum service if power supply fault — do not attempt internal repair"
+      "Replace or open argon gas supply — install a new cylinder and verify delivery pressure at the regulator before attempting ignition",
+      "Adjust argon inlet needle valve or MFC to achieve 0.05–0.1 mbar for ignition — use the higher end of the range initially, then reduce after plasma strikes",
+      "Pre-clean target with brief high-current pre-sputter: set current to 20% above normal, attempt ignition for 30 s — a contaminated target surface may require multiple attempts to break through oxide layer",
+      "Contact Denton Vacuum service if power supply fault is confirmed — do not attempt internal HV power supply repair; high-voltage components present lethal shock hazard",
+      "If gas supply and pressure are confirmed correct: try manual ignition by quickly toggling target current on/off several times in succession — the transient voltage spikes can overcome marginal ignition conditions",
+      "SAFETY: Never operate the sputter coater with the chamber open during HV ignition attempts — the target operates at several hundred volts DC and can cause severe electrical shock"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -2839,16 +2915,22 @@
       "Insufficient equilibration time per pressure point — non-equilibrium adsorption data"
     ],
     "diagnostics": [
-      "Plot full adsorption isotherm — classify as Type I (microporous), II, III, IV, V, or VI",
-      "Test different P/P0 ranges within 0.05–0.35 to find best linear segment",
-      "Check equilibration time setting — minimum 15–30 s per point for many powders",
-      "Check if sample has significant microporosity by comparing BET and Langmuir surface areas"
+      "Plot full adsorption isotherm (0–1 P/P0) to classify as Type I (microporous), II (non-porous/macroporous), III (weak adsorbate-adsorbent), IV (mesoporous), V (mesoporous weak), or VI (stepped) — isotherm shape determines which surface area model is valid",
+      "Test different P/P0 ranges within 0.05–0.35 to find best linear segment — plot BET transform (1/[W(P0/P-1)] vs. P/P0) and identify the region where the plot is strictly linear with positive slope and intercept",
+      "Check equilibration time setting: minimum 15–30 s per point for most pharmaceutical powders — insufficient equilibration causes non-equilibrium data points that scatter around the true isotherm",
+      "Check if sample has significant microporosity by comparing BET and Langmuir surface areas: if Langmuir SA >> BET SA, micropores are filling in the BET P/P0 range, invalidating the BET model",
+      "Apply the Rouquerol consistency criteria: (1) C constant must be positive, (2) n(1-P/P0) must increase monotonically with P/P0, (3) P/P0 corresponding to monolayer capacity should fall within the selected range",
+      "Examine the residuals from BET linear fit: systematic curvature in residuals indicates the selected P/P0 range extends beyond the valid BET region — narrow the range until residuals are random",
+      "Compare multi-point BET (5+ points) with single-point BET (at P/P0 = 0.3): agreement within 5% confirms good model applicability; large discrepancy suggests the isotherm shape deviates from BET assumptions",
+      "For Type IV isotherms (mesoporous): apply BJH pore size analysis in addition to BET surface area — the hysteresis loop provides information about pore geometry and connectivity"
     ],
     "corrective_actions": [
-      "Narrow the P/P0 range to the most linear segment within 0.05–0.35",
-      "For microporous samples, apply Langmuir analysis or t-plot method instead of standard BET",
-      "Increase equilibration time per pressure point in method settings",
-      "Report surface area with appropriate caveats regarding model applicability"
+      "Narrow the P/P0 range to the most linear segment within 0.05–0.35 — typically 5–7 points are sufficient for a reliable multi-point BET analysis; remove outlier points that distort linearity",
+      "For microporous samples, apply Langmuir analysis (Type I isotherms) or use the t-plot method (Harkins-Jura or de Boer) to separate micropore volume from external surface area",
+      "Increase equilibration time per pressure point in method settings: set to 30–60 s for pharmaceutical powders; for very low surface area materials (< 1 m²/g), use 120 s to ensure true equilibrium",
+      "Report surface area with appropriate caveats regarding model applicability — state the P/P0 range used, C constant, R² value, and any deviations from Rouquerol consistency criteria",
+      "For materials with both micro- and mesopores: use DFT (Density Functional Theory) or NLDFT models available in the Gemini software for pore size distribution — these models do not require the BET monolayer assumption",
+      "Validate BET result with independent method: compare to particle size-calculated geometric surface area (SA = 6/ρd for spheres) — BET >> geometric SA indicates significant porosity"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3092,16 +3174,23 @@
       "Reference cell contaminated or not filled with fresh mobile phase"
     ],
     "diagnostics": [
-      "Monitor baseline for 30+ min before injection — drift should be < 1 × 10⁻⁷ RIU/min",
-      "Check column oven and detector temperature stability",
-      "Compare drift with and without pump running"
+      "Monitor baseline for 30+ min before injection — drift should be < 1 × 10⁻⁷ RIU/min; drift > 5 × 10⁻⁷ RIU/min will compromise molecular weight accuracy significantly",
+      "Check column oven and detector temperature stability using system monitoring: RI signal is extremely sensitive to temperature — 0.01 °C change can produce measurable baseline shift",
+      "Compare drift with and without pump running: if drift disappears when pump stops, the issue is flow-related (pump pulsation, mobile phase composition change); if drift persists, it is thermal",
+      "Check if drift correlates with laboratory HVAC cycling: plot RI baseline alongside room temperature recorded by datalogger — periodic drift matching HVAC cycle confirms environmental cause",
+      "Measure RI baseline at two different wavelengths if multi-wavelength RI is available — wavelength-dependent drift indicates solvent composition change; wavelength-independent drift indicates temperature fluctuation",
+      "Verify mobile phase reservoir is sealed to prevent evaporation: differential evaporation of organic component changes refractive index of mobile phase over time, causing progressive baseline drift",
+      "Check for air dissolving into mobile phase during the run: as mobile phase warms from room temperature to column oven temperature, dissolved gas forms microbubbles that scatter light in the RI cell",
+      "Inspect RI cell windows for scratches or deposits by running water baseline and comparing to specification: contaminated windows cause permanent baseline offset and increased noise"
     ],
     "corrective_actions": [
-      "Allow RI detector to equilibrate for minimum 60 min",
-      "Position RI detector away from air vents and drafts",
-      "Use HPLC-grade solvent filtered through 0.2 µm",
-      "Flush reference cell with fresh mobile phase",
-      "Add backpressure regulator to dampen pump pulses"
+      "Allow RI detector to equilibrate for minimum 60 min — connect to mobile phase flow and run at analysis flow rate; some RI detectors (Optilab, OMNISEC) require 90+ min for sub-1e-7 drift",
+      "Position RI detector away from air vents, drafts, windows, and laboratory doors — use a cardboard or foam enclosure around the detector to minimize ambient temperature fluctuation",
+      "Use HPLC-grade solvent filtered through 0.1 µm (not 0.2 µm) for SEC-MALS: larger particles scatter light and create both LS noise and RI artifacts",
+      "Flush reference cell with fresh mobile phase: disconnect reference cell, flush with 20 mL of current mobile phase, then reconnect — stale mobile phase in reference cell causes progressive drift",
+      "Add backpressure regulator (50–75 psi) after the RI detector to keep dissolved gases in solution through the flow cell — prevents micro-bubble formation that causes RI spikes",
+      "Seal mobile phase reservoirs with minimal headspace and use helium sparging or online degassing to prevent dissolved oxygen and CO2 from changing solvent refractive index during long runs",
+      "Clean RI cell windows per manufacturer procedure: flush with 1 M NaOH (30 min), then water (30 min), then mobile phase (30 min) — never use abrasive cleaning on optical-grade windows"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3127,15 +3216,23 @@
       "Sample exposed to elevated temperature during preparation"
     ],
     "diagnostics": [
-      "Compare UV A280 and LS signals for early peak — very high LS/UV ratio indicates aggregates",
-      "Calculate apparent Rg — aggregates show Rg >> expected monomer Rg",
-      "Filter sample through 0.2 µm and compare chromatograms"
+      "Compare UV A280 and LS signals for early peak: very high LS/UV ratio (> 10× that of monomer peak) indicates large aggregates — aggregates scatter light much more intensely per unit mass than monomers",
+      "Calculate apparent Rg (radius of gyration) for the void volume peak using ASTRA or OMNISEC software — aggregates typically show Rg > 50 nm vs. monomer Rg of 2–5 nm for typical antibodies",
+      "Filter sample through 0.2 µm PVDF syringe filter and compare chromatograms: if void peak disappears after filtration, the aggregates are > 200 nm and removable",
+      "Quantify aggregate content as % of total UV peak area: regulatory threshold for biopharmaceuticals is typically < 2% high molecular weight species (HMWS) for clinical material",
+      "Acquire UV spectrum (if DAD available) across the void volume peak: protein aggregates show characteristic 280 nm absorption proportional to aromatic amino acid content; non-protein aggregates show different spectral profile",
+      "Run DLS on unfiltered sample to independently assess particle size distribution: DLS will show the aggregate population that SEC-MALS detects, confirming the size range",
+      "Check sample storage conditions: review temperature, time since thaw, container material, and number of previous freeze-thaw cycles — each factor accelerates aggregation",
+      "Inject at multiple concentrations (0.5, 1, 2, 5 mg/mL) to distinguish concentration-dependent reversible association from irreversible aggregation — reversible association decreases at lower concentration"
     ],
     "corrective_actions": [
-      "Filter sample through 0.2 µm PVDF immediately before injection",
-      "Reduce sample concentration to 1–2 mg/mL",
-      "Optimize formulation buffer pH, ionic strength, or add stabilizers",
-      "Minimize freeze-thaw cycles — use single-use aliquots"
+      "Filter sample through 0.2 µm PVDF immediately before injection — use low-protein-binding membrane (Millex-GV or Pall Acrodisc PVDF) to minimize protein loss during filtration",
+      "Reduce sample concentration to 1–2 mg/mL to minimize concentration-dependent self-association and column overloading effects",
+      "Optimize formulation buffer: adjust pH (±0.5 unit), increase ionic strength (150 mM NaCl), or add stabilizers (0.01% polysorbate 80, 5% sucrose) to reduce aggregation propensity",
+      "Minimize freeze-thaw cycles: aliquot sample into single-use volumes at −80 °C; thaw slowly at 4 °C rather than at room temperature to reduce cold denaturation risk",
+      "If aggregation is time-dependent: prepare fresh sample immediately before injection and compare to stored sample — this establishes whether aggregation is pre-existing or forms during storage",
+      "For critical biopharmaceutical samples: use multiple orthogonal methods (SEC-MALS, AUC, FFF-MALS) to fully characterize the aggregate profile for regulatory submissions",
+      "Implement routine SEC-MALS stability monitoring: track % HMWS over time at 2–8 °C, 25 °C, and 40 °C accelerated conditions to predict product shelf life"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3160,15 +3257,22 @@
       "Software delay volume settings not updated after hardware modification"
     ],
     "diagnostics": [
-      "Overlay LS, RI, UV signals for BSA monomer — peaks should align within 0.001 min",
-      "Check molar mass profile across BSA peak — slope indicates misalignment",
-      "Use Normalize Detectors wizard in ASTRA"
+      "Overlay LS (90°), RI, and UV (280 nm) signals for BSA monomer peak: all three detector peaks should align within 0.001 min (< 1 µL volume difference at 0.5 mL/min) — offset indicates incorrect delay volume in software",
+      "Check molar mass profile across BSA monomer peak: ideal result is flat line at 66.4 kDa; upward slope from left to right indicates LS detector sees peak before RI (LS delay volume too small); downward slope is the reverse",
+      "Use Normalize Detectors wizard in ASTRA: run BSA monomer standard, and ASTRA automatically calculates normalization coefficients and delay volumes for each detector in the array",
+      "Inject narrow polystyrene standard (e.g., 30 kDa PS, PDI < 1.05) as independent verification: narrowly dispersed standards are more sensitive to delay volume errors than BSA",
+      "Check all inter-detector tubing lengths with a ruler: calculate expected delay volume from tubing ID and length — V = π × (ID/2)² × length — compare to software setting",
+      "Run the same BSA standard at two different flow rates (0.3 and 0.7 mL/min): if delay volumes are correctly set in volume units, MW results should be identical at both flow rates",
+      "Verify UV detector wavelength is set correctly: 280 nm for protein at standard concentration; if UV and RI peaks are offset, check whether UV path length matches the RI path through the system",
+      "After column replacement: always re-run delay volume calibration because new column void volume differs from previous column, shifting all peak elution times relative to detector positions"
     ],
     "corrective_actions": [
-      "Run delay volume calibration in ASTRA using BSA monomer",
-      "Re-normalize DAWN detectors using toluene or BSA following normalization procedure",
-      "Record flow path configuration and update in ASTRA method",
-      "After any hardware change, always recalibrate delay volumes"
+      "Run delay volume calibration in ASTRA using BSA monomer (2 mg/mL in PBS, 100 µL injection): ASTRA calculates inter-detector delay volumes automatically from the BSA peak alignment",
+      "Re-normalize DAWN detectors using toluene or BSA following the ASTRA normalization procedure: each detector angle is normalized to the 90° detector signal to correct for angle-dependent scattering",
+      "Record flow path configuration in instrument logbook: document tubing lengths, IDs, and detector order — update ASTRA method file whenever any plumbing change is made",
+      "After any hardware change (column, tubing, detector cell), always recalibrate delay volumes before running samples — incorrect delay volumes propagate directly into MW errors",
+      "Verify calibration by measuring BSA dimer (133 kDa) and monomer (66.4 kDa) peaks: both should report correct MW within ±5% to confirm delay volumes are accurate across the elution profile",
+      "Save calibrated method as a template and use for all subsequent experiments — maintain separate templates for different column/flow rate combinations"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3229,15 +3333,23 @@
       "Cryo samples sublimating due to warm anti-contaminator"
     ],
     "diagnostics": [
-      "Observe sample shrinkage rate — fast shrinkage indicates severe beam damage",
-      "Check spot size and condenser — larger spot = lower current density",
-      "For cryo-TEM: monitor ice quality for devitrification"
+      "Observe sample shrinkage rate by acquiring sequential images at 10-second intervals: fast shrinkage (visible within 30 s) indicates severe beam damage; slow shrinkage may be tolerable for quick imaging",
+      "Check spot size and condenser settings — larger spot = lower current density = less damage per unit area; compare damage rate at spot sizes 3, 5, and 7",
+      "For cryo-TEM: monitor ice quality for devitrification — crystalline ice produces sharp diffraction spots that are absent in vitreous ice; devitrified ice indicates sample warmed above −140 °C",
+      "Acquire electron diffraction pattern before and after imaging: loss of crystalline diffraction spots confirms radiation-induced amorphization of beam-sensitive crystalline materials",
+      "Calculate electron dose: dose (e⁻/Å²) = beam current × exposure time / illuminated area — most biological samples tolerate < 20 e⁻/Å² total dose; pharmaceutical crystals vary widely",
+      "Check for mass loss by monitoring zero-loss peak in EELS (if available) — mass loss manifests as spectral changes in the low-loss region and indicates radiolytic decomposition",
+      "Compare images at same magnification with and without pre-irradiation: if first-exposure image shows intact structure but subsequent images show damage, low-dose imaging is essential",
+      "Monitor for carbon contamination buildup: dark halo around irradiated area indicates hydrocarbon polymerization under beam — plasma clean grid before loading to reduce contamination"
     ],
     "corrective_actions": [
-      "Reduce accelerating voltage (80 kV or lower for organic/biological materials)",
-      "Use low-dose imaging mode — minimize pre-illumination; align on remote area",
-      "Reduce beam current using larger spot size or condenser aperture",
-      "For cryo-TEM: maintain specimen below −170 °C throughout"
+      "Reduce accelerating voltage to 80 kV or lower for organic/biological materials — lower voltage reduces knock-on damage but increases radiolytic damage; find optimal voltage for your sample type",
+      "Use low-dose imaging mode: align and focus on adjacent area (> 3 µm away), then expose target area only during final image acquisition — minimizes cumulative radiation dose",
+      "Reduce beam current using larger spot size or smaller condenser aperture — trade-off is longer exposure time, but total dose per image is reduced",
+      "For cryo-TEM: maintain specimen below −170 °C throughout by keeping anti-contaminator filled with LN2 and minimizing specimen holder transfer time from LN2 to column",
+      "Use direct electron detector (DED) cameras (e.g., Gatan K3, Thermo Fisher Falcon 4) which provide higher DQE, allowing useful images at lower electron dose",
+      "Plasma clean TEM grids before sample application: 30 s H2/O2 plasma removes hydrocarbon contamination that polymerizes under beam, reducing contamination-related artifacts",
+      "For dose-sensitive crystallography: collect diffraction data using automated serial acquisition (MicroED) to distribute dose across many crystals rather than destroying a single crystal"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3263,15 +3375,23 @@
       "Gun tip contaminated and degassing"
     ],
     "diagnostics": [
-      "Monitor vacuum gauges — identify which section (gun, column, projection) is elevated",
-      "Fill anti-contaminator with LN2 and monitor vacuum improvement",
-      "Check ion pump current — below specification indicates pump failure"
+      "Monitor vacuum gauges for each column section: gun (< 1e-8 Torr), column (< 1e-7 Torr), projection (< 1e-6 Torr) — identify which section is elevated to narrow the leak location",
+      "Fill anti-contaminator with LN2 and monitor vacuum improvement over 10 min — if vacuum improves significantly, outgassing species are being cryo-trapped, confirming contamination source",
+      "Check ion pump current reading in TEM software — below specification indicates pump failure; gradual increase over weeks indicates pump aging",
+      "Perform leak check: close all valves, monitor pressure rise rate — a fast rise (> 1e-7 Torr/min) indicates a real leak; slow rise indicates outgassing from contaminated components",
+      "Check specimen airlock sequence: verify that pre-pump and high-vacuum interlocks complete successfully — failed interlock prevents specimen insertion and protects the column from pressure burst",
+      "Inspect O-rings on specimen holder, airlock door, and column ports for damage, debris, or loss of elasticity — a single damaged O-ring can prevent achieving base vacuum",
+      "Monitor roughing pump status: exhaust should be clear and odorless; oil smoke or unusual noise indicates pump service is overdue — degraded roughing pump extends pump-down time significantly",
+      "Check for recent sample types that may have introduced contamination: biological stains (uranyl acetate, OsO4), volatile solvents, or uncured epoxy can outgas for days after a single specimen"
     ],
     "corrective_actions": [
-      "Dry grids in desiccator for 30+ min before loading",
-      "Fill anti-contaminator with fresh LN2 before each session",
-      "Replace airlock O-rings on scheduled maintenance",
-      "Contact Thermo Fisher service for ion pump regeneration or replacement"
+      "Dry grids in desiccator for 30+ min before loading — for negative stain grids, ensure stain is fully dried; residual water from uranyl acetate extends pump-down time by 10–20 min",
+      "Fill anti-contaminator with fresh LN2 before each session — verify LN2 level is adequate for the full session duration (typically 4–6 hour hold time per fill)",
+      "Replace airlock O-rings on scheduled maintenance: every 12 months or whenever damaged — use manufacturer-specified Viton O-rings; clean O-ring grooves with IPA before installing new rings",
+      "Contact Thermo Fisher service for ion pump regeneration (bakeout at 300 °C under turbo pump vacuum) or replacement if current remains low after regeneration",
+      "Perform column bakeout if outgassing contamination is suspected: heat column to 120–150 °C under turbo pump vacuum for 12–24 hours — this removes adsorbed contaminants from pole pieces and apertures",
+      "Clean specimen holder: wipe with ethanol-dampened lint-free tissue, dry with nitrogen, and check O-ring condition before each loading — contaminated holders are a frequent vacuum degradation source",
+      "Maintain roughing pump oil level and change oil every 6–12 months per manufacturer schedule — degraded oil reduces pump ultimate vacuum and extends column pump-down time"
     ],
     "severity": "critical",
     "escalation_conditions": [
@@ -3296,15 +3416,22 @@
       "Cryo holder thermal drift due to fluctuating LN2 supply"
     ],
     "diagnostics": [
-      "Measure drift rate in nm/s using dedicated drift tool",
-      "Pre-irradiate area at lower magnification for 30–60 s before high-mag imaging",
-      "Check for vibration sources in room"
+      "Measure drift rate in nm/s using dedicated drift measurement tool in TEM software — acceptable drift for high-resolution imaging is < 0.5 nm/s; for cryo-EM single particle analysis, drift should be < 1 nm/s during movie acquisition",
+      "Pre-irradiate area at lower magnification for 30–60 s before high-mag imaging — beam-induced local heating causes most drift in the first 30 s; drift rate decreases exponentially as thermal equilibrium is reached",
+      "Check for vibration sources in room: HVAC systems, rotating equipment (centrifuges, compressors), and foot traffic all couple to the TEM through floor vibrations — measure with accelerometer if available",
+      "Acquire two sequential images at the same magnification and cross-correlate to calculate drift vector: consistent direction indicates thermal gradient or holder issue; random direction suggests vibration",
+      "Monitor cryo-holder temperature stability: temperature fluctuation > 1 °C causes thermal expansion drift in the specimen rod — verify LN2 level and dewar thermal contact",
+      "Check that specimen holder is fully inserted and locked: partially seated holders have mechanical play that manifests as drift, especially when stage is tilted",
+      "Assess whether drift is beam-induced by blanking beam for 60 s, then imaging: if drift decreases after blanking, it is thermally driven by beam heating",
+      "Verify anti-vibration table (if installed) is properly leveled and pressurized: air-table systems lose effectiveness if pneumatic pressure drops or if loads are unbalanced"
     ],
     "corrective_actions": [
-      "Allow 15–30 min thermal equilibration after loading",
-      "Pre-irradiate region of interest at low magnification",
-      "Use rapid acquisition (fast camera, short exposures) to outrun drift",
-      "Clean specimen holder and replace O-ring per maintenance schedule"
+      "Allow 15–30 min thermal equilibration after loading specimen before high-magnification imaging — longer equilibration for cryo-holders that require temperature stabilization after LN2 transfer",
+      "Pre-irradiate region of interest at low magnification (2000–5000×) for 30–60 s to thermally stabilize the local area before switching to high magnification",
+      "Use rapid acquisition: short exposure times (< 1 s) or movie mode with dose fractionation and post-acquisition drift correction — drift correction algorithms in software (e.g., MotionCor2) compensate for residual drift",
+      "Clean specimen holder and replace O-ring per maintenance schedule — contaminated or worn O-rings cause outgassing that creates thermal gradients and drives drift",
+      "Isolate TEM from building vibrations: use active damping table, schedule high-resolution sessions during low-traffic hours (evenings/weekends), and request that nearby equipment be turned off during critical sessions",
+      "For cryo-EM: ensure LN2 dewar is filled to appropriate level and thermal braid contact with holder is secure — intermittent thermal contact causes periodic temperature fluctuations and drift"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3329,15 +3456,22 @@
       "Sample holder introducing magnetic field near objective lens"
     ],
     "diagnostics": [
-      "Acquire FFT of amorphous region — elliptical rings confirm astigmatism",
-      "Remove objective aperture and recheck — if astigmatism disappears, aperture is contaminated",
-      "Compare stigmator values to reference after reboot"
+      "Acquire FFT (Fast Fourier Transform) of amorphous region at Scherzer defocus — circular Thon rings confirm correct astigmatism; elliptical rings with > 5% ellipticity confirm significant astigmatism requiring correction",
+      "Remove objective aperture and recheck FFT — if astigmatism disappears with aperture removed, the aperture is contaminated and is the source; if astigmatism persists, it is in the lens system",
+      "Compare current stigmator X/Y values to reference values recorded after last successful alignment — large deviation (> 10% of full range) suggests contamination-driven astigmatism",
+      "Image a standard test specimen (crossed lines grating or gold particles on amorphous carbon) and evaluate directional resolution difference — astigmatism makes features sharp in one direction and blurred 90° away",
+      "Check whether astigmatism is focus-dependent: acquire FFT at multiple defocus values — astigmatism from aperture contamination is approximately constant, while lens astigmatism may vary with current",
+      "Inspect condenser astigmatism separately: expand beam to full screen and check for elliptical illumination — condenser astigmatism is independent of objective astigmatism and has its own stigmator controls",
+      "Test with a different objective aperture from the aperture strip — if a clean aperture resolves the issue, the original aperture needs cleaning or replacement",
+      "For cryo-EM: check that specimen is not tilted on the grid — tilted ice surfaces create apparent astigmatism from defocus gradient across the field of view"
     ],
     "corrective_actions": [
-      "Plasma-clean objective aperture for 60 s and reinsert",
-      "Re-correct astigmatism with stigmators on amorphous carbon film",
-      "Record and save corrected stigmator values",
-      "Contact Thermo Fisher service if pole piece contamination suspected"
+      "Plasma-clean objective aperture for 60 s using H2/O2 or Ar plasma cleaner — removes hydrocarbon contamination that is the most common cause of aperture-induced astigmatism",
+      "Re-correct astigmatism with stigmators on amorphous carbon film: adjust X and Y stigmators iteratively while monitoring FFT until Thon rings are circular — start at 100k× magnification",
+      "Record and save corrected stigmator values in TEM software after successful correction — these values serve as baseline for future sessions and can detect gradual contamination trends",
+      "Contact Thermo Fisher service if pole piece contamination is suspected — pole piece cleaning requires partial column disassembly and is not a user-serviceable operation",
+      "Replace the objective aperture if plasma cleaning does not restore circular Thon rings — apertures degrade over time from beam damage and sputtering",
+      "For persistent astigmatism after all corrections: perform full gun-to-camera alignment including pivot points, beam tilt, and rotation center — consult TEM manufacturer alignment guide"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3463,15 +3597,22 @@
       "CCD temperature not stabilized"
     ],
     "diagnostics": [
-      "Measure silicon wafer (520.7 cm⁻¹) or neon lamp and compare to expected values",
-      "Check if shift is consistent or wavelength-dependent",
-      "Verify laser warm-up time (minimum 30 min)"
+      "Measure silicon wafer (520.7 ± 0.5 cm⁻¹) and compare to expected value: shift > 0.5 cm⁻¹ requires recalibration; note both the absolute position and any asymmetry in the silicon peak shape",
+      "Check if wavenumber shift is consistent across the spectral range or wavelength-dependent: measure silicon (520.7 cm⁻¹), polystyrene (1001.4 cm⁻¹), and naphthalene (1382 cm⁻¹) — consistent offset indicates laser drift; variable offset indicates grating or detector calibration error",
+      "Verify laser warm-up time: minimum 30 min for diode-pumped solid-state lasers, 60 min for gas lasers (He-Ne) — measure silicon peak position at 5, 15, 30, and 60 min to track laser stabilization",
+      "Check CCD temperature: verify thermoelectric cooler is at setpoint (typically −70 °C for CCD) — elevated CCD temperature causes thermal expansion of the detector, shifting apparent peak positions",
+      "Inspect grating for dust or damage: switch between available gratings (600, 1200, 1800 gr/mm) and check if calibration error changes — grating-specific error indicates grating issue rather than laser",
+      "Verify spectrometer entrance slit width is at the calibrated value: changing slit width shifts the apparent peak centroid for asymmetric peaks, causing apparent calibration drift",
+      "Check room temperature stability: spectrometer components expand/contract with temperature, shifting calibration — record room temperature at time of calibration and during measurements",
+      "Run neon lamp emission lines to verify detector pixel-to-wavelength mapping: neon provides reference lines across the visible and near-IR range for comprehensive wavelength verification"
     ],
     "corrective_actions": [
-      "Warm up laser for minimum 30 min before calibration",
-      "Re-calibrate with silicon wafer (520.7 ± 0.5 cm⁻¹) at start of each session",
-      "Use neon lamp for full spectral range calibration",
-      "Update calibration file in software after each re-calibration"
+      "Warm up laser for minimum 30 min before calibration — do not acquire final calibration until silicon peak position is stable within ±0.1 cm⁻¹ over 3 consecutive measurements",
+      "Re-calibrate with silicon wafer (520.7 ± 0.5 cm⁻¹) at start of each session — use a freshly cleaved or polished silicon wafer; contaminated silicon shows shifted or broadened peak",
+      "Use neon lamp for full spectral range calibration: neon emission lines at 585.2, 614.3, 640.2, 703.2 nm provide reference points spanning the typical Raman spectral range",
+      "Update calibration file in software after each re-calibration — WiRE, LabSpec, and OMNIC all support automated silicon or neon calibration routines",
+      "If calibration drift occurs within a session (intra-session drift): enable auto-calibration feature if available, or bracket measurements with silicon reference checks every 2 hours",
+      "For precise polymorph identification (e.g., pharmaceutical crystal forms): verify calibration accuracy to < 0.5 cm⁻¹ by measuring a secondary standard (4-acetamidophenol polymorphs or cyclohexane) in addition to silicon"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3497,16 +3638,23 @@
       "Wrong objective — insufficient numerical aperture"
     ],
     "diagnostics": [
-      "Check laser power at sample using power meter",
-      "Verify focus by observing reflected laser spot",
-      "Increase accumulation and check if SNR improves predictably"
+      "Check laser power at sample position using calibrated power meter: actual power at sample should match the software setting — losses of > 50% indicate beam path obstruction, dirty optics, or misaligned fiber coupling",
+      "Verify focus by observing reflected laser spot through the microscope video camera: the spot should be sharp and centered on the sample — defocused spot loses > 90% of collection efficiency",
+      "Increase accumulation (number of co-added scans) and check if SNR improves as √N: if SNR improves predictably, the issue is simply weak Raman scattering; if SNR does not improve, there is systematic noise (fluorescence, detector dark current)",
+      "Check that the correct confocal pinhole or slit width is set: too narrow reduces signal; too wide reduces spatial resolution and increases background — for bulk measurement, open confocal aperture to maximum",
+      "Verify notch or edge filter is appropriate for the excitation wavelength: a 785 nm filter will block all signal if used with a 532 nm laser — mismatch causes complete signal loss below the filter cutoff",
+      "Test with a strong Raman scatterer (silicon at 520.7 cm⁻¹, polystyrene at 1001 cm⁻¹): if strong signal from reference but not from sample, the issue is sample-specific, not instrumental",
+      "Check spectrometer grating selection: higher groove density gratings (1800 gr/mm) provide better spectral resolution but lower throughput; switch to 600 gr/mm for maximum signal at the expense of resolution",
+      "Inspect objective lens for cleanliness: fingerprints, sample residue, or immersion oil on the objective front element reduce both excitation delivery and signal collection efficiency"
     ],
     "corrective_actions": [
-      "Increase laser power and/or acquisition time",
-      "Use high-NA objective for maximum collection efficiency",
-      "Concentrate sample or use pellet press for solid pharmaceuticals",
-      "Switch to resonance Raman wavelength if chromophore present",
-      "Remove neutral density filters from beam path if inadvertently engaged"
+      "Increase laser power (while staying below sample damage threshold) and increase acquisition time — doubling power doubles signal; doubling time improves SNR by √2",
+      "Use high-NA objective for maximum collection efficiency: 50× (0.75 NA) or 100× (0.9 NA) for solids; water-immersion objective for biological samples — higher NA collects more scattered light",
+      "Concentrate sample or use pellet press for solid pharmaceuticals: pressing powder into a dense pellet increases Raman signal per unit volume and reduces scatter from particle boundaries",
+      "Switch to resonance Raman wavelength if sample contains chromophore: excitation near absorption maximum enhances Raman signal by 10²–10⁶× — but also increases fluorescence risk",
+      "Remove neutral density filters from beam path if inadvertently engaged: check software power setting and physical filter wheel position — some systems default to reduced power after laser safety interlock reset",
+      "Clean objective lens with lens tissue and optical-grade ethanol: wipe in circular motion from center outward; verify clean by examining reflected laser spot through camera",
+      "For aqueous solutions: use immersion or water-dipping objective to eliminate air/glass/water interface reflections that reduce both excitation and collection efficiency"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3568,16 +3716,22 @@
       "RF cable connection loose or damaged"
     ],
     "diagnostics": [
-      "Use wobble function in TopSpin — dip should be sharp and > 20 dB",
-      "Compare tuning with and without sample",
-      "Test RF cable continuity and VSWR",
-      "Try reference sample (adamantane) — if it tunes well, sample is the problem"
+      "Use wobble function in TopSpin (wobb command): observe tuning curve — dip should be sharp, centered on the operating frequency, and > 20 dB deep; shallow or absent dip indicates circuit mismatch",
+      "Compare tuning with and without sample loaded in the rotor: if probe tunes well with empty rotor but not with sample, the dielectric constant of the sample is detuning the circuit — high-water or high-salt samples are common culprits",
+      "Test RF cable continuity and VSWR (voltage standing wave ratio) with a cable tester or network analyzer: VSWR > 2:1 indicates cable damage requiring replacement",
+      "Try reference sample (adamantane packed in the same rotor) — if adamantane tunes and acquires normally, the issue is sample-specific dielectric loading, not probe hardware failure",
+      "Check tune and match capacitor mechanical range: if capacitors are at their mechanical limits (fully in or fully out) and still cannot reach resonance, the dielectric load exceeds the probe tuning range",
+      "Inspect probe RF connector for damage, corrosion, or moisture: contaminated connectors cause impedance mismatch that prevents tuning — clean with IPA and compressed air",
+      "Test on a different MAS probe if available: if the second probe tunes normally with the same sample, the first probe has a circuit fault",
+      "Check that the correct preamp gain and cable routing are being used: some multi-channel probes require specific routing for ¹H vs. X-nucleus channels — incorrect routing causes apparent tuning failure"
     ],
     "corrective_actions": [
-      "Adjust tune and match capacitors to compensate for dielectric loading",
-      "For high-salt samples, reduce salt or use salt-tolerant probe",
-      "Replace RF cable if failed continuity test",
-      "Contact Bruker service if probe circuit component has failed"
+      "Adjust tune and match capacitors to compensate for dielectric loading — for high-dielectric samples, both tune and match may need significant adjustment from normal position; record new positions for future runs with similar samples",
+      "For high-salt samples: reduce salt concentration if possible, or use specialized E-field-free probe designs (e.g., Bruker Low-E or Revolution NMR) that are less sensitive to conductive sample loading",
+      "Replace RF cable if failed continuity test or VSWR > 2:1 — use Bruker-specified cable type and length to maintain correct impedance matching",
+      "Contact Bruker service if probe circuit component has failed — capacitor arcing, coil shorts, and balun failures all require professional repair",
+      "For borderline tuning: reduce sample fill volume to 50–75% of full rotor capacity — less sample means less dielectric loading, at the cost of reduced sensitivity",
+      "After probe repair or sample change: always re-optimize tune/match and verify with a nutation curve (90° pulse calibration) before acquiring data — incorrect tuning causes severe sensitivity loss"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3637,16 +3791,22 @@
       "Long high-power decoupling pulses"
     ],
     "diagnostics": [
-      "Listen for clicking during high-power pulse sequences",
-      "Reduce RF power — if arcing stops, power-dependent arcing confirmed",
-      "Check probe for moisture — condition in dry nitrogen",
-      "Examine probe protection circuit logs in TopSpin"
+      "Listen for clicking or popping from probe during high-power pulse sequences (CP, decoupling): arcing produces audible clicks at the pulse repetition rate — immediately reduce power or stop experiment to prevent probe damage",
+      "Reduce RF power systematically: run experiment at 50%, 70%, and 100% of target power — if arcing occurs only above a specific threshold, that threshold defines the safe operating limit for the current probe condition",
+      "Check probe for moisture: condition in dry nitrogen (10 L/min flow through probe body) for 4–12 hours — moisture dramatically lowers dielectric breakdown threshold, especially in MAS probes where centrifugal force distributes moisture onto coil surfaces",
+      "Examine probe protection circuit logs in TopSpin (probehead protection or HPPR status): recorded events show when and how frequently protection activated — frequent trips indicate chronic issue requiring service",
+      "Check RF pulse duration and duty cycle: long high-power pulses (> 200 µs at high power) or high duty cycle sequences (e.g., CW decoupling during long acquisition) are most likely to cause arcing",
+      "Monitor reflected power during pulsing: high reflected power (> 10% of forward power) indicates impedance mismatch that concentrates voltage at specific circuit points, promoting dielectric breakdown",
+      "Inspect probe for visible damage after removing from magnet: scorch marks, discolored capacitors, or melted insulation indicate previous arcing damage that weakens the probe and lowers the arcing threshold",
+      "Test arcing threshold with a dummy rotor containing adamantane (low dielectric) vs. sample — if arcing occurs only with sample, the sample dielectric properties are contributing to the breakdown condition"
     ],
     "corrective_actions": [
-      "Reduce RF power to minimum required for experiment",
-      "Dry probe with nitrogen purge overnight",
-      "Use TPPM or SPINAL decoupling instead of high-power CW decoupling",
-      "Contact Bruker NMR service — arcing can permanently damage probe"
+      "Reduce RF power to minimum required for experiment: for ¹H decoupling, target γB1/2π ≈ 50–80 kHz instead of > 100 kHz — lower power with TPPM or SPINAL decoupling achieves similar line narrowing",
+      "Dry probe with nitrogen purge overnight (12 hours minimum, 5–10 L/min flow) — critical for probes stored in humid environments or after aqueous sample runs",
+      "Use TPPM or SPINAL-64 decoupling instead of high-power CW decoupling — TPPM achieves equivalent line narrowing at 30–50% lower average power, reducing arcing risk significantly",
+      "Contact Bruker NMR service immediately if arcing persists after power reduction and drying — arcing can permanently damage probe capacitors, coils, and balun transformers; continued operation risks catastrophic probe failure",
+      "After arcing event: re-calibrate 90° pulse on adamantane — arcing may have changed probe circuit characteristics, altering the effective B1 field",
+      "Implement a probe drying protocol: purge with dry N2 for 30 min before each session and maintain N2 flow during non-use periods in humid climates"
     ],
     "severity": "critical",
     "escalation_conditions": [
@@ -3743,16 +3903,23 @@
       "Temperature drift shifting solvent frequency"
     ],
     "diagnostics": [
-      "Confirm O1 is exactly on solvent frequency using 1D ¹H spectrum",
-      "Check presaturation power — too high causes radiation damping, too low is ineffective",
-      "Verify 90° pulse calibration is current for WATERGATE experiments"
+      "Confirm O1 is exactly on solvent frequency using a quick 1D ¹H spectrum without solvent suppression: measure solvent peak position in Hz and set O1 to that exact value — offset of even 5 Hz degrades presaturation efficiency",
+      "Check presaturation power (PLW9 or equivalent): optimal power produces ~25 Hz γB1 field — too high (> 50 Hz) causes radiation damping and Bloch-Siegert shifts; too low (< 10 Hz) is ineffective for T1-dependent saturation",
+      "Verify 90° pulse calibration is current for WATERGATE experiments: incorrect 90° pulse causes incomplete inversion in the binomial sequence, degrading suppression by 10–100×",
+      "Check sample temperature stability: temperature fluctuation shifts solvent resonance frequency (water moves ~5 Hz/°C at 400 MHz), causing presaturation to miss the target — stabilize temperature to ±0.1 °C",
+      "Run presaturation with different saturation times (1, 2, 3, 5 s) and compare residual solvent peak: plot residual intensity vs. saturation time — optimal time depends on water T1 (~3 s in protein solutions, > 5 s in pure water)",
+      "Verify receiver gain is appropriate: if gain is set based on the unsuppressed solvent peak, it may be too high for the suppressed spectrum, causing ADC clipping and baseline artifacts",
+      "Check for radiation damping in concentrated water samples: presaturation at too high B1 drives radiation damping that actively opposes saturation — reduce power and increase duration instead",
+      "Compare multiple suppression schemes on the same sample: presaturation, WATERGATE W5, excitation sculpting (zgesgp), and WET — different schemes have different suppression bandwidths and baseline characteristics"
     ],
     "corrective_actions": [
-      "Set O1 exactly to solvent frequency using 1D spectrum",
-      "Increase presaturation duration (2–5 s for water)",
-      "Optimize presaturation power with array experiment",
-      "Switch to WATERGATE W5 or excitation sculpting for better bandwidth",
-      "Recalibrate 90° pulse before solvent-suppressed experiments"
+      "Set O1 exactly to solvent frequency using 1D spectrum — re-check O1 at the beginning of each session and after any temperature change",
+      "Increase presaturation duration to 2–5 s for water suppression — extend to 5–8 s for samples with long water T1 (dilute aqueous solutions without paramagnetic additives)",
+      "Optimize presaturation power with array experiment: run PLW9 from 1 to 100 dB attenuation and select the power level giving minimum residual water signal",
+      "Switch to WATERGATE W5 or excitation sculpting (zgesgp) for better suppression bandwidth and flatter baseline near solvent — these methods are preferred for samples with peaks near the water resonance",
+      "Recalibrate 90° pulse before solvent-suppressed experiments: use pulsecal or manual nutation curve — 90° pulse typically 8–15 µs at 400 MHz depending on probe",
+      "Set receiver gain after solvent suppression is active: use rga (automatic receiver gain adjustment) with the suppression sequence running — prevents ADC overflow artifacts",
+      "For biological samples in 90% H2O/10% D2O: consider adding 0.02% NaN3 and 50 µM DSS as reference — NaN3 prevents microbial growth during long acquisitions"
     ],
     "severity": "medium",
     "escalation_conditions": [
@@ -3813,17 +3980,23 @@
       "Metallic NMR tube accessories near gradient coil"
     ],
     "diagnostics": [
-      "Run gradcal in TopSpin — measure diffusion of doped water standard",
-      "Check gradient amplifier status in hardware check window",
-      "Verify gradient cable connection at probe head",
-      "Test HSQC on standard compound"
+      "Run gradcal in TopSpin to measure gradient strength: diffusion coefficient of doped water (1% H2O in D2O with 0.1 mg/mL GdCl3) should give D = 1.9 × 10⁻⁹ m²/s at 25 °C — deviation > 10% indicates gradient calibration error",
+      "Check gradient amplifier status in TopSpin hardware check window (eda or edacq): verify amplifier responds to test pulse without fault — amber/red status indicates hardware fault",
+      "Verify gradient cable connection at probe head: gradient coil cable should be firmly connected with clean pins — corrosion or loose connectors cause intermittent gradient failures",
+      "Test HSQC on standard compound (sucrose or menthol in CDCl3): absence of expected cross-peaks while 1D spectra are normal confirms gradient failure",
+      "Run 1D gradient echo experiment (e.g., pulse-gradient spin echo, PGSE): if echo is not refocused, gradient pulse is not being applied correctly — verify gradient pulse amplitude and shape in the pulse program",
+      "Check for eddy current artifacts: acquire gradient echo with variable gradient recovery delay (50 µs to 5 ms) — persistent signal distortion at short delays indicates eddy currents requiring pre-emphasis adjustment",
+      "Monitor gradient coil temperature during high-duty-cycle experiments (diffusion DOSY): overheated gradient coil causes automatic shutdown — verify cooling airflow to probe gradient region",
+      "Test with a simple gradient experiment (e.g., 1D gradient-selected ¹H with single gradient pulse) before running complex 2D experiments — isolates gradient hardware from pulse program issues"
     ],
     "corrective_actions": [
-      "Recalibrate gradient using diffusion measurement of water standard",
-      "Reseat gradient cable connections at probe",
-      "Power cycle gradient amplifier",
-      "Use standard glass NMR tubes only near gradient coil",
-      "Contact Bruker service if amplifier hardware fault confirmed"
+      "Recalibrate gradient using diffusion measurement of doped water standard: update gradient calibration constant in TopSpin (GPNAM parameters) based on measured vs. expected diffusion coefficient",
+      "Reseat gradient cable connections at probe: clean connector pins with IPA and lint-free tissue, ensure firm connection without forcing — overtightening can damage connector threads",
+      "Power cycle gradient amplifier: turn off amplifier, wait 30 s, turn on — some amplifier faults are cleared by power cycle; persistent faults require service",
+      "Use standard glass NMR tubes only near gradient coil: metallic spinner components or tube caps near the gradient coil create eddy currents that distort gradient pulses",
+      "Contact Bruker service if amplifier hardware fault confirmed — do not attempt internal amplifier repair; gradient amplifiers operate at high current (up to 30 A)",
+      "After gradient repair or recalibration: verify performance with HSQC on sucrose standard and compare cross-peak pattern to reference dataset",
+      "For diffusion experiments (DOSY): calibrate gradient strength independently using a sample with known diffusion coefficient (e.g., HDO, D = 1.9 × 10⁻⁹ m²/s at 25 °C) before measuring unknown samples"
     ],
     "severity": "high",
     "escalation_conditions": [
@@ -3850,24 +4023,29 @@
       "mobile phase precipitation at low temperature"
     ],
     "diagnostics": [
-      "Disconnect column and measure pressure at same flow rate — high pressure without column indicates pump or tubing issue",
-      "Replace the inline pressure sensor filter (KNAUER part) every 3–6 months as routine maintenance",
-      "Open KNAUER ServiceTool (or ClarityChrom diagnostics) and record pump pressure profile to identify check valve malfunction",
-      "Inspect inlet solvent filter under the solvent reservoir — replace if discoloured or >6 months old",
-      "Inspect tubing for kinks, blockages, or incorrect fitting compression"
+      "Disconnect column and measure pressure at same flow rate — high pressure without column indicates pump or tubing issue; normal system pressure without column is typically < 30 bar at 1 mL/min",
+      "Replace the inline pressure sensor filter (KNAUER part) every 3–6 months as routine maintenance — this small sintered filter is frequently the hidden source of high pressure on KNAUER systems",
+      "Open KNAUER ServiceTool (or ClarityChrom diagnostics) and record pump pressure profile to identify check valve malfunction — normal profile shows smooth sinusoidal waves; sharp spikes indicate check valve leak-back",
+      "Inspect inlet solvent filter under the solvent reservoir — replace if discoloured or >6 months old; a blocked inlet filter causes cavitation and erratic pressure rather than steady high pressure",
+      "Inspect tubing for kinks, blockages, or incorrect fitting compression — even a slight overtightening of PEEK ferrules on 1/16 inch OD tubing can collapse the ID",
+      "Measure pressure at multiple flow rates (0.2, 0.5, 1.0 mL/min) and plot pressure vs. flow: a linear relationship indicates normal flow resistance; non-linear suggests partial blockage becoming flow-dependent",
+      "Check guard column separately from analytical column: disconnect guard, measure pressure, then reconnect — guard columns clog first and are cheap to replace",
+      "Verify mobile phase is fully dissolved and filtered: inspect visually for cloudiness; re-filter through 0.22 µm PTFE membrane if any doubt about particulate content"
     ],
     "corrective_actions": [
-      "Replace inline pressure sensor filter (Part No. A4949); reset pressure before restarting",
-      "Flush column or replace guard column; if unresolved, replace analytical column",
-      "Replace check valves (inlet and outlet) for the affected pump head",
-      "Replace pump head seals (piston seals + back-piston seals) per KNAUER seal replacement procedure",
-      "Use fresh-filtered, degassed mobile phase; warm solvents to room temperature before use",
-      "If issue persists after all above, run KNAUER Pump P 2.1S/P 4.1S Instructions (V6870) leak pressure test"
+      "Replace inline pressure sensor filter (Part No. A4949) and reset pressure alarm before restarting — keep spare filters in stock as they require replacement every 3–6 months",
+      "Flush column or replace guard column; if pressure remains > 20% above initial column pressure after guard replacement, replace analytical column",
+      "Replace check valves (inlet and outlet) for the affected pump head — sonicate old check valves in IPA as a temporary fix if new valves are not immediately available",
+      "Replace pump head seals (piston seals + back-piston seals) per KNAUER seal replacement procedure — use only KNAUER OEM seals to maintain pressure rating",
+      "Use fresh-filtered, degassed mobile phase; warm solvents to room temperature before use — buffer solutions prepared cold may precipitate as they warm in the system",
+      "If issue persists after all above, run KNAUER Pump P 2.1S/P 4.1S Instructions (V6870) leak pressure test to identify internal pump head leakage",
+      "For buffer methods: establish an end-of-day flush protocol — flush with 100% water for 15 min, then 50% methanol/water for 15 min to prevent salt crystallization overnight"
     ],
     "severity": "high",
     "escalation_conditions": [
       "Pressure alarm persists after column removal and filter replacement — seal or check valve replacement required",
-      "ServiceTool shows irregular pressure profile in both pistons — pump head replacement needed"
+      "ServiceTool shows irregular pressure profile in both pistons — pump head replacement needed; contact KNAUER service",
+      "SAFETY: Do not disconnect fittings while system is pressurized above 50 bar — always stop pump and wait for pressure to drop to zero before loosening any fitting"
     ],
     "source_id": "knauer-azura-pump-v6870-instructions",
     "confidence_score": 0.88,
@@ -3889,21 +4067,29 @@
       "mobile phase highly UV-absorbing at selected wavelength"
     ],
     "diagnostics": [
-      "Check lamp hours in knauerOS or ClarityChrom diagnostics panel — KNAUER recommends replacement after 1500–2000 hours",
-      "Run a solvent blank: compare absorbance baseline to expected value for your mobile phase at selected wavelength",
-      "Inspect flow cell for visible deposits; check if cleaning with 0.1 M HNO3 flush improves signal",
-      "For DAD 2.1L: perform wavelength calibration check using holmium oxide standard built into the instrument"
+      "Check lamp hours in knauerOS or ClarityChrom diagnostics panel — KNAUER recommends replacement after 1500–2000 hours; note the cumulative hours and compare to last qualification result",
+      "Run a solvent blank: compare absorbance baseline to expected value for your mobile phase at selected wavelength — baseline should be < 0.5 AU at 254 nm with methanol/water (50:50)",
+      "Inspect flow cell for visible deposits; check if cleaning with 0.1 M HNO3 flush improves signal — observe whether baseline drops by > 0.1 AU after cleaning",
+      "For DAD 2.1L: perform wavelength calibration check using holmium oxide standard built into the instrument — peaks at 241.1, 287.6, 361.5 nm should be within ±1 nm",
+      "Measure signal-to-noise ratio by injecting known concentration standard (e.g., 10 µg/mL caffeine at 272 nm) and compare S/N to historical qualification data — S/N decrease > 50% confirms sensitivity loss",
+      "Check optical fiber coupling at both detector and lamp housing ends — loose connections reduce light throughput by up to 80%; gently tighten finger-tight",
+      "Verify the correct flow cell is installed for the application: standard analytical (10 mm path), semi-micro (6 mm), or prep (0.5 mm) — wrong cell drastically changes sensitivity",
+      "Run lamp energy test from knauerOS diagnostics: compare D2 lamp output intensity at 254 nm against factory specification — output below 50% of initial indicates imminent failure"
     ],
     "corrective_actions": [
-      "Replace deuterium lamp (KNAUER Part No. A4290) and run lamp burn-in procedure per V6872 manual",
-      "Clean UV flow cell: flush with 50% MeOH / 50% 0.1 M HNO3 for 10 min, then flush with water, then MeOH",
-      "Verify detector wavelength settings match your analyte absorption maximum",
-      "If DAD 2.1L: reseat fiber connectors and re-run holmium calibration",
-      "Switch to a mobile phase with lower UV background (e.g., LC-MS grade or lower acetate concentration)"
+      "Replace deuterium lamp (KNAUER Part No. A4290) and run lamp burn-in procedure per V6872 manual — allow 30 min burn-in before any measurements to stabilize output",
+      "Clean UV flow cell: flush with 50% MeOH / 50% 0.1 M HNO3 for 10 min, then flush with water, then MeOH — for protein residue, use 6 M guanidine HCl flush first",
+      "Verify detector wavelength settings match your analyte absorption maximum — use analyte UV spectrum to select optimal wavelength for maximum response",
+      "If DAD 2.1L: reseat fiber connectors by unscrewing, cleaning fiber ends with lens tissue and IPA, then retightening — re-run holmium oxide calibration to verify wavelength accuracy",
+      "Switch to a mobile phase with lower UV background (e.g., LC-MS grade solvents or lower acetate/formate concentration) — TFA absorbs strongly below 220 nm, consider switching to formic acid",
+      "After lamp replacement, run full detector qualification: noise, drift, linearity (5-point caffeine or naphthalene), and wavelength accuracy tests per KNAUER IQ/OQ/PQ protocol",
+      "For persistent sensitivity loss after lamp and cell maintenance: replace the reference diode if available on the AZURA UVD model — degraded reference causes apparent sensitivity loss"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Signal does not recover after lamp replacement and flow cell cleaning — fiber or detector optics damage; contact KNAUER service"
+      "Signal does not recover after lamp replacement and flow cell cleaning — fiber or detector optics damage; contact KNAUER service",
+      "Wavelength calibration with holmium oxide deviates > 2 nm from certified values — optical alignment required by KNAUER service engineer",
+      "SAFETY: Deuterium lamp emits UV radiation — never look directly at operating lamp without UV-protective eyewear; always close lamp housing before operating detector"
     ],
     "source_id": "knauer-azura-uvd-dad-user-guide",
     "confidence_score": 0.85,
@@ -3925,21 +4111,28 @@
       "sample adsorption onto stainless steel needle or loop"
     ],
     "diagnostics": [
-      "Run blank injection immediately after high-concentration sample and calculate carryover %",
-      "Check needle wash program in ClarityChrom/knauerOS — verify wash volume (> 3x loop volume) and wash solvent polarity",
-      "Inspect needle wash port for blockage or residue",
-      "Run needle wash step with stronger solvent (100% organic) and monitor if carryover decreases"
+      "Run blank injection immediately after high-concentration sample and calculate carryover % — carryover = (blank peak area / sample peak area) × 100; acceptable is typically < 0.1% for quantitative methods",
+      "Check needle wash program in ClarityChrom/knauerOS — verify wash volume (> 3x loop volume) and wash solvent polarity matches the analyte solubility characteristics",
+      "Inspect needle wash port for blockage or residue — remove the wash port cap and flush with 50% methanol using a syringe to clear any accumulated sample residue",
+      "Run needle wash step with stronger solvent (100% organic) and monitor if carryover decreases — test sequentially with MeOH, ACN, then DMSO to find effective wash solvent",
+      "Check injection valve rotor seal condition: inject 1 µL of colored dye (e.g., 0.1% methylene blue) and inspect the valve seat area for leakage past the rotor seal — visible dye around the seal indicates wear",
+      "Verify sample loop flush volume in the method — partial loop injections require > 5× loop volume flush to eliminate dead volume carryover",
+      "Test whether carryover is analyte-specific: run the same test with a non-adsorptive standard (e.g., caffeine) — if no carryover with caffeine, the issue is analyte adsorption on metal surfaces",
+      "Inspect the autosampler needle tip under magnification — bent or burred needle tips cause incomplete wipe-off at the needle seat, leading to persistent carryover"
     ],
     "corrective_actions": [
-      "Increase needle wash volume to 5x sample loop volume",
-      "Use a two-step wash: strong organic solvent then weak aqueous solvent (matches mobile phase start conditions)",
-      "Replace injection valve rotor seal (KNAUER rotor seal kit for AS 6.1L) if leakage is suspected",
-      "For basic compounds: add 0.1% ammonium hydroxide to needle wash solvent to prevent adsorption",
-      "Switch to PEEK needle/loop for biological samples if stainless steel adsorption is suspected"
+      "Increase needle wash volume to 5x sample loop volume — program a multi-step wash cycle: strong organic first (100% ACN), then intermediate (50% MeOH/water), then initial mobile phase composition",
+      "Use a two-step wash: strong organic solvent then weak aqueous solvent (matches mobile phase start conditions) — ensure dwell time in wash solvent is at least 5 seconds for effective contact",
+      "Replace injection valve rotor seal (KNAUER rotor seal kit for AS 6.1L) if leakage is suspected — follow KNAUER AS 6.1L rotor seal replacement procedure exactly, torque to specification",
+      "For basic compounds: add 0.1% ammonium hydroxide to needle wash solvent to prevent adsorption on stainless steel surfaces — basic analytes (amines, peptides) adsorb strongly to metal",
+      "Switch to PEEK needle/loop for biological samples if stainless steel adsorption is suspected — PEEK is inert to proteins and peptides",
+      "For acidic compounds or metal chelators: add 0.05% EDTA to the needle wash to prevent analyte-metal coordination on stainless steel surfaces",
+      "If carryover persists at the injection valve, perform a full valve disassembly and cleaning: sonicate rotor and stator in 50% IPA for 15 min, dry with nitrogen, and reassemble with new rotor seal"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Carryover > 1% after wash optimisation — rotor seal replacement required; contact KNAUER service if issue persists"
+      "Carryover > 1% after wash optimisation and valve rotor seal replacement — possible internal surface contamination requiring full autosampler service",
+      "SAFETY: When handling needle wash solvents containing organic solvents or ammonium hydroxide, work in a well-ventilated area and wear appropriate gloves (nitrile for organic solvents)"
     ],
     "source_id": "knauer-azura-as61l-instructions",
     "confidence_score": 0.82,
@@ -3961,21 +4154,28 @@
       "mobile phase composition drift (improper mixing or degassing)"
     ],
     "diagnostics": [
-      "Monitor CT 2.1 actual temperature readout in knauerOS before starting batch — confirm setpoint is reached",
-      "Check retention time stability over 6–10 isocratic injections at the start of each day",
-      "Verify mobile phase is freshly prepared and degassed — compare pH and composition to previous batch",
-      "Run column equilibration with at least 10 column volumes at start conditions before any injection"
+      "Monitor CT 2.1 actual temperature readout in knauerOS before starting batch — confirm setpoint is reached and stable within ±0.1 °C for at least 5 minutes before injecting",
+      "Check retention time stability over 6–10 isocratic injections at the start of each day — RT RSD should be < 0.3% for isocratic methods and < 0.5% for gradient methods",
+      "Verify mobile phase is freshly prepared and degassed — compare pH (within ±0.05 of target), conductivity, and organic:aqueous ratio to previous qualifying batch",
+      "Run column equilibration with at least 10 column volumes at start conditions before any injection — for gradient methods, run 2–3 blank gradients to pre-condition the column",
+      "Measure pump flow rate accuracy by gravimetric method: collect 10 min of eluent, weigh on 3-decimal balance — actual flow should be within ±1% of setpoint",
+      "Compare column backpressure to the value recorded when the column was new — pressure increase > 20% indicates partial frit blockage or column degradation that can shift RT",
+      "Check gradient delay volume (dwell volume) by injecting unretained marker with and without gradient — dwell volume changes from plumbing modifications shift gradient-eluted peak RTs",
+      "Review system suitability data for RT trend over the past 50 injections — gradual drift indicates column aging; sudden shift indicates mobile phase or hardware change"
     ],
     "corrective_actions": [
-      "Allow CT 2.1 to equilibrate for minimum 20 min before starting analysis",
-      "Insulate pre-column tubing from ambient temperature changes",
-      "Verify temperature setpoint is not exceeding column stationary phase specification (e.g., max 60 °C for standard silica)",
-      "If Peltier malfunction suspected: run temperature verification test in knauerOS diagnostics",
-      "Prepare fresh mobile phase; verify pH is within ±0.05 of method specification"
+      "Allow CT 2.1 to equilibrate for minimum 20 min before starting analysis — verify both set and actual temperature match on knauerOS display",
+      "Insulate pre-column tubing from ambient temperature changes — use foam tubing insulation or route tubing through the column oven",
+      "Verify temperature setpoint is not exceeding column stationary phase specification (e.g., max 60 °C for standard silica C18, max 80 °C for BEH chemistry)",
+      "If Peltier malfunction suspected: run temperature verification test in knauerOS diagnostics with an external calibrated thermometer as reference",
+      "Prepare fresh mobile phase: weigh buffer salts on calibrated balance, verify pH with recently calibrated pH meter, filter through 0.22 µm, and degas before use",
+      "If RT shifts correlate with column pressure increase: flush column in reverse direction with strong organic solvent per manufacturer instructions to clear accumulated matrix at inlet frit",
+      "Re-determine gradient delay volume after any plumbing change: inject acetone tracer with step gradient from 0% to 100% B and measure delay between program step and UV response"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Temperature setpoint not reached after equilibration — Peltier module fault; contact KNAUER service"
+      "Temperature setpoint not reached after equilibration — Peltier module fault; contact KNAUER service",
+      "RT drift > 2% persists after fresh mobile phase, column equilibration, and temperature stabilization — column degradation; replace column and requalify"
     ],
     "source_id": "knauer-azura-ct21-instructions",
     "confidence_score": 0.83,
@@ -3997,21 +4197,28 @@
       "mobile phase solvent impurity or UV-absorbing contamination"
     ],
     "diagnostics": [
-      "Switch to degassed HPLC-grade water at 1 mL/min and check if noise disappears — confirms mobile phase origin",
-      "Check pump pressure trace: if pulsation is visible, check piston seal and pump damper",
-      "Inspect all electrical connections between detector and IFU 2.1 interface box",
-      "Flush flow cell with 50% methanol/water for 5 min and reassess baseline"
+      "Switch to degassed HPLC-grade water at 1 mL/min and check if noise disappears — confirms mobile phase origin; baseline noise should be < 0.5 mAU peak-to-peak at 254 nm for a clean system",
+      "Check pump pressure trace in knauerOS diagnostics: if pulsation amplitude > 2% of mean pressure, check piston seal condition and verify pump damper is functioning correctly",
+      "Inspect all electrical connections between detector and IFU 2.1 interface box — loose connectors cause intermittent noise spikes that appear random; reseat all D-sub and USB connections firmly",
+      "Flush flow cell with 50% methanol/water for 5 min and reassess baseline — persistent noise after flushing suggests contaminated flow cell windows requiring HNO3 treatment",
+      "Measure baseline noise at multiple wavelengths (210, 254, 280, 350 nm): noise that increases dramatically below 230 nm indicates mobile phase purity issue; noise constant across wavelengths indicates electronic or air bubble origin",
+      "Check online degasser function: verify degasser vacuum pump is audible; test by comparing baseline noise with and without degasser — degasser failure is a common hidden cause of baseline spikes",
+      "Inspect for leaks at all post-pump fittings using tissue paper — even micro-leaks introduce air into the flow path, causing periodic baseline spikes that coincide with pump strokes",
+      "Record baseline noise power spectrum if ClarityChrom supports it — noise at pump stroke frequency (typically 0.5–2 Hz for dual-piston pumps) confirms pump-origin pulsation"
     ],
     "corrective_actions": [
-      "Use online degasser — ensure all channels are active",
-      "Replace mobile phase with freshly degassed HPLC-grade solvents",
-      "Clean UV flow cell per KNAUER UVD maintenance procedure (flush with dilute HNO3 then methanol)",
-      "Check and reseat detector-to-IFU 2.1 cable connection",
-      "At low flow rates (< 0.3 mL/min): enable pulsation damper if available"
+      "Use online degasser — ensure all channels are active and vacuum pump is running; replace degasser membrane if vacuum level is insufficient (typical target: < 100 mbar internal)",
+      "Replace mobile phase with freshly degassed HPLC-grade solvents — open new bottles for each batch; old solvents absorb atmospheric gases over days",
+      "Clean UV flow cell per KNAUER UVD maintenance procedure: flush with 0.1 M HNO3 for 5 min, then water for 5 min, then methanol for 5 min — repeat if baseline does not improve",
+      "Check and reseat detector-to-IFU 2.1 cable connection — if cable shows wear, replace with KNAUER OEM cable to ensure proper shielding",
+      "At low flow rates (< 0.3 mL/min): enable pulse damper and increase detector time constant (response time) to smooth out pump pulsation artifacts",
+      "Replace pump piston seals if noise correlates with pump stroke frequency — KNAUER recommends seal replacement every 6–12 months depending on mobile phase aggressiveness",
+      "Install a backpressure restrictor (50–100 psi) after the detector to keep dissolved gases in solution through the flow cell"
     ],
     "severity": "low",
     "escalation_conditions": [
-      "Noise spike pattern is systematic (every N seconds) — piston seal or check valve failure; replace seals"
+      "Noise spike pattern is systematic (every N seconds) — piston seal or check valve failure; replace seals",
+      "Baseline noise > 5 mAU peak-to-peak at 254 nm after all corrections — UV lamp or photodiode degradation; contact KNAUER service"
     ],
     "source_id": "knauer-gmi-troubleshooting-guide",
     "confidence_score": 0.8,
@@ -4033,21 +4240,27 @@
       "RS-232 cable connected to wrong COM port or baud rate mismatch"
     ],
     "diagnostics": [
-      "Ping the AZURA module IP address from the ClarityChrom PC — if no response, check network/cable",
-      "Open KNAUER Configuration Manager and check if module is listed and shows green status",
-      "Check AZURA front display for IP address and compare with ClarityChrom configuration",
-      "Check Windows Device Manager for IFU 2.1 USB device — yellow warning icon indicates driver issue"
+      "Ping the AZURA module IP address from the ClarityChrom PC — if no response, check LAN cable, network switch port LED, and verify PC and module are on the same subnet",
+      "Open KNAUER Configuration Manager and check if module is listed and shows green status — red or absent modules indicate communication failure at the network or driver level",
+      "Check AZURA front display for IP address and compare with ClarityChrom configuration — mismatch between displayed IP and configured IP is the most common cause of detection failure",
+      "Check Windows Device Manager for IFU 2.1 USB device — yellow warning icon indicates driver issue; right-click and select Update Driver to attempt automatic fix",
+      "Verify network switch port is active: connect a laptop directly to the same switch port and confirm connectivity — dead switch ports are a frequent overlooked cause",
+      "Test with a crossover or direct LAN cable between PC and AZURA module — bypasses the switch to isolate switch-related issues",
+      "Check if Windows Firewall or antivirus is blocking KNAUER communication port 10001 — temporarily disable firewall and test; if communication succeeds, add port exception permanently",
+      "Review ClarityChrom event log (Help > Diagnostics > Event Log) for specific communication timeout error codes — error codes reference KNAUER troubleshooting guide chapter 7"
     ],
     "corrective_actions": [
-      "Assign fixed static IP to each AZURA module via the front panel menu",
-      "Allow KNAUER communication port 10001 (TCP/UDP) through Windows Firewall",
-      "Update ClarityChrom KNAUER driver pack to match AZURA module firmware version",
-      "Reinstall IFU 2.1 USB driver from KNAUER website",
-      "Restart all AZURA modules and relaunch ClarityChrom after network configuration changes"
+      "Assign fixed static IP to each AZURA module via the front panel menu — use a dedicated subnet (e.g., 192.168.10.x) for all KNAUER instruments to avoid lab network conflicts",
+      "Allow KNAUER communication port 10001 (TCP/UDP) through Windows Firewall — create both inbound and outbound rules for the ClarityChrom executable and port 10001",
+      "Update ClarityChrom KNAUER driver pack to match AZURA module firmware version — download from KNAUER website (knauer.net) and verify version compatibility in the release notes",
+      "Reinstall IFU 2.1 USB driver from KNAUER website — uninstall existing driver first, reboot, then install fresh driver before reconnecting USB cable",
+      "Restart all AZURA modules and relaunch ClarityChrom after network configuration changes — power-cycle modules in correct sequence: pump last, detector first",
+      "If RS-232 connection: verify COM port number in Windows Device Manager matches ClarityChrom configuration; set baud rate to 9600 (KNAUER default) and verify cable pinout"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "Module shows IP conflict or cannot be configured via front panel — factory reset required per KNAUER service"
+      "Module shows IP conflict or cannot be configured via front panel — factory reset required per KNAUER service",
+      "Communication fails after driver reinstall and direct cable test — internal communication board fault on AZURA module; contact KNAUER service for hardware diagnosis"
     ],
     "source_id": "knauer-claritychrom-configuration-guide",
     "confidence_score": 0.82,
@@ -4104,20 +4317,28 @@
       "poor column equilibration — UHPLC columns require > 20 column volumes"
     ],
     "diagnostics": [
-      "Inject a standard compound with known plate count and compare against vendor datasheet",
-      "Check tubing ID from injector to column inlet — must be 0.075–0.12 mm ID for UHPLC",
-      "Reduce injection volume to 1–2 µL and compare peak shape",
-      "Check sample solvent strength — should be at or below mobile phase A composition"
+      "Inject a standard compound with known plate count and compare against vendor datasheet — calculate N = 5.54 × (tR/W1/2)²; plates should be > 70% of certificate value for a column in good condition",
+      "Check tubing ID from injector to column inlet — must be 0.075–0.12 mm ID for UHPLC; standard HPLC tubing (0.17 mm ID) causes catastrophic band broadening for sub-2 µm columns",
+      "Reduce injection volume to 1–2 µL and compare peak shape — plot plate count vs injection volume; efficiency loss > 10% indicates injection volume is too large",
+      "Check sample solvent strength — should be at or below mobile phase A composition; injecting in 100% organic onto a C18 column at high aqueous initial conditions causes severe peak distortion",
+      "Measure extra-column volume: replace column with zero-dead-volume union, inject uracil at 0.4 mL/min — peak variance should be < 3 µL² (corresponding to < 5 µL peak width at 4σ) for proper UHPLC performance",
+      "Inspect all fittings from injector to detector for correct ferrule type: UHPLC requires zero-dead-volume fittings (e.g., Waters Viper, IDEX MarvelX) — standard finger-tight fittings may contribute > 1 µL dead volume per connection",
+      "Verify detector flow cell volume is appropriate: UHPLC requires ≤ 500 nL (micro) flow cell; standard 13 µL analytical flow cells cause major band broadening for narrow UHPLC peaks",
+      "Check detector data acquisition rate — for peaks < 3 seconds wide, acquisition rate should be ≥ 20 Hz (50 ms response time) to capture peak shape accurately"
     ],
     "corrective_actions": [
-      "Replace all post-injector tubing with 0.075 mm ID PEEK or stainless steel tubing",
-      "Reduce injection volume to ≤ 5 µL for a 2.1 mm ID column",
-      "Dissolve sample in weak solvent (mobile phase A or more aqueous)",
-      "Equilibrate column with ≥ 20 column volumes at initial gradient conditions before injection"
+      "Replace all post-injector tubing with 0.075 mm ID PEEK or stainless steel tubing — cut to minimum length needed; every extra centimeter adds extra-column volume",
+      "Reduce injection volume to ≤ 2 µL for a 2.1 × 50 mm column and ≤ 5 µL for a 2.1 × 100 mm column — use higher concentration samples to compensate if needed",
+      "Dissolve sample in weak solvent (mobile phase A or weaker) — this ensures analyte focuses at the column head during injection",
+      "Equilibrate column with ≥ 20 column volumes at initial gradient conditions before injection — insufficient equilibration is the leading cause of first-injection peak broadening",
+      "Install zero-dead-volume fittings throughout the post-injector flow path: use Viper or MarvelX connectors at column inlet and outlet for consistent sealing without dead volume",
+      "Switch to a UHPLC-compatible detector flow cell (≤ 500 nL path volume, 10 mm path length) if currently using standard analytical cell",
+      "Increase detector data acquisition rate to ≥ 40 Hz and reduce time constant to ≤ 0.025 s for sub-2-second UHPLC peaks"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Column plates below 50% of specification after tubing and volume optimisation — column contamination; replace column"
+      "Column plates below 50% of specification after tubing and volume optimisation — column contamination or packing damage; replace column",
+      "SAFETY: UHPLC systems operate at pressures up to 1300 bar — never loosen fittings while system is pressurized; always stop pump and depressurize before making any plumbing changes"
     ],
     "source_id": "knauer-azura-uhplc-1240bar-system-guide",
     "confidence_score": 0.82,
@@ -4138,19 +4359,27 @@
       "sample carryover from previous injection affecting gradient start"
     ],
     "diagnostics": [
-      "Run 20 consecutive injections of a standard compound and calculate RT RSD",
-      "Check pump flow rate accuracy using gravimetric method at the specified QC flow rate",
-      "Verify post-gradient re-equilibration time (minimum 2–3 column volumes) before each injection"
+      "Run 20 consecutive injections of a standard compound and calculate RT RSD — acceptable RT RSD for UHPLC QC methods should be < 0.3% across the sequence",
+      "Check pump flow rate accuracy using gravimetric method at the specified QC flow rate — collect eluent for 10 min and weigh; deviation > 0.5% requires recalibration",
+      "Verify post-gradient re-equilibration time (minimum 2–3 column volumes) before each injection — for sub-2-µm columns at 0.5 mL/min on a 50 × 2.1 mm column, 1 column volume ≈ 0.1 mL",
+      "Monitor column pressure at start of each run — increasing pressure over the sequence indicates progressive frit blockage that correlates with RT drift",
+      "Compare RT trend direction: earlier RT drift suggests column degradation or mobile phase composition change; later RT drift suggests temperature not equilibrated or increasing dead volume",
+      "Check mixer volume calibration in knauerOS — for high-throughput rapid gradient methods, even 50 µL mixer volume error significantly shifts gradient-eluted peaks",
+      "Measure dwell volume using acetone tracer with step gradient: compare measured dwell volume against the value in the PurityChrom/knauerOS method — mismatch causes systematic RT offset",
+      "Verify sample thermostat temperature on the autosampler — cold samples injected into warm column cause transient retention shifts on the first few injections"
     ],
     "corrective_actions": [
-      "Increase post-gradient re-equilibration to at least 3 column volumes",
-      "Run pump qualification (flow rate accuracy) test in knauerOS — recalibrate if > ±0.5% deviation",
-      "Increase column thermostat equilibration time or switch to isothermal method",
-      "Add needle wash between every injection to minimise carryover effects on gradient start"
+      "Increase post-gradient re-equilibration to at least 5 column volumes for maximum RT reproducibility in high-throughput QC workflows",
+      "Run pump qualification (flow rate accuracy) test in knauerOS — recalibrate if > ±0.5% deviation; use the KNAUER gravimetric protocol with degassed water at 20 °C",
+      "Increase column thermostat equilibration time or switch to isothermal method — for gradient methods, run 3 conditioning gradients before beginning the sample sequence",
+      "Add needle wash between every injection to minimise carryover effects on gradient start — use 3× loop volume of strong wash followed by weak wash",
+      "Pre-heat sample tray to column temperature (if method allows) to eliminate thermal mismatch between injected sample and column equilibrium",
+      "Replace column inlet frit if pressure trend shows accumulation — install a guard column or in-line filter to protect the analytical column and maintain consistent RT"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "RT RSD > 2% despite re-equilibration — pump seal wear; schedule preventive maintenance"
+      "RT RSD > 2% despite re-equilibration — pump seal wear; schedule preventive maintenance",
+      "RT shifts abruptly mid-sequence — possible air bubble in pump or mobile phase composition change; check solvent levels and pump priming"
     ],
     "source_id": "knauer-htqc-uhplc-guide",
     "confidence_score": 0.78,
@@ -4564,22 +4793,29 @@
       "dirty spray shield"
     ],
     "diagnostics": [
-      "Run autotune and compare with last passing tune report",
-      "Check spray chamber for salt deposits or discoloration",
-      "Inspect nebulizer needle for clogs",
-      "Review system health dashboard in OpenLab CDS"
+      "Run autotune in MassHunter and compare tune report (m/z 112, 118, 322, 622, 922 for ESI-L tuning mix) to last passing report — signal intensity decrease > 50% confirms source contamination",
+      "Check spray chamber for salt deposits or discoloration — remove spray shield and inspect inner surface with flashlight; white crystalline deposits indicate non-volatile buffer accumulation",
+      "Inspect nebulizer needle tip under magnification for partial blockage or corrosion — a partially blocked nebulizer produces poor spray quality manifesting as noisy or weak signal",
+      "Review system health dashboard in OpenLab CDS — check source temperature stability, vacuum readings, and gas flow rates against expected values",
+      "Monitor background mass spectrum in scan mode: elevated chemical noise baseline (> 1e4 counts) across the mass range indicates general source contamination versus specific mass interference",
+      "Compare TIC baseline level between cleaned source and current state: baseline increase > 3× indicates contamination requiring cleaning",
+      "Check ion transfer capillary entrance for brown-black deposits — matrix accumulation on the capillary entrance is the primary signal loss mechanism on the Pro iQ Plus",
+      "Verify drying gas and sheath gas temperatures are reaching setpoints: use MassHunter diagnostics to check actual vs. set temperatures — underheating due to heater degradation reduces desolvation efficiency"
     ],
     "corrective_actions": [
-      "Clean ESI spray shield with methanol/water (50:50)",
-      "Sonicate ion transfer capillary in 50:50 isopropanol:water for 15 minutes",
-      "Replace nebulizer needle if clogged",
-      "Run Auto Acquire after cleaning to verify recovery",
-      "If using AJS source, clean sheath gas nozzle and dry gas heater"
+      "Clean ESI spray shield: remove and sonicate in 50:50 methanol:water for 15 min, then in 0.1% formic acid in methanol for 10 min — dry with nitrogen gas before reinstalling",
+      "Sonicate ion transfer capillary in 50:50 isopropanol:water for 15 minutes — if heavily contaminated, use 1% formic acid in methanol for stubborn protein or lipid deposits",
+      "Replace nebulizer needle if clogged or corroded — use Agilent OEM nebulizer needle; generic needles may have incorrect bore diameter affecting spray quality",
+      "Run Auto Acquire after cleaning to verify signal recovery — compare tune report intensities to pre-cleaning values; expect > 80% recovery for successful cleaning",
+      "If using AJS source: clean sheath gas nozzle by removing and wiping with lint-free cloth moistened with methanol; clean dry gas heater inlet screen to ensure unrestricted gas flow",
+      "Implement a preventive source cleaning schedule: every 500–1000 injections for high-matrix work (biological fluids), every 2000–3000 injections for clean synthetic samples",
+      "After source cleaning, run 5–10 blank injections before resuming sample analysis to flush out residual cleaning solvent and stabilize the baseline"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Sensitivity not restored after full source cleaning — contact Agilent service",
-      "Autotune fails repeatedly after cleaning"
+      "Sensitivity not restored after full source cleaning — ion optics or detector may be contaminated; contact Agilent service for internal source maintenance",
+      "Autotune fails repeatedly after cleaning — quadrupole or RF generator issue requiring service engineer",
+      "SAFETY: AJS source operates at high temperature (up to 400 °C) — allow source to cool to room temperature before handling any components; wear heat-resistant gloves if source is warm"
     ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.88,
@@ -4601,21 +4837,28 @@
       "Dirty ion optics"
     ],
     "diagnostics": [
-      "Check fragmentor and capillary voltage in method parameters",
-      "Verify ion source mode matches analyte properties (AJS for maximum sensitivity)",
-      "Review mobile phase composition for MS compatibility",
-      "Run system suitability check with reference standard"
+      "Check fragmentor voltage in method parameters: optimal fragmentor varies by compound MW — small molecules (< 300 Da) typically 70–130 V, peptides (> 500 Da) typically 150–250 V; incorrect voltage reduces signal by 10–100×",
+      "Verify ion source mode matches analyte properties: AJS (Agilent Jet Stream) provides superior desolvation for maximum sensitivity vs. standard ESI — check that AJS is selected in MassHunter method",
+      "Review mobile phase composition for MS compatibility: phosphate buffers, TRIS, and borate are non-volatile and cause severe ion suppression and source fouling — only volatile additives (formic acid, ammonium formate, ammonium acetate) are MS-compatible",
+      "Run system suitability check with reference standard: inject 100 pg/µL reserpine or 1 ng/µL caffeine and compare S/N to historical values — S/N drop > 50% indicates hardware issue",
+      "Check ESI polarity against analyte ionization properties: basic compounds (amines) ionize in positive mode [M+H]+; acidic compounds (carboxylic acids) in negative mode [M-H]- — wrong polarity gives zero signal",
+      "Verify capillary voltage (Vcap): optimal range 3000–4000 V for standard ESI; too low reduces spray efficiency, too high causes corona discharge and noise",
+      "Check gas flow rates against Pro iQ Plus specifications: nebulizer 15–60 psi (start at 35 psi), drying gas 5–13 L/min at 150–350 °C, sheath gas (AJS) 3–12 L/min at 250–400 °C — suboptimal gas conditions directly reduce sensitivity",
+      "Evaluate LC flow rate compatibility: ESI optimal at 0.1–0.6 mL/min; flows > 1 mL/min require post-column flow splitter to avoid source overload and ion suppression"
     ],
     "corrective_actions": [
-      "Optimise fragmentor voltage using MassHunter Optimizer",
-      "Switch to AJS ion source for sub-30 fg sensitivity if not already in use",
-      "Replace non-volatile buffers (phosphate, TRIS) with volatile alternatives (ammonium formate, ammonium acetate)",
-      "Clean ion transfer capillary and spray shield",
-      "Verify gas pressures — nebulizer (15-60 psi), drying gas (5-13 L/min), sheath gas (AJS: 250-400°C)"
+      "Optimise fragmentor voltage using MassHunter Optimizer: run flow injection analysis of analyte at fragmentor values from 50 to 300 V in 10 V steps and select voltage giving maximum signal",
+      "Switch to AJS ion source for sub-30 fg sensitivity if not already in use — AJS provides orthogonal spray and super-heated nitrogen sheath gas for superior desolvation",
+      "Replace non-volatile buffers (phosphate, TRIS) with volatile alternatives: 10 mM ammonium formate pH 3.5 or 10 mM ammonium acetate pH 6.8 — verify chromatographic performance is maintained after buffer change",
+      "Clean ion transfer capillary and spray shield: sonicate in 50:50 MeOH:water for 15 min, then 0.1% formic acid in MeOH for 10 min — dry with filtered nitrogen before reinstalling",
+      "Verify and optimise gas pressures: nebulizer 35 psi (start), drying gas 10 L/min at 300 °C, sheath gas (AJS) 11 L/min at 350 °C — increase gas temperature in 25 °C increments if desolvation is insufficient",
+      "Install post-column flow splitter if LC flow rate > 0.5 mL/min: direct 50–200 µL/min to MS, remainder to waste or UV detector — use a calibrated tee with appropriate restrictor tubing",
+      "After optimisation, save method parameters and run a 5-point calibration to confirm linearity is maintained across the concentration range"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Sensitivity below specification after cleaning and optimisation — schedule Agilent PM visit"
+      "Sensitivity below specification after cleaning and optimisation — schedule Agilent PM visit for internal source and ion optics cleaning",
+      "SAFETY: Never operate the ESI source with the spray chamber door open — high voltage (3–5 kV) at the nebulizer is lethal; always close and latch the spray chamber before switching to standby or operate mode"
     ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.85,
@@ -4636,21 +4879,28 @@
       "Firmware needs update"
     ],
     "diagnostics": [
-      "Check LAN cable connection at rear of instrument and network switch",
-      "Ping instrument IP address from workstation",
-      "Verify instrument configuration in OpenLab CDS Control Panel",
-      "Check instrument front panel for error indicators"
+      "Check LAN cable connection at rear of Pro iQ Plus instrument and at the network switch — verify link LED is active on both ends; a flashing LED indicates physical layer connectivity",
+      "Ping instrument IP address from workstation command prompt: 'ping <IP_address>' — if no response, check network configuration; if response but OpenLab fails, the issue is at the software/driver level",
+      "Verify instrument configuration in OpenLab CDS Control Panel — confirm the correct instrument type (Pro iQ Plus G6170A), IP address, and communication port are configured",
+      "Check instrument front panel for error indicators — LED color codes: green = ready, amber = standby/warning, red = fault; note any displayed error codes for Agilent support reference",
+      "Check Windows Event Viewer for USB or network errors at the time of communication failure — correlating system events with instrument disconnection helps identify root cause",
+      "Verify Windows Firewall is not blocking OpenLab CDS communication ports — temporarily disable firewall and test; if instrument connects, add firewall exception for OpenLab",
+      "Test with a direct LAN crossover cable between PC and instrument (bypassing the network switch) to isolate switch or network infrastructure problems",
+      "Check if other Agilent LC modules (pump, autosampler, detector) communicate normally — if only the Pro iQ Plus is offline, the issue is instrument-specific; if all modules are offline, it is a system or PC problem"
     ],
     "corrective_actions": [
-      "Power cycle the Pro iQ Plus (off → wait 2 minutes for turbo pump deceleration → on)",
-      "Replace LAN cable",
-      "Assign static IP to avoid DHCP conflicts",
-      "Reinstall instrument driver in OpenLab CDS",
-      "Update firmware via Agilent OpenLab CDS instrument update utility"
+      "Power cycle the Pro iQ Plus: switch off → wait minimum 2 minutes for turbo pump to decelerate safely → switch on → wait for status LED to turn green before reconnecting in OpenLab CDS",
+      "Replace LAN cable with a known-good Cat5e or Cat6 cable — verify link LEDs illuminate at both ends after cable replacement",
+      "Assign static IP to avoid DHCP conflicts: configure via instrument front panel menu (Setup > Network > IP Address); document the IP address in the instrument logbook",
+      "Reinstall instrument driver in OpenLab CDS: remove the instrument from the configuration, restart OpenLab services, then re-add with correct parameters",
+      "Update firmware via Agilent OpenLab CDS instrument update utility — ensure firmware version compatibility with OpenLab CDS version per Agilent compatibility matrix",
+      "Disable Windows USB Selective Suspend and network adapter power management: Device Manager > Network Adapter > Properties > Power Management > uncheck 'Allow computer to turn off this device'",
+      "If using a managed network switch: verify the port VLAN assignment matches the instrument subnet; consult IT to ensure the instrument port is not subject to network security policies that block communication"
     ],
     "severity": "high",
     "escalation_conditions": [
-      "Instrument does not appear after power cycle and cable replacement — possible mainboard failure; contact Agilent service"
+      "Instrument does not appear after power cycle and cable replacement — possible mainboard failure; contact Agilent service",
+      "Turbo pump does not spin up after power cycle (no audible whine within 2 minutes) — vacuum system fault; do not attempt further troubleshooting; contact Agilent service immediately"
     ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.82,
@@ -4671,21 +4921,28 @@
       "Contaminated LC system introducing background ions"
     ],
     "diagnostics": [
-      "Perform post-column infusion experiment to map suppression regions",
-      "Compare neat standard vs matrix-matched calibration",
-      "Check for ghost peaks from previous injections",
-      "Evaluate LC gradient and column selectivity"
+      "Perform post-column infusion experiment: continuously infuse 100 ng/mL analyte standard via T-piece into column eluent while injecting blank matrix — signal dips at specific retention times reveal suppression windows",
+      "Compare neat standard vs matrix-matched calibration curves: calculate matrix factor (MF) = peak area in matrix / peak area in neat — MF < 0.8 indicates > 20% ion suppression",
+      "Check for ghost peaks from previous injections by running 2–3 blanks after high-concentration samples — late-eluting matrix components from previous injections can suppress signal in subsequent runs",
+      "Evaluate LC gradient and column selectivity: try alternative column chemistry (C18 vs. phenyl-hexyl vs. biphenyl) to shift analyte away from matrix-dense elution region",
+      "Monitor internal standard (ISTD) response across the sample batch: ISTD area RSD > 15% indicates variable ion suppression that will compromise quantitation accuracy",
+      "Inject blank matrix at increasing volumes (1, 5, 10, 20 µL) to determine the relationship between matrix load and suppression magnitude — if linear, reducing injection volume is effective",
+      "Run LC-UV trace in parallel with MS: compare UV chromatogram to identify co-eluting UV-absorbing matrix peaks in the analyte retention window — these are candidate suppressor compounds",
+      "Test ESI+ vs ESI- mode: some matrix components suppress one polarity more than the other — polarity switching may avoid suppression for specific analytes"
     ],
     "corrective_actions": [
-      "Increase chromatographic separation to resolve analyte from matrix",
-      "Reduce buffer concentration to minimum effective level",
-      "Add wash steps between injections to eliminate carryover",
-      "Use AJS source which provides improved desolvation and reduced matrix effects",
-      "Consider sample preparation cleanup (SPE, protein precipitation)"
+      "Increase chromatographic separation to resolve analyte from matrix-dense region: add isocratic hold, shallow gradient, or longer column to improve resolution at the analyte retention time",
+      "Reduce buffer concentration to minimum effective level — ammonium formate > 10 mM and TFA > 0.05% cause measurable ion suppression; titrate down to find minimum concentration maintaining retention",
+      "Add wash steps between injections to eliminate carryover: program 100% organic wash for 2–3 min between each injection, followed by re-equilibration",
+      "Use AJS source which provides improved desolvation and reduced matrix effects — AJS heated nitrogen sheath gas at 350–400 °C improves droplet evaporation in high-matrix samples",
+      "Implement sample preparation cleanup: protein precipitation with acetonitrile (3:1 v/v), phospholipid removal SPE (Agilent Captiva EMR-Lipid), or solid-phase extraction (Agilent Bond Elut) before injection",
+      "Use stable isotope-labeled internal standard (SIL-IS) co-eluting with analyte — SIL-IS experiences identical suppression and corrects for matrix effect variability across samples",
+      "Reduce injection volume to 1–2 µL to minimize matrix load on the ESI source — compensate with higher sample concentration if sensitivity allows"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Ion suppression persists above 50% despite method optimisation — consider alternative sample preparation or different ionisation mode"
+      "Ion suppression persists above 50% despite method optimisation — consider alternative sample preparation or different ionisation mode (APCI for non-polar thermally stable compounds)",
+      "Matrix factor varies > 30% between individual patient/lot samples — method validation will fail FDA/EMA bioanalytical criteria; redesign sample preparation"
     ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.8,
@@ -4706,25 +4963,248 @@
       "Worn electron multiplier"
     ],
     "diagnostics": [
-      "Run blank gradient with fresh LC-MS grade solvents",
-      "Check for air bubbles in LC flow path",
-      "Inspect spray chamber seal and nebulizer assembly",
-      "Review autotune electron multiplier voltage — increasing voltage indicates aging"
+      "Run blank gradient with fresh LC-MS grade solvents from newly opened bottles — compare baseline noise level (peak-to-peak in counts) to historical qualification data; noise increase > 3× indicates contamination or hardware issue",
+      "Check for air bubbles in LC flow path: inspect transparent tubing sections visually; monitor pump pressure for oscillations > 2% amplitude — air in the flow path causes periodic baseline spikes correlated with pump stroke frequency",
+      "Inspect spray chamber seal and nebulizer assembly: remove spray shield and check O-ring seal for damage or chemical attack — damaged seals allow ambient air ingress that increases chemical noise",
+      "Review autotune electron multiplier voltage (EMV) — compare current EMV to the value recorded at installation; EMV increase > 200 V above original indicates detector aging and increased amplified noise",
+      "Monitor background mass spectrum in scan mode: identify specific m/z values contributing to noise — plasticizer peaks at m/z 149, 279 (phthalates) indicate plastic contamination; m/z 391, 413 (PEG oligomers) indicate polymer contamination from tubing or filters",
+      "Check vacuum system: verify foreline pressure reading in MassHunter diagnostics — foreline > 5 Torr indicates roughing pump degradation or vacuum leak that increases baseline chemical noise",
+      "Test at different scan speeds and mass ranges: if noise scales with scan rate, it is electronic noise from the detector or ADC; if constant, it is chemical noise from contamination",
+      "Verify LC pump seal condition: leaking pump seals introduce air and cause periodic baseline modulation at the pump stroke frequency (typically 0.5–2 Hz)"
     ],
     "corrective_actions": [
-      "Replace solvents with fresh LC-MS grade reagents",
-      "Degas mobile phases thoroughly",
-      "Tighten all LC fittings and check for leaks",
-      "Replace spray chamber seal if worn",
-      "If EM voltage is >200V above original setting, schedule EM replacement"
+      "Replace solvents with fresh LC-MS grade reagents from newly opened bottles — use Agilent or equivalent certified LC-MS grade solvents; organic solvents degrade within weeks after opening",
+      "Degas mobile phases thoroughly: use online vacuum degasser (verify all channels active) or sparge with helium for 15 min — dissolved oxygen causes baseline noise through redox reactions in the ESI source",
+      "Tighten all LC fittings and check for leaks using tissue paper at each connection — even micro-leaks introduce air that causes periodic baseline spikes",
+      "Replace spray chamber seal (O-ring) if worn or chemically degraded — use Agilent OEM seal to ensure correct material compatibility with mobile phase additives",
+      "If EM voltage is > 200 V above original setting, schedule EM replacement — note this is a service engineer task on the Pro iQ Plus; continued operation at high EMV increases background noise proportionally",
+      "Flush entire LC system (pump, degasser, autosampler, column, detector) with 100% methanol for 30 min to remove accumulated contaminants — then equilibrate with fresh mobile phase",
+      "Install inline solvent filter (0.2 µm PTFE) between each solvent bottle and the degasser inlet to trap particulates and prevent contamination from bottle handling"
     ],
     "severity": "medium",
     "escalation_conditions": [
-      "Baseline noise does not improve after solvent replacement and system cleaning — possible EM failure or vacuum leak"
+      "Baseline noise does not improve after solvent replacement and system cleaning — possible EM failure or vacuum leak requiring Agilent service",
+      "SAFETY: If unusual odor (hot oil, electrical burn smell) is detected from the Pro iQ Plus, power off immediately and do not restart — contact Agilent service for vacuum pump or electronics inspection"
     ],
     "source_id": "agilent-pro-iq-series-user-guide-D0133020",
     "confidence_score": 0.82,
     "evidence_strength": "strong",
     "updated_at": "2026-08-28T00:00:00Z"
+  },
+  {
+    "id": "method-transfer-dwell-volume",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "method transfer dwell volume mismatch",
+    "symptom": "Retention times shift systematically when transferring a gradient HPLC method between instruments; early-eluting peaks shift more than late-eluting peaks; gradient elution profile appears offset in time",
+    "likely_causes": [
+      "Dwell volume (gradient delay volume) differs between the source and target instruments — dwell volume is the volume from the gradient mixer to the column inlet",
+      "Different pump and mixer architectures: low-pressure mixing systems (quaternary) have larger dwell volumes (1–5 mL) than high-pressure mixing systems (binary, 0.2–1.5 mL)",
+      "Additional system tubing, inline filters, or pressure transducers on the target instrument increase system volume",
+      "Different autosampler architecture: flow-through needle vs. fixed-loop contributes different amounts to effective dwell volume",
+      "Gradient proportioning valve position differs between instruments, creating different mixing chamber volumes"
+    ],
+    "diagnostics": [
+      "Measure dwell volume on both source and target instruments: inject 0.1% acetone (v/v) in water with a step gradient from 0% B to 100% B at 1 mL/min, no column — dwell volume equals the time (in mL) from gradient step to 50% of UV step response at 265 nm",
+      "Compare measured dwell volumes between instruments — difference > 0.3 mL for HPLC (> 0.05 mL for UHPLC) will cause measurable retention time shifts for gradient-eluted analytes",
+      "Run the analytical method on both instruments with the same column and mobile phases: overlay chromatograms and measure retention time differences — early peaks shift proportionally more because they experience the full dwell volume delay",
+      "Calculate expected RT shift: ΔtR = ΔVdwell / flow rate — a 1 mL dwell volume difference at 1 mL/min causes a 1-minute shift in all gradient-eluted peaks",
+      "Check if selectivity (relative retention order) changes between instruments: pure dwell volume mismatch shifts all peaks by the same time offset; selectivity changes indicate additional factors (column, temperature, mobile phase)",
+      "Verify gradient proportioning accuracy on the target instrument: run dwell volume test at different compositions (10%, 50%, 90% B step) — non-linear step response indicates mixer or proportioning valve issue",
+      "Measure system suitability parameters (resolution, tailing, plate count) on both instruments using the same SST standard — parameters other than RT should be similar if dwell volume is the only difference",
+      "Document complete fluidic path from pump outlet to column inlet on both instruments: measure each tubing length and ID to calculate total pre-column volume"
+    ],
+    "corrective_actions": [
+      "Add an isocratic hold at the beginning of the gradient on the instrument with smaller dwell volume: hold time = (larger dwell volume − smaller dwell volume) / flow rate — this compensates for the dwell volume difference",
+      "Alternatively, on the instrument with larger dwell volume: reduce pre-column tubing length or use smaller-ID tubing to reduce dwell volume — use 0.12 mm ID tubing for standard HPLC, 0.075 mm ID for UHPLC",
+      "Install a mixing loop (variable-volume loop) on the low-dwell-volume instrument to increase its dwell volume to match the source instrument — available as aftermarket accessories from most HPLC vendors",
+      "Adjust the gradient time table on the target instrument: shift all gradient time points by ΔVdwell / flow rate to compensate — document this adjustment in the method transfer protocol",
+      "Re-validate the method on the target instrument with the adjusted gradient: run system suitability, accuracy, precision, and linearity as specified in the method validation protocol",
+      "For USP/EP compendial methods: adjust only the initial isocratic hold, not the gradient slope or composition — changing gradient slope may invalidate the compendial method compliance",
+      "Document the dwell volume of both instruments in the method transfer report: ICH Q2 and FDA guidance recommend recording instrument-specific parameters that affect method performance"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Retention time differences cannot be explained by dwell volume alone (selectivity changes observed) — investigate column lot-to-lot variability, mobile phase pH, and temperature differences between instruments",
+      "Method transfer fails to meet system suitability criteria after dwell volume correction — complete method revalidation on the target instrument may be required per ICH Q2(R2)"
+    ],
+    "source_id": "usp-general-chapter-621-chromatography",
+    "confidence_score": 0.92,
+    "evidence_strength": "strong",
+    "updated_at": "2026-09-02T00:00:00Z"
+  },
+  {
+    "id": "method-transfer-extra-column",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "method transfer extra-column volume",
+    "symptom": "Peak efficiency (plate count) significantly lower on the target instrument compared to the source instrument; peaks are broader and asymmetric despite using the same column and method conditions",
+    "likely_causes": [
+      "Extra-column volume (band broadening) is larger on the target instrument — connecting tubing ID, length, detector flow cell volume, and fitting dead volumes all contribute",
+      "Incorrect tubing ID: standard HPLC tubing (0.17 mm ID) used where narrow-bore UHPLC tubing (0.075–0.12 mm ID) is required for sub-2-µm or narrow-bore columns",
+      "Fittings with dead volume at column inlet/outlet connections: worn ferrules, incorrect ferrule type, or gap between tubing end and column frit create mixing chambers that broaden peaks",
+      "Detector flow cell volume too large for the column peak volume: a 13 µL analytical flow cell broadens peaks from a 2.1 mm × 50 mm UHPLC column by > 30%",
+      "Autosampler injection volume or needle seat dead volume contributing extra band broadening"
+    ],
+    "diagnostics": [
+      "Measure extra-column band broadening on both instruments: replace column with zero-dead-volume union, inject uracil (1 µL, 0.1 mg/mL) at the method flow rate, and measure peak width at half-height — convert to volume (σ²_v) using flow rate",
+      "Compare extra-column variance (σ²_v) between source and target: acceptable extra-column variance is < 10% of total peak variance — for a 2.1 mm × 100 mm sub-2-µm column, target σ²_v < 3 µL²",
+      "Inspect all tubing IDs with a caliper or by flow resistance measurement: flow restriction at the analytical flow rate should match between instruments — higher restriction for the same flow rate indicates smaller ID (correct for UHPLC)",
+      "Check all fittings for dead volume: remove each fitting and inspect the ferrule impression — a gap between the ferrule seal point and the tubing end creates a dead volume pocket",
+      "Measure detector flow cell contribution independently: compare peak width with and without the detector flow cell in the path (use a tee to bypass) — large flow cells (> 5 µL) broaden narrow peaks significantly",
+      "Calculate theoretical peak volume for the first eluted peak: V_peak = 4σ = 4 × L × ε_t × A_c / √N — if observed peak volume is > 1.5× theoretical, extra-column broadening is significant",
+      "Test with a well-retained peak (k' > 5) and a weakly retained peak (k' < 2): extra-column broadening disproportionately affects early peaks because their intrinsic peak volume is smaller",
+      "Photograph or diagram the complete fluidic path from injector outlet to detector outlet on both instruments for side-by-side comparison"
+    ],
+    "corrective_actions": [
+      "Replace all post-injector tubing with minimum length and correct ID: 0.075–0.12 mm ID for UHPLC columns (< 2 µm particles, 2.1 mm ID), 0.12–0.17 mm ID for standard HPLC columns (3–5 µm particles, 4.6 mm ID)",
+      "Use zero-dead-volume fittings at column inlet and outlet: finger-tight fittings (e.g., IDEX MarvelX, Waters Viper) ensure tubing bottoms out against column frit with no gap — verify connection quality by checking for extra peaks or shoulders",
+      "Replace detector flow cell with appropriate volume: ≤ 500 nL for UHPLC, ≤ 2 µL for standard HPLC — use a 60 mm path length micro flow cell for equivalent sensitivity at reduced cell volume",
+      "Minimize autosampler contribution: use partial loop injection mode with small needle seat volume; flush needle seat between injections to prevent carryover contribution to band broadening",
+      "Cut tubing to minimum possible length between injector and column inlet (< 150 mm) and between column outlet and detector (< 200 mm) — every extra centimeter adds measurable extra-column volume",
+      "Re-measure extra-column variance after modifications and verify it meets the target (< 10% of column peak variance) — repeat system suitability test to confirm efficiency recovery",
+      "Document the final tubing configuration (lengths, IDs, fitting types) in the instrument qualification record — future instrument changes must maintain equivalent extra-column volume"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Plate count on target instrument is < 60% of source instrument after all extra-column optimizations — column may be damaged from shipping or installation; test with a fresh column from the same batch",
+      "SAFETY: When modifying UHPLC tubing and fittings, always depressurize the system first — UHPLC systems operate at up to 1300 bar and loose fittings under pressure can cause high-velocity solvent jets"
+    ],
+    "source_id": "usp-general-chapter-621-chromatography",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-09-02T00:00:00Z"
+  },
+  {
+    "id": "method-transfer-gradient-delay",
+    "technique": "UHPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "method transfer gradient delay volume",
+    "symptom": "UHPLC gradient method transferred from one UHPLC platform to another shows retention time shifts of 0.1–0.5 min for gradient-eluted peaks; relative peak spacing may also change slightly",
+    "likely_causes": [
+      "UHPLC systems have dramatically different gradient delay volumes depending on architecture: Waters ACQUITY (0.1–0.3 mL), Agilent 1290 Infinity II (0.07–0.5 mL depending on mixer), Shimadzu Nexera (0.08–0.2 mL), Thermo Vanquish (0.08–0.4 mL)",
+      "Different mixer volumes between instruments: 35 µL vs. 100 µL vs. 380 µL mixers are commonly available — larger mixers improve gradient composition accuracy but increase delay volume",
+      "Autosampler metering mode differences: flow-through-needle (Waters, Thermo) vs. split-loop (Agilent) contribute different amounts to effective system volume",
+      "System tubing and valve configurations differ between OEM installations and user-modified systems",
+      "Gradient proportioning accuracy differs: high-pressure binary mixing vs. low-pressure quaternary mixing can create subtle selectivity differences beyond simple delay"
+    ],
+    "diagnostics": [
+      "Measure gradient delay volume on both UHPLC systems using the acetone step gradient method: program 0→100% B step at 0.4 mL/min with no column, detect at 265 nm — delay volume = time to 50% step × flow rate",
+      "Compare delay volumes: UHPLC methods are extremely sensitive to delay volume differences — even 50 µL difference at 0.4 mL/min causes a 7.5-second RT shift",
+      "Run the complete method on both systems with the same column lot: overlay chromatograms normalized to the first eluting peak — constant time offset for all peaks confirms pure delay volume difference; variable offset indicates selectivity change",
+      "Measure mixer dispersion profile: instead of a step gradient, run a 1-minute linear ramp and compare the shape of the composition profile between instruments — differences indicate mixer volume and mixing quality differences",
+      "Test gradient accuracy at the target flow rate: program 10%, 30%, 50%, 70%, 90% B steps and measure actual composition at each step using UV absorbance of acetone — composition accuracy should be within ±0.5% for UHPLC",
+      "Compare peak widths between instruments: if peak widths differ > 15% for the same column and method, extra-column effects (not just delay volume) are contributing — see method-transfer-extra-column",
+      "Verify column temperature is identical on both systems: ±1 °C temperature difference causes ±0.5–2% RT shift for most reversed-phase analytes — use external calibrated thermometer to verify actual column temperature",
+      "Check if peak elution order changes: if selectivity reversal occurs, the issue extends beyond delay volume to fundamental mobile phase delivery differences (mixing linearity, proportioning accuracy)"
+    ],
+    "corrective_actions": [
+      "Adjust initial isocratic hold time to compensate for delay volume difference: on the system with smaller delay volume, add hold time = (VD_large − VD_small) / flow rate before the gradient starts",
+      "If available, use the same mixer volume on both systems: Waters ACQUITY systems allow mixer cartridge swaps (50 µL, 100 µL, 380 µL); Agilent 1290 II offers 35 µL, 100 µL, and 380 µL options",
+      "Use emulation modes if available: Agilent Method Suitability Diagnostic (MSD) mode, Waters Emulation Package, and Shimadzu i-DReC all simulate specific delay volumes from other platforms",
+      "For critical separations where selectivity changes with delay volume: adjust gradient starting composition by (ΔVD / gradient volume) × (B_final − B_initial) to compensate for composition offset at column head",
+      "Re-validate the transferred method on the target system: run full system suitability including resolution, tailing, plate count, and RT precision — all parameters must meet method specification",
+      "Document delay volume measurements and any method adjustments in the method transfer protocol — regulatory inspectors expect documented evidence of instrument equivalence",
+      "Consider converting gradient methods to use generic gradient programs normalized to column volumes (t/t0 or column volume equivalents) — this format is more transferable across systems with different delay volumes"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "Selectivity reversal or co-elution occurs after delay volume correction — method redevelopment on the target platform may be required; consult method development team",
+      "Resolution between critical pair drops below method specification (e.g., Rs < 1.5) after transfer — consider column or mobile phase adjustment specific to the target system"
+    ],
+    "source_id": "usp-general-chapter-621-chromatography",
+    "confidence_score": 0.91,
+    "evidence_strength": "strong",
+    "updated_at": "2026-09-02T00:00:00Z"
+  },
+  {
+    "id": "method-transfer-detector-path",
+    "technique": "LCMS",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "method transfer detector path length",
+    "symptom": "UV/DAD response factors differ between source and target LC-MS systems; quantitative results from UV channel do not agree between instruments despite identical injection volumes and sample concentrations",
+    "likely_causes": [
+      "Different UV detector flow cell path lengths between instruments: standard analytical cells are 10 mm, semi-micro cells are 6 mm, and UHPLC/LC-MS cells are 3–5 mm — path length directly affects absorbance per Beer-Lambert law (A = εcl)",
+      "Flow cell volume mismatch causing different degrees of band broadening and dilution — larger cells dilute narrow peaks more, reducing apparent peak height while preserving area",
+      "Different detector types: diode array detector (DAD) vs. variable wavelength detector (VWD) may have different optical designs and stray light characteristics affecting linearity at high absorbance",
+      "Wavelength accuracy differences between detectors: 2 nm wavelength offset at an absorption maximum can cause 5–15% response difference depending on the spectral band shape",
+      "Reference wavelength settings differ between instruments causing different baseline compensation behavior"
+    ],
+    "diagnostics": [
+      "Verify flow cell path length on both instruments: check instrument configuration in software (OpenLab, Empower, Chromeleon) or physically inspect the flow cell specification label — expected path lengths: 10 mm (analytical HPLC), 6 mm (semi-micro), 3 mm (LC-MS with post-column split)",
+      "Inject the same concentration standard on both instruments and compare peak areas and peak heights: if area ratio matches path length ratio (e.g., 10 mm/6 mm = 1.67), path length difference is the sole cause",
+      "Run wavelength calibration on both detectors: DADs use holmium oxide or didymium internal standards — wavelength accuracy should be ±1 nm; compare calibration results between instruments",
+      "Compare UV spectra of a standard compound acquired on both detectors: overlay normalized spectra — differences indicate wavelength accuracy or bandwidth differences between detectors",
+      "Check detector linearity on both instruments: inject 5-point dilution series from LOQ to 150% of method concentration — compare Beer-Lambert linearity (R² > 0.999) between instruments",
+      "Verify reference wavelength settings: some methods use 360 nm reference for background correction at 254 nm — different reference wavelength settings cause different baseline subtraction and apparent response",
+      "Measure detector noise and drift on both instruments: run blank gradient and compare baseline characteristics — higher noise on one instrument reduces effective sensitivity",
+      "For LC-MS split systems: verify the actual split ratio by measuring flow rate to the UV detector and to the MS separately — split ratio variation directly affects UV response"
+    ],
+    "corrective_actions": [
+      "Normalize response factors by path length: multiply the response factor from the shorter-path instrument by (shorter path / longer path) to predict expected response on the longer-path instrument — use this correction factor in the quantitative method",
+      "Install matching flow cells on both instruments: if the source instrument uses a 10 mm cell, install the same 10 mm cell on the target — verify that back-pressure from the cell is compatible with the system",
+      "Recalibrate the method on the target instrument: run a fresh calibration curve with the same reference standards — this automatically accounts for all detector differences without requiring path length correction",
+      "Match wavelength settings exactly: set detection wavelength, bandwidth, and reference wavelength identically on both instruments — even 1 nm difference at a steep spectral slope causes significant response change",
+      "For LC-MS with post-column split: verify and document the split ratio on the target instrument; if different from source, adjust either the splitter or recalibrate to compensate",
+      "Use relative response factors (response relative to internal standard) rather than absolute response factors — internal standard correction compensates for path length and detector sensitivity differences automatically",
+      "Document all detector parameters (path length, cell volume, wavelength, bandwidth, reference wavelength, response time) in the method transfer protocol for regulatory compliance"
+    ],
+    "severity": "medium",
+    "escalation_conditions": [
+      "Quantitative results differ by > 20% after path length correction and recalibration — investigate detector linearity, stray light, and optical degradation; schedule detector qualification per manufacturer protocol",
+      "Detector linearity fails (R² < 0.999 over method range) — detector lamp aging or optical contamination; replace lamp and clean flow cell before re-qualifying"
+    ],
+    "source_id": "usp-general-chapter-621-chromatography",
+    "confidence_score": 0.88,
+    "evidence_strength": "strong",
+    "updated_at": "2026-09-02T00:00:00Z"
+  },
+  {
+    "id": "method-transfer-sst-criteria",
+    "technique": "HPLC",
+    "instrument_family": "generic",
+    "model": null,
+    "issue_category": "method transfer SST criteria not met",
+    "symptom": "System suitability test (SST) fails on the target instrument after method transfer — resolution, tailing factor, plate count, RSD, or capacity factor fall outside acceptance criteria established on the source instrument",
+    "likely_causes": [
+      "Cumulative effect of multiple instrument differences: dwell volume, extra-column volume, column temperature, detector response, and mobile phase preparation all contribute small deviations that compound",
+      "Column lot-to-lot variability: different column batch on the target instrument has slightly different selectivity, efficiency, or retention characteristics",
+      "Mobile phase preparation differences: manual vs. gravimetric preparation, pH meter calibration, buffer concentration accuracy all introduce method variability",
+      "SST criteria set too tightly on the source instrument — criteria based on a single instrument's performance may not be achievable across different hardware platforms",
+      "Environmental differences between laboratories: ambient temperature, humidity, and altitude (affecting mobile phase degassing) can affect chromatographic performance"
+    ],
+    "diagnostics": [
+      "Identify which SST parameter(s) fail: resolution < 2.0 (most common transfer failure), tailing > 2.0, plates < N_spec, RSD > 2.0%, or capacity factor outside range — each failure points to a different root cause",
+      "If resolution fails: measure individual peak widths and retention times — determine whether the failure is due to peak broadening (efficiency loss), selectivity change (retention time shift), or both",
+      "If tailing factor fails: compare peak shapes between instruments at the same injection mass — tailing that appears only on the target instrument suggests dead volume at connections or column inlet void",
+      "If plate count fails: run column test mix per manufacturer specifications and compare to column certificate — if column passes vendor specification but fails method SST, the SST criteria may be too stringent for the target system",
+      "If RSD fails: examine injection-to-injection variability — autosampler precision differences between instruments can cause RSD failures; run 10 replicate injections and calculate RSD",
+      "Compare system suitability results from the source instrument (last 3 months of data) to the target instrument: calculate the historical range and standard deviation — SST criteria should allow for inter-instrument variability",
+      "Run SST on the target instrument using a fresh column from the same manufacturer lot as the source instrument: this isolates column variability from instrument variability",
+      "Check mobile phase pH on both instruments using the same calibrated pH meter — 0.1 pH unit difference can shift selectivity sufficiently to cause resolution failure for closely eluting pairs"
+    ],
+    "corrective_actions": [
+      "Address the specific failing SST parameter: for resolution: adjust selectivity (pH, organic modifier, column temperature); for tailing: check fittings and dead volume; for plates: optimize extra-column volume; for RSD: verify autosampler precision",
+      "Adjust dwell volume compensation: add initial isocratic hold or modify tubing to match dwell volumes between instruments — this corrects the most common source of resolution failure in gradient method transfers",
+      "Use the same column lot on both instruments: request column manufacturer to reserve a single production lot for method transfer — lot-to-lot selectivity differences are common and can be the sole cause of SST failure",
+      "Prepare mobile phases identically: use the same balance, pH meter, and volumetric glassware; weigh buffer salts rather than measuring by volume — prepare a single batch and ship to both laboratories if feasible",
+      "Widen SST acceptance criteria based on inter-instrument variability data: ICH Q2(R2) and USP <621> allow adjustment of system suitability criteria during method transfer if justified by validation data",
+      "If SST resolution fails by a small margin (e.g., Rs = 1.8 vs. specification of 2.0): adjust column temperature in ±2 °C increments — temperature is the most practical parameter for fine-tuning selectivity without changing mobile phase",
+      "Document all troubleshooting steps and their outcomes in the method transfer report: regulatory agencies expect a systematic approach to resolving SST failures during transfer, not simply relaxing criteria"
+    ],
+    "severity": "high",
+    "escalation_conditions": [
+      "SST cannot be met after addressing dwell volume, extra-column volume, column, and mobile phase differences — method may require partial redevelopment or platform-specific adjustments per ICH Q14 guidelines",
+      "Multiple SST parameters fail simultaneously — indicates fundamental incompatibility between method requirements and target instrument capabilities; escalate to method development team for assessment",
+      "SAFETY: Method transfer for pharmaceutical quality control methods is subject to regulatory requirements (FDA 21 CFR 211, EU GMP Annex 15) — document all deviations, investigations, and corrective actions in a formal transfer protocol"
+    ],
+    "source_id": "usp-general-chapter-1058-analytical-instrument-transfer",
+    "confidence_score": 0.90,
+    "evidence_strength": "strong",
+    "updated_at": "2026-09-02T00:00:00Z"
   }
 ]

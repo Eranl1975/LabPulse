@@ -6,10 +6,13 @@ import { aiAnswerFallback, aiAnswerFallbackV2 } from '@/lib/ai-fallback';
 import { getUser, getProfile } from '@/lib/auth';
 import { hasAppAccess } from '@/lib/auth-shared';
 import { checkQueryRateLimit } from '@/lib/rate-limit';
-import { sanitizeAnswer } from '@/lib/sanitize';
+import { sanitizeAnswerV2 } from '@/lib/sanitize';
 import { runQualityChecks } from '@/lib/quality-control';
+import { createLogger } from '@/lib/logger';
 import type { RankingQueryV2 } from '@/agents/ranking/types';
-import type { Technique, RankedAnswerV2 } from '@/lib/types';
+import type { Technique, RankedAnswerV2, SampleMatrixType } from '@/lib/types';
+
+const log = createLogger('api/query');
 
 const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
 
@@ -98,6 +101,17 @@ export async function POST(req: NextRequest) {
     recent_maintenance:  optStr(body.recent_maintenance),
     qc_results:          optStr(body.qc_results),
     expected_result:     optStr(body.expected_result),
+    // V5 additions
+    sst_plates:             typeof body.sst_plates === 'number' ? body.sst_plates : null,
+    sst_tailing_factor:     typeof body.sst_tailing_factor === 'number' ? body.sst_tailing_factor : null,
+    sst_resolution:         typeof body.sst_resolution === 'number' ? body.sst_resolution : null,
+    sst_rsd_percent:        typeof body.sst_rsd_percent === 'number' ? body.sst_rsd_percent : null,
+    sample_matrix_type:     optStr(body.sample_matrix_type) as SampleMatrixType | null,
+    column_injection_count: typeof body.column_injection_count === 'number' ? body.column_injection_count : null,
+    is_method_transfer:     body.is_method_transfer === true,
+    source_instrument:      optStr(body.source_instrument),
+    source_vendor:          optStr(body.source_vendor),
+    source_model:           optStr(body.source_model),
   };
 
   const AI_ONLY_TECHNIQUES = new Set<Technique>(['UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
@@ -113,7 +127,7 @@ export async function POST(req: NextRequest) {
       ranked = await aiAnswerFallbackV2(query, ranked);
     } catch (err) {
       // If AI call fails, return the original result rather than crashing
-      console.error('[ai-fallback-v2] error:', err);
+      log.error('ai-fallback', 'AI fallback V2 failed', { error: String(err) });
     }
   }
 
@@ -157,7 +171,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Sanitize AI-generated content to prevent XSS
-  const sanitized = sanitizeAnswer(ranked);
+  const sanitized = sanitizeAnswerV2(ranked);
 
   return NextResponse.json({
     ranked_answer: sanitized,
