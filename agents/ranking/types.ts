@@ -76,6 +76,8 @@ export interface RankingQueryV2 extends RankingQuery {
   source_instrument?: string | null;
   source_vendor?: string | null;
   source_model?: string | null;
+  // V6: dynamic technique-specific context (key → value)
+  extra_context?: Record<string, string>;
 }
 
 export interface ScoreBreakdownV2 extends ScoreBreakdown {

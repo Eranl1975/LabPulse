@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { SampleMatrixType } from '@/lib/types';
 import {
   SAMPLE_MATRIX_TYPE_OPTIONS,
-  SST_TECHNIQUES,
   VENDOR_OPTIONS,
 } from './query-form-options';
+import { getContextSchema, type ContextFieldDef, type ContextGroupDef } from '@/lib/context-schemas';
+import { getPromotedFields } from '@/lib/context-priorities';
 import ComboInput from './ComboInput';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -42,11 +43,24 @@ export interface Step2Data {
   source_model: string;
   // V5: column injection count
   column_injection_count: string;
+  // V6: dynamic context for technique-specific fields
+  extraContext: Record<string, string>;
 }
+
+// Set of keys that exist directly on Step2Data (not in extraContext)
+const EXISTING_KEYS = new Set([
+  'analyte', 'sampleMatrix', 'column', 'mobilephase', 'flowRate',
+  'injectionVolume', 'gradient', 'retentionTime', 'ionizationMode',
+  'sourceParams', 'acquisitionMode', 'recentMaint', 'qcResults',
+  'expectedResult', 'methodConditions',
+  'sst_plates', 'sst_tailing_factor', 'sst_resolution', 'sst_rsd_percent',
+  'sample_matrix_type', 'column_injection_count',
+]);
 
 interface QueryFormStep2Props {
   data: Step2Data;
   technique: string;
+  issueCategory: string;
   onChange: (data: Step2Data) => void;
   onNext: () => void;
   onBack: () => void;
@@ -74,9 +88,34 @@ const LABEL: React.CSSProperties = {
   marginBottom: '0.4rem',
 };
 
+const INPUT_STYLE: React.CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: '0.6875rem 0.9375rem',
+  background: 'var(--color-slate-50)',
+  border: '1.5px solid var(--color-slate-200)',
+  borderRadius: '8px',
+  fontFamily: 'var(--font-sans)',
+  fontSize: '0.9375rem',
+  color: 'var(--color-navy-900)',
+  outline: 'none',
+  transition: 'border-color .15s ease, box-shadow .15s ease, background .15s ease',
+};
+
+function focusStyle(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  e.currentTarget.style.borderColor = 'var(--color-teal-500)';
+  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(20,184,166,.15)';
+  e.currentTarget.style.background = '#fff';
+}
+function blurStyle(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  e.currentTarget.style.borderColor = 'var(--color-slate-200)';
+  e.currentTarget.style.boxShadow = 'none';
+  e.currentTarget.style.background = 'var(--color-slate-50)';
+}
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-function StepHeader({ num, title, optional }: { num: number; title: string; optional?: boolean }) {
+function StepHeader({ num, title, subtitle }: { num: number; title: string; subtitle?: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.125rem' }}>
       <span style={{
@@ -94,29 +133,24 @@ function StepHeader({ num, title, optional }: { num: number; title: string; opti
       }}>
         {title}
       </span>
-      {optional && (
-        <span style={{
-          fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-slate-400)',
-          textTransform: 'uppercase', letterSpacing: '0.06em',
-        }}>
-          optional
-        </span>
-      )}
+      <span style={{
+        fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-slate-400)',
+        textTransform: 'uppercase', letterSpacing: '0.06em',
+      }}>
+        {subtitle ?? 'optional \u2014 improves accuracy'}
+      </span>
     </div>
   );
 }
 
 function Field({
-  label, required, hint, children,
+  label, hint, children,
 }: {
-  label: string; required?: boolean; hint?: string; children: React.ReactNode;
+  label: string; hint?: string; children: React.ReactNode;
 }) {
   return (
     <div>
-      <label style={LABEL}>
-        {label}
-        {required && <span style={{ color: 'var(--color-teal-500)', marginLeft: '2px' }}>*</span>}
-      </label>
+      <label style={LABEL}>{label}</label>
       {children}
       {hint && (
         <div style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--color-slate-400)', lineHeight: 1.4 }}>
@@ -128,45 +162,25 @@ function Field({
 }
 
 function InputField({
-  value, onChange, placeholder, type = 'text',
+  value, onChange, placeholder,
 }: {
-  value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+  value: string; onChange: (v: string) => void; placeholder?: string;
 }) {
   return (
     <input
-      type={type}
+      type="text"
       value={value}
       placeholder={placeholder}
       onChange={e => onChange(e.target.value)}
-      style={{
-        width: '100%',
-        boxSizing: 'border-box',
-        padding: '0.6875rem 0.9375rem',
-        background: 'var(--color-slate-50)',
-        border: '1.5px solid var(--color-slate-200)',
-        borderRadius: '8px',
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.9375rem',
-        color: 'var(--color-navy-900)',
-        outline: 'none',
-        transition: 'border-color .15s ease, box-shadow .15s ease, background .15s ease',
-      }}
-      onFocus={e => {
-        e.currentTarget.style.borderColor = 'var(--color-teal-500)';
-        e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(20,184,166,.15)';
-        e.currentTarget.style.background  = '#fff';
-      }}
-      onBlur={e => {
-        e.currentTarget.style.borderColor = 'var(--color-slate-200)';
-        e.currentTarget.style.boxShadow   = 'none';
-        e.currentTarget.style.background  = 'var(--color-slate-50)';
-      }}
+      style={INPUT_STYLE}
+      onFocus={focusStyle}
+      onBlur={blurStyle}
     />
   );
 }
 
 function TextareaField({
-  value, onChange, placeholder, rows = 3,
+  value, onChange, placeholder, rows = 2,
 }: {
   value: string; onChange: (v: string) => void; placeholder?: string; rows?: number;
 }) {
@@ -177,230 +191,235 @@ function TextareaField({
       placeholder={placeholder}
       onChange={e => onChange(e.target.value)}
       style={{
-        width: '100%',
-        boxSizing: 'border-box',
-        padding: '0.6875rem 0.9375rem',
-        background: 'var(--color-slate-50)',
-        border: '1.5px solid var(--color-slate-200)',
-        borderRadius: '8px',
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.9375rem',
-        color: 'var(--color-navy-900)',
-        outline: 'none',
+        ...INPUT_STYLE,
         resize: 'vertical',
         lineHeight: 1.6,
-        transition: 'border-color .15s ease, box-shadow .15s ease, background .15s ease',
         minHeight: `${rows * 1.6 + 1.4}rem`,
       }}
-      onFocus={e => {
-        e.currentTarget.style.borderColor = 'var(--color-teal-500)';
-        e.currentTarget.style.boxShadow   = '0 0 0 3px rgba(20,184,166,.15)';
-        e.currentTarget.style.background  = '#fff';
-      }}
-      onBlur={e => {
-        e.currentTarget.style.borderColor = 'var(--color-slate-200)';
-        e.currentTarget.style.boxShadow   = 'none';
-        e.currentTarget.style.background  = 'var(--color-slate-50)';
-      }}
+      onFocus={focusStyle}
+      onBlur={blurStyle}
     />
+  );
+}
+
+/** Collapsible group section */
+function GroupSection({
+  group, open, onToggle, fieldCount, filledCount, children,
+}: {
+  group: ContextGroupDef; open: boolean; onToggle: () => void;
+  fieldCount: number; filledCount: number; children: React.ReactNode;
+}) {
+  return (
+    <div style={{
+      border: '1px solid var(--color-slate-200)',
+      borderRadius: '10px',
+      overflow: 'hidden',
+      marginTop: '0.25rem',
+    }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          width: '100%',
+          padding: '0.75rem 1rem',
+          background: open ? 'var(--color-teal-50)' : 'var(--color-slate-50)',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-display)',
+          fontSize: '0.8125rem',
+          fontWeight: 700,
+          color: 'var(--color-teal-600)',
+          textAlign: 'left',
+          transition: 'background .15s ease',
+        }}
+      >
+        <span style={{
+          transform: open ? 'rotate(90deg)' : 'none',
+          transition: 'transform .2s',
+          display: 'inline-block',
+        }}>
+          &#9656;
+        </span>
+        {group.label}
+        <span style={{
+          fontSize: '0.72rem', fontWeight: 600,
+          color: filledCount > 0 ? 'var(--color-teal-500)' : 'var(--color-slate-400)',
+          textTransform: 'uppercase', letterSpacing: '0.06em',
+          marginLeft: 'auto',
+        }}>
+          {filledCount > 0 ? `${filledCount}/${fieldCount} filled` : `${fieldCount} fields`}
+        </span>
+      </button>
+      {open && (
+        <div style={{
+          padding: '1rem',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '0.75rem',
+          borderTop: '1px solid var(--color-slate-200)',
+        }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Dynamic field renderer ──────────────────────────────────────────────────
+
+function DynamicField({
+  field, value, onChange,
+}: {
+  field: ContextFieldDef; value: string; onChange: (v: string) => void;
+}) {
+  if (field.type === 'textarea') {
+    return (
+      <Field label={field.label} hint={field.hint}>
+        <TextareaField value={value} onChange={onChange} placeholder={field.placeholder} />
+      </Field>
+    );
+  }
+  if (field.type === 'select' && field.key === 'sample_matrix_type') {
+    return (
+      <Field label={field.label} hint={field.hint}>
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          style={{
+            ...INPUT_STYLE,
+            cursor: 'pointer',
+            color: value ? 'var(--color-navy-900)' : 'var(--color-slate-400)',
+          }}
+          onFocus={focusStyle as unknown as React.FocusEventHandler<HTMLSelectElement>}
+          onBlur={blurStyle as unknown as React.FocusEventHandler<HTMLSelectElement>}
+        >
+          {SAMPLE_MATRIX_TYPE_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </Field>
+    );
+  }
+  return (
+    <Field label={field.label} hint={field.hint}>
+      <InputField value={value} onChange={onChange} placeholder={field.placeholder} />
+    </Field>
   );
 }
 
 // ── Main component ───────────────────────────────────────────────────────────
 
-export default function QueryFormStep2({ data, technique, onChange, onNext, onBack }: QueryFormStep2Props) {
-  const [sstOpen, setSstOpen] = useState(false);
-  const showSST = SST_TECHNIQUES.has(technique);
+export default function QueryFormStep2({
+  data, technique, issueCategory, onChange, onNext, onBack,
+}: QueryFormStep2Props) {
+  const schema = useMemo(() => getContextSchema(technique), [technique]);
+  const promotedKeys = useMemo(() => new Set(getPromotedFields(issueCategory)), [issueCategory]);
 
-  function update(patch: Partial<Step2Data>) {
-    onChange({ ...data, ...patch });
+  // Compute effective priority for each field (promoted fields become priority 1)
+  const fieldsWithPriority = useMemo(() => {
+    return schema.fields.map(f => ({
+      ...f,
+      effectivePriority: promotedKeys.has(f.key) ? 1 as const : f.priority,
+    }));
+  }, [schema.fields, promotedKeys]);
+
+  // Split fields by priority: priority 1 = always visible, 2+ = in expandable groups
+  const primaryFields = fieldsWithPriority.filter(f => f.effectivePriority === 1);
+  const expandableFields = fieldsWithPriority.filter(f => f.effectivePriority > 1);
+
+  // Group expandable fields by group id
+  const expandableGroups = useMemo(() => {
+    const map = new Map<string, typeof expandableFields>();
+    for (const f of expandableFields) {
+      const list = map.get(f.group) ?? [];
+      list.push(f);
+      map.set(f.group, list);
+    }
+    return map;
+  }, [expandableFields]);
+
+  // Track which groups are open
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  function toggleGroup(id: string) {
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  // ── Value accessors ──────────────────────────────────────────────
+
+  function getValue(key: string): string {
+    if (EXISTING_KEYS.has(key)) {
+      return String((data as unknown as Record<string, unknown>)[key] ?? '');
+    }
+    return data.extraContext[key] ?? '';
+  }
+
+  function setValue(key: string, value: string) {
+    if (EXISTING_KEYS.has(key)) {
+      onChange({ ...data, [key]: key === 'sample_matrix_type' ? value as SampleMatrixType | '' : value });
+    } else {
+      onChange({ ...data, extraContext: { ...data.extraContext, [key]: value } });
+    }
+  }
+
+  function countFilled(fields: ContextFieldDef[]): number {
+    return fields.filter(f => getValue(f.key).trim()).length;
   }
 
   return (
     <div>
       <div style={SECTION}>
-        <StepHeader num={3} title="Method Context" optional />
+        <StepHeader num={3} title="Advanced Context" />
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-
-          {/* Method Conditions textarea */}
-          <Field label="Method Conditions">
-            <TextareaField
-              value={data.methodConditions}
-              onChange={v => update({ methodConditions: v })}
-              placeholder="e.g. C18 column, 60 \u00B0C oven, gradient 5 \u2192 95 % ACN in 8 min, flow 0.4 mL/min"
-              rows={2}
-            />
-          </Field>
-
-          {/* Core method fields — 2 column grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <Field label="Analyte">
-              <InputField value={data.analyte} onChange={v => update({ analyte: v })} placeholder="e.g. caffeine, ibuprofen" />
-            </Field>
-            <Field label="Sample Matrix">
-              <InputField value={data.sampleMatrix} onChange={v => update({ sampleMatrix: v })} placeholder="e.g. plasma, soil extract" />
-            </Field>
-            <Field label="Sample Matrix Type">
-              <select
-                value={data.sample_matrix_type}
-                onChange={e => update({ sample_matrix_type: e.target.value as SampleMatrixType | '' })}
-                style={{
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  padding: '0.6875rem 0.9375rem',
-                  background: 'var(--color-slate-50)',
-                  border: '1.5px solid var(--color-slate-200)',
-                  borderRadius: '8px',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.9375rem',
-                  color: data.sample_matrix_type ? 'var(--color-navy-900)' : 'var(--color-slate-400)',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  transition: 'border-color .15s ease, box-shadow .15s ease',
-                }}
-              >
-                {SAMPLE_MATRIX_TYPE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Column">
-              <InputField value={data.column} onChange={v => update({ column: v })} placeholder="e.g. C18 150\u00D74.6mm 3.5\u00B5m" />
-            </Field>
-            <Field label="Column Injection Count">
-              <InputField
-                value={data.column_injection_count}
-                onChange={v => update({ column_injection_count: v })}
-                placeholder="e.g. 1500"
-                type="text"
-              />
-            </Field>
-            <Field label="Mobile Phase">
-              <InputField value={data.mobilephase} onChange={v => update({ mobilephase: v })} placeholder="e.g. 0.1% FA in water / ACN" />
-            </Field>
-            <Field label="Flow Rate">
-              <InputField value={data.flowRate} onChange={v => update({ flowRate: v })} placeholder="e.g. 0.4 mL/min" />
-            </Field>
-            <Field label="Injection Volume">
-              <InputField value={data.injectionVolume} onChange={v => update({ injectionVolume: v })} placeholder="e.g. 5 \u00B5L" />
-            </Field>
-            <Field label="Gradient Program">
-              <InputField value={data.gradient} onChange={v => update({ gradient: v })} placeholder="e.g. 5\u219295% B in 8 min" />
-            </Field>
-            <Field label="Retention Time">
-              <InputField value={data.retentionTime} onChange={v => update({ retentionTime: v })} placeholder="e.g. expected 4.2 min, observed 3.8 min" />
-            </Field>
-            <Field label="Ionization Mode">
-              <InputField value={data.ionizationMode} onChange={v => update({ ionizationMode: v })} placeholder="e.g. ESI+, APCI-" />
-            </Field>
-            <Field label="Source Parameters">
-              <InputField value={data.sourceParams} onChange={v => update({ sourceParams: v })} placeholder="e.g. gas temp 300\u00B0C, nebulizer 45 psi" />
-            </Field>
-            <Field label="Acquisition Mode">
-              <InputField value={data.acquisitionMode} onChange={v => update({ acquisitionMode: v })} placeholder="e.g. SIM m/z 195, scan 100-1000" />
-            </Field>
-            <Field label="Expected Result">
-              <InputField value={data.expectedResult} onChange={v => update({ expectedResult: v })} placeholder="e.g. S/N > 10, RT 4.2\u00B10.1 min" />
-            </Field>
-          </div>
-
-          <Field label="Recent Maintenance">
-            <InputField value={data.recentMaint} onChange={v => update({ recentMaint: v })} placeholder="e.g. replaced ESI capillary last week" />
-          </Field>
-          <Field label="QC / System Suitability Results">
-            <InputField value={data.qcResults} onChange={v => update({ qcResults: v })} placeholder="e.g. SST passed, RSD 1.2%, tailing 1.1" />
-          </Field>
-
-          {/* ── SST Section (HPLC/UHPLC/LCMS/PrepLC only) ──────────── */}
-          {showSST && (
-            <div style={{
-              border: '1px solid var(--color-slate-200)',
-              borderRadius: '10px',
-              overflow: 'hidden',
-              marginTop: '0.25rem',
-            }}>
-              <button
-                type="button"
-                onClick={() => setSstOpen(!sstOpen)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  background: sstOpen ? 'var(--color-teal-50)' : 'var(--color-slate-50)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  color: 'var(--color-teal-600)',
-                  textAlign: 'left',
-                  transition: 'background .15s ease',
-                }}
-              >
-                <span style={{
-                  transform: sstOpen ? 'rotate(90deg)' : 'none',
-                  transition: 'transform .2s',
-                  display: 'inline-block',
-                }}>
-                  &#9656;
-                </span>
-                System Suitability Test (SST)
-                <span style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  color: 'var(--color-slate-400)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  marginLeft: 'auto',
-                }}>
-                  optional
-                </span>
-              </button>
-
-              {sstOpen && (
-                <div style={{
-                  padding: '1rem',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '0.75rem',
-                  borderTop: '1px solid var(--color-slate-200)',
-                }}>
-                  <Field label="Theoretical Plates (N)" hint="Number of theoretical plates">
-                    <InputField
-                      value={data.sst_plates}
-                      onChange={v => update({ sst_plates: v })}
-                      placeholder="e.g. 12000"
-                    />
-                  </Field>
-                  <Field label="Tailing Factor" hint="USP tailing factor (T)">
-                    <InputField
-                      value={data.sst_tailing_factor}
-                      onChange={v => update({ sst_tailing_factor: v })}
-                      placeholder="e.g. 1.1"
-                    />
-                  </Field>
-                  <Field label="Resolution (Rs)" hint="Between critical pair">
-                    <InputField
-                      value={data.sst_resolution}
-                      onChange={v => update({ sst_resolution: v })}
-                      placeholder="e.g. 2.5"
-                    />
-                  </Field>
-                  <Field label="RSD (%)" hint="Relative standard deviation of replicate injections">
-                    <InputField
-                      value={data.sst_rsd_percent}
-                      onChange={v => update({ sst_rsd_percent: v })}
-                      placeholder="e.g. 0.8"
-                    />
-                  </Field>
-                </div>
-              )}
+          {/* ── Primary fields (priority 1) — always visible in 2-col grid */}
+          {primaryFields.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              {primaryFields.map(f => (
+                <DynamicField
+                  key={f.key}
+                  field={f}
+                  value={getValue(f.key)}
+                  onChange={v => setValue(f.key, v)}
+                />
+              ))}
             </div>
           )}
 
-          {/* ── Method Transfer Section ────────────────────────────── */}
+          {/* ── Expandable groups (priority 2+) — collapsible sections */}
+          {schema.groups
+            .filter(g => expandableGroups.has(g.id))
+            .map(g => {
+              const gFields = expandableGroups.get(g.id)!;
+              return (
+                <GroupSection
+                  key={g.id}
+                  group={g}
+                  open={openGroups.has(g.id)}
+                  onToggle={() => toggleGroup(g.id)}
+                  fieldCount={gFields.length}
+                  filledCount={countFilled(gFields)}
+                >
+                  {gFields.map(f => (
+                    <DynamicField
+                      key={f.key}
+                      field={f}
+                      value={getValue(f.key)}
+                      onChange={v => setValue(f.key, v)}
+                    />
+                  ))}
+                </GroupSection>
+              );
+            })
+          }
+
+          {/* ── Method Transfer Section (always available) ───────────── */}
           <div style={{
             border: '1px solid var(--color-slate-200)',
             borderRadius: '10px',
@@ -425,24 +444,21 @@ export default function QueryFormStep2({ data, technique, onChange, onNext, onBa
               <input
                 type="checkbox"
                 checked={data.is_method_transfer}
-                onChange={e => update({
+                onChange={e => onChange({
+                  ...data,
                   is_method_transfer: e.target.checked,
                   ...(e.target.checked ? {} : { source_instrument: '', source_vendor: '', source_model: '' }),
                 })}
                 style={{
-                  width: '1rem',
-                  height: '1rem',
-                  accentColor: 'var(--color-teal-600)',
-                  cursor: 'pointer',
+                  width: '1rem', height: '1rem',
+                  accentColor: 'var(--color-teal-600)', cursor: 'pointer',
                 }}
               />
               Method Transfer
               <span style={{
-                fontSize: '0.72rem',
-                fontWeight: 600,
+                fontSize: '0.72rem', fontWeight: 600,
                 color: 'var(--color-slate-400)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
+                textTransform: 'uppercase', letterSpacing: '0.06em',
                 marginLeft: 'auto',
               }}>
                 check if transferring from another instrument
@@ -460,14 +476,14 @@ export default function QueryFormStep2({ data, technique, onChange, onNext, onBa
                 <Field label="Source Instrument">
                   <InputField
                     value={data.source_instrument}
-                    onChange={v => update({ source_instrument: v })}
+                    onChange={v => onChange({ ...data, source_instrument: v })}
                     placeholder="e.g. HPLC, UHPLC"
                   />
                 </Field>
                 <Field label="Source Vendor">
                   <ComboInput
                     value={data.source_vendor}
-                    onChange={v => update({ source_vendor: v })}
+                    onChange={v => onChange({ ...data, source_vendor: v })}
                     options={VENDOR_OPTIONS}
                     placeholder="Select vendor..."
                   />
@@ -475,14 +491,13 @@ export default function QueryFormStep2({ data, technique, onChange, onNext, onBa
                 <Field label="Source Model">
                   <InputField
                     value={data.source_model}
-                    onChange={v => update({ source_model: v })}
+                    onChange={v => onChange({ ...data, source_model: v })}
                     placeholder="e.g. 1260 Infinity II"
                   />
                 </Field>
               </div>
             )}
           </div>
-
         </div>
       </div>
 
@@ -506,22 +521,14 @@ function BackButton({ onClick }: { onClick: () => void }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        padding: '0.875rem 1.5rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: '0.5rem', padding: '0.875rem 1.5rem',
         background: hovered ? 'var(--color-slate-100)' : '#fff',
         color: 'var(--color-slate-600)',
-        border: '1.5px solid var(--color-slate-200)',
-        borderRadius: '10px',
-        fontFamily: 'var(--font-display)',
-        fontSize: '1rem',
-        fontWeight: 700,
-        letterSpacing: '-0.01em',
-        cursor: 'pointer',
-        transition: 'background .15s ease',
-        minWidth: '120px',
+        border: '1.5px solid var(--color-slate-200)', borderRadius: '10px',
+        fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700,
+        letterSpacing: '-0.01em', cursor: 'pointer',
+        transition: 'background .15s ease', minWidth: '120px',
       }}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -541,21 +548,12 @@ function NextButton({ onClick }: { onClick: () => void }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        flex: 1,
-        padding: '0.875rem 1.5rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: '0.5rem', flex: 1, padding: '0.875rem 1.5rem',
         background: hovered ? 'var(--color-teal-700)' : 'var(--color-teal-600)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '10px',
-        fontFamily: 'var(--font-display)',
-        fontSize: '1rem',
-        fontWeight: 700,
-        letterSpacing: '-0.01em',
-        cursor: 'pointer',
+        color: '#fff', border: 'none', borderRadius: '10px',
+        fontFamily: 'var(--font-display)', fontSize: '1rem', fontWeight: 700,
+        letterSpacing: '-0.01em', cursor: 'pointer',
         transition: 'background .15s ease, box-shadow .15s ease',
         boxShadow: hovered
           ? '0 4px 16px rgba(15,145,136,.35)'

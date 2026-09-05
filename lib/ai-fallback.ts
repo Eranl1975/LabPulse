@@ -783,6 +783,22 @@ function buildUserMessageV2(query: RankingQueryV2, kbResult?: RankedAnswer): str
     lines.push('Consider instrument-to-instrument variability: dwell volume differences, gradient delay volume, detector response factors, extra-column volume, injection precision, column thermostat design. Focus on systematic differences between source and target instruments.');
   }
 
+  // V6: dynamic technique-specific context fields
+  if (query.extra_context && Object.keys(query.extra_context).length > 0) {
+    lines.push('');
+    lines.push('=== ADDITIONAL TECHNIQUE-SPECIFIC CONTEXT ===');
+    for (const [key, value] of Object.entries(query.extra_context)) {
+      if (value.trim()) {
+        // Convert camelCase keys to readable labels
+        const label = key
+          .replace(/([A-Z])/g, ' $1')
+          .replace(/^./, s => s.toUpperCase())
+          .trim();
+        lines.push(`${label}: ${value}`);
+      }
+    }
+  }
+
   lines.push(`Symptom description: ${query.symptom_description}`);
 
   if (query.already_checked.length > 0) {

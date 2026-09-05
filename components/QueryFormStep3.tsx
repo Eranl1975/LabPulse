@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Step1Data } from './QueryFormStep1';
 import type { Step2Data } from './QueryFormStep2';
 import { getFilteredChecked } from './query-form-options';
+import { getContextSchema } from '@/lib/context-schemas';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -273,29 +274,24 @@ export default function QueryFormStep3({
           <SummaryRow label="Problem" value={step1.problemDesc} />
           <SummaryRow label="Symptoms" value={step1.symptoms} />
 
-          {/* Step 2 summary */}
-          <SummaryRow label="Method" value={step2.methodConditions} />
-          <SummaryRow label="Analyte" value={step2.analyte} />
-          <SummaryRow label="Matrix" value={step2.sampleMatrix} />
-          <SummaryRow label="Matrix Type" value={step2.sample_matrix_type} />
-          <SummaryRow label="Column" value={step2.column} />
-          <SummaryRow label="Col. Inj. Count" value={step2.column_injection_count} />
-          <SummaryRow label="Mobile Phase" value={step2.mobilephase} />
-          <SummaryRow label="Flow Rate" value={step2.flowRate} />
-          <SummaryRow label="Inj. Volume" value={step2.injectionVolume} />
-          <SummaryRow label="Gradient" value={step2.gradient} />
-          <SummaryRow label="Retention Time" value={step2.retentionTime} />
-          <SummaryRow label="Ionization" value={step2.ionizationMode} />
-          <SummaryRow label="Source Params" value={step2.sourceParams} />
-          <SummaryRow label="Acq. Mode" value={step2.acquisitionMode} />
-          <SummaryRow label="Expected" value={step2.expectedResult} />
-          <SummaryRow label="Maintenance" value={step2.recentMaint} />
-          <SummaryRow label="QC Results" value={step2.qcResults} />
-          {/* SST */}
-          <SummaryRow label="SST Plates" value={step2.sst_plates} />
-          <SummaryRow label="SST Tailing" value={step2.sst_tailing_factor} />
-          <SummaryRow label="SST Resolution" value={step2.sst_resolution} />
-          <SummaryRow label="SST RSD%" value={step2.sst_rsd_percent} />
+          {/* Step 2 summary — dynamic based on technique schema */}
+          {(() => {
+            const schema = getContextSchema(technique);
+            const existingKeys = new Set([
+              'analyte', 'sampleMatrix', 'column', 'mobilephase', 'flowRate',
+              'injectionVolume', 'gradient', 'retentionTime', 'ionizationMode',
+              'sourceParams', 'acquisitionMode', 'recentMaint', 'qcResults',
+              'expectedResult', 'methodConditions',
+              'sst_plates', 'sst_tailing_factor', 'sst_resolution', 'sst_rsd_percent',
+              'sample_matrix_type', 'column_injection_count',
+            ]);
+            return schema.fields.map(f => {
+              const val = existingKeys.has(f.key)
+                ? String((step2 as unknown as Record<string, unknown>)[f.key] ?? '')
+                : (step2.extraContext?.[f.key] ?? '');
+              return <SummaryRow key={f.key} label={f.label} value={val} />;
+            });
+          })()}
           {/* Method transfer */}
           {step2.is_method_transfer && (
             <>
@@ -308,15 +304,26 @@ export default function QueryFormStep3({
 
         {/* Field count indicator */}
         {(() => {
-          const filledCount = [
+          const schema = getContextSchema(technique);
+          const existingKeys = new Set([
+            'analyte', 'sampleMatrix', 'column', 'mobilephase', 'flowRate',
+            'injectionVolume', 'gradient', 'retentionTime', 'ionizationMode',
+            'sourceParams', 'acquisitionMode', 'recentMaint', 'qcResults',
+            'expectedResult', 'methodConditions',
+            'sst_plates', 'sst_tailing_factor', 'sst_resolution', 'sst_rsd_percent',
+            'sample_matrix_type', 'column_injection_count',
+          ]);
+          const step1Count = [
             step1.technique, step1.vendor, step1.model, step1.issueCategory,
             step1.problemDesc, step1.symptoms,
-            step2.analyte, step2.sampleMatrix, step2.column, step2.mobilephase,
-            step2.flowRate, step2.injectionVolume, step2.gradient, step2.retentionTime,
-            step2.ionizationMode, step2.sourceParams, step2.acquisitionMode,
-            step2.expectedResult, step2.recentMaint, step2.qcResults,
-            step2.methodConditions,
           ].filter(v => v.trim()).length;
+          const step2Count = schema.fields.filter(f => {
+            const val = existingKeys.has(f.key)
+              ? String((step2 as unknown as Record<string, unknown>)[f.key] ?? '')
+              : (step2.extraContext?.[f.key] ?? '');
+            return val.trim();
+          }).length;
+          const filledCount = step1Count + step2Count;
           return (
             <div style={{
               marginTop: '0.75rem',

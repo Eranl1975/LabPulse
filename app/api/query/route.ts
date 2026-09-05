@@ -112,6 +112,14 @@ export async function POST(req: NextRequest) {
     source_instrument:      optStr(body.source_instrument),
     source_vendor:          optStr(body.source_vendor),
     source_model:           optStr(body.source_model),
+    // V6: dynamic technique-specific context
+    extra_context:          (typeof body.extra_context === 'object' && body.extra_context !== null && !Array.isArray(body.extra_context))
+                              ? Object.fromEntries(
+                                  Object.entries(body.extra_context as Record<string, unknown>)
+                                    .filter(([, v]) => typeof v === 'string' && (v as string).trim())
+                                    .map(([k, v]) => [k, (v as string).trim()])
+                                ) as Record<string, string>
+                              : undefined,
   };
 
   const AI_ONLY_TECHNIQUES = new Set<Technique>(['UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);

@@ -64,6 +64,7 @@ const INITIAL_STEP2: Step2Data = {
   source_vendor: '',
   source_model: '',
   column_injection_count: '',
+  extraContext: {},
 };
 
 const INITIAL_STEP3: Step3Data = {
@@ -262,6 +263,10 @@ export default function QueryForm() {
           source_vendor:          step2.source_vendor.trim()     || null,
           source_model:           step2.source_model.trim()      || null,
           column_injection_count: step2.column_injection_count.trim() ? Number(step2.column_injection_count) : null,
+          // V6: dynamic technique-specific context
+          extra_context: Object.fromEntries(
+            Object.entries(step2.extraContext ?? {}).filter(([, v]) => v.trim()),
+          ),
         }),
       });
 
@@ -320,6 +325,7 @@ export default function QueryForm() {
           <QueryFormStep2
             data={step2}
             technique={step1.technique}
+            issueCategory={step1.issueCategory}
             onChange={setStep2}
             onNext={() => setStep(3)}
             onBack={() => setStep(1)}
