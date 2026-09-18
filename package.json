@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest",
-    "seed:documents": "tsx scripts/seed-documents.ts"
+    "seed:documents": "tsx --env-file-if-exists=.env.local scripts/seed-documents.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

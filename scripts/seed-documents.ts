@@ -1,8 +1,11 @@
 /**
  * Import the curated catalogue (data/instrument-docs.json) into the documents table.
  *
- *   npx tsx scripts/seed-documents.ts [--dry-run]
+ *   npm run seed:documents              # writes
+ *   npm run seed:documents -- --dry-run # prints what it would write
  *
+ * The npm script loads .env.local; run it that way rather than calling this file
+ * directly, or it will see no environment and refuse to write.
  * Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
  * Existing rows are updated in place; the crawler's own rows are untouched.
  */
