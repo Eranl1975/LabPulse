@@ -82,8 +82,11 @@ therefore required for search, not optional — an anon key would return an empt
 result and a misconfiguration would look like a document with no matches.
 
 These migrations depend on `sources` (001), and the agent also needs
-`knowledge_items` (002) and `source_refresh_runs` (007) at runtime. Apply the
-earlier migrations first; see the deploy checklist in the README.
+`knowledge_items` (002) and `source_refresh_runs` (007) at runtime.
+`021_widen_technique_check.sql` widens the `technique` check constraint from the
+original four values to the 27 in `lib/types.ts`; without it every UHPLC item the
+agent finds is rejected by the database. Apply the earlier migrations first; see
+the deploy checklist in the README.
 
 Seed the curated catalogue with `npm run seed:documents` (add `-- --dry-run` to
 preview). Curated entries are marked `discovered_by: 'seed'`.
