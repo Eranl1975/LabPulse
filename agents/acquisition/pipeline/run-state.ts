@@ -10,6 +10,8 @@ export interface VendorResult {
   documents_found: number;
   documents_unchanged: number;
   documents_skipped: number;
+  /** True when this vendor's crawl stopped on the clock and was re-queued. */
+  hit_deadline?: boolean;
   items_new: number;
   items_updated: number;
   errors: string[];

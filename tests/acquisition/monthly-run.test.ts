@@ -100,6 +100,57 @@ describe('runMonthlyBatch', () => {
     expect(outcome.status).toBe('partial');
   });
 
+  it('re-queues a vendor that runs out of time instead of dropping it', async () => {
+    const d = deps();
+    // Zero budget: the deadline has already passed when the vendor is reached.
+    const outcome = await runMonthlyBatch({
+      ...d,
+      onlySourceIds: ['sciex-support-library', 'shimadzu-support-library'],
+      vendorsPerBatch: 2,
+      budgetMs: 0,
+    });
+
+    expect(outcome.resume_required).toBe(true);
+    // Nothing was crawled, and both vendors are still queued.
+    expect(outcome.pending).toContain('sciex-support-library');
+    expect(outcome.pending).toContain('shimadzu-support-library');
+    expect(outcome.processed).toEqual([]);
+  });
+
+  it('puts a re-queued vendor at the front of the queue', async () => {
+    const d = deps();
+    const outcome = await runMonthlyBatch({
+      ...d,
+      onlySourceIds: ['sciex-support-library', 'shimadzu-support-library'],
+      vendorsPerBatch: 1,
+      budgetMs: 0,
+    });
+
+    expect(outcome.pending[0]).toBe('sciex-support-library');
+  });
+
+  it('does nothing in drain mode when no run is open', async () => {
+    const d = deps();
+    const outcome = await runMonthlyBatch({ ...d, continueOnly: true });
+
+    expect(outcome.status).toBe('idle');
+    expect(outcome.run_id).toBeNull();
+    expect(outcome.resume_required).toBe(false);
+    // Critically, it must not create a run row.
+    expect(d.runState.runs).toHaveLength(0);
+  });
+
+  it('drain mode resumes an open run without creating another', async () => {
+    const d = deps();
+    const started = await runMonthlyBatch({ ...d, vendorsPerBatch: 1 });
+    expect(started.resume_required).toBe(true);
+
+    const drained = await runMonthlyBatch({ ...d, vendorsPerBatch: 1, continueOnly: true });
+
+    expect(drained.run_id).toBe(started.run_id);
+    expect(d.runState.runs).toHaveLength(1);
+  });
+
   it('writes no documents on a dry run', async () => {
     const d = deps();
     await runMonthlyBatch({

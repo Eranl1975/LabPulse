@@ -65,11 +65,21 @@ export function buildSearchEndpoint(baseUrl: string, q: DocumentSearchQuery): st
   return `${baseUrl.replace(/\/$/, '')}/rest/v1/document_chunks?${params.join('&')}`;
 }
 
-/** Search stored vendor documents. Returns null when Supabase is not configured or fails. */
+/**
+ * Search stored vendor documents. Returns null when Supabase is not configured
+ * or the query fails, so the caller reports 'unavailable' rather than 'no matches'.
+ *
+ * The service-role key is required, not optional: `documents` and `document_chunks`
+ * have RLS enabled with no anon policy, so an anon key would return an empty list
+ * and a misconfiguration would look exactly like a document with no matches.
+ */
 export async function searchDocuments(q: DocumentSearchQuery): Promise<DocumentHit[] | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    log.warn('search', 'document search unavailable: SUPABASE_SERVICE_ROLE_KEY is not set');
+    return null;
+  }
 
   if (!toTsQuery(q.text)) return [];
 

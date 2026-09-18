@@ -19,7 +19,17 @@ import { sendRefreshReport } from '@/lib/refresh-report-email';
 import { createLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300;
+
+/**
+ * Kept at 60 s, the ceiling on Vercel's lowest paid-feature tier, so the route
+ * deploys on any plan. The run is time-budgeted below this and resumes across
+ * invocations, so a longer limit only means fewer calls, never more coverage.
+ * If your plan allows longer functions, raise this and BUDGET_MS together.
+ */
+export const maxDuration = 60;
+
+/** Leaves headroom for run bookkeeping and the report email after the crawl stops. */
+const BUDGET_MS = 45_000;
 
 const log = createLogger('api/cron/monthly-refresh');
 
@@ -52,6 +62,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   const dryRun = req.nextUrl.searchParams.get('dry_run') === 'true';
+  // Drain call: finish an open run, and do nothing when none is open.
+  const continueOnly = req.nextUrl.searchParams.get('continue') === 'true';
   const live = hasRunStateCredentials() && hasDocumentStoreCredentials();
 
   let runState: RunStateStore;
@@ -77,7 +89,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       runState, persistence, documents,
       triggeredBy: 'scheduler',
       dryRun,
+      budgetMs: BUDGET_MS,
+      continueOnly,
     });
+
+    if (outcome.status === 'idle') {
+      return NextResponse.json({ ...outcome, summary: 'No run in progress; nothing to do.' });
+    }
 
     const summary = formatMonthlyRun(outcome);
     log.info('run', 'monthly refresh batch finished', {

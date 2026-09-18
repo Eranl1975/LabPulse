@@ -14,6 +14,14 @@ create table if not exists document_chunks (
   unique (document_id, chunk_index)
 );
 
+-- RLS, for the same reason as documents: only the service-role key writes here.
+alter table document_chunks enable row level security;
+
+create policy "Authenticated users can read document chunks"
+  on document_chunks for select
+  to authenticated
+  using (true);
+
 create index if not exists idx_dc_document on document_chunks(document_id);
 create index if not exists idx_dc_tsv      on document_chunks using gin(tsv);
 

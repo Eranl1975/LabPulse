@@ -47,6 +47,16 @@ create table if not exists documents (
   created_at         timestamptz not null default now()
 );
 
+-- RLS: writes are performed by the monthly agent with the service-role key,
+-- which bypasses RLS. Without RLS enabled, Supabase's default grants would let
+-- any anon key insert or delete rows here, so it must stay on.
+alter table documents enable row level security;
+
+create policy "Authenticated users can read documents"
+  on documents for select
+  to authenticated
+  using (status = 'active');
+
 create index if not exists idx_doc_vendor     on documents(vendor);
 create index if not exists idx_doc_type       on documents(doc_type);
 create index if not exists idx_doc_status     on documents(status) where status = 'active';

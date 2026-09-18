@@ -34,6 +34,12 @@ export interface VendorWebAdapterOptions {
   known?: Map<string, KnownDocument>;
   maxPages?: number;
   maxDocuments?: number;
+  /**
+   * Epoch milliseconds after which this adapter stops starting new requests.
+   * Serverless functions have a hard wall-clock limit and a polite crawl is
+   * slow by design, so the crawl must be time-bounded, not only page-bounded.
+   */
+  deadlineAt?: number;
 }
 
 export interface VendorRunStat {
@@ -41,6 +47,8 @@ export interface VendorRunStat {
   documents_found: number;
   documents_unchanged: number;
   documents_skipped: number;
+  /** True when the crawl stopped on the clock with work left to do. */
+  hit_deadline: boolean;
   errors: string[];
 }
 
@@ -54,12 +62,13 @@ export class VendorWebAdapter implements SourceAdapter {
   private readonly known: Map<string, KnownDocument>;
   private readonly maxPages: number;
   private readonly maxDocuments: number;
+  private readonly deadlineAt: number;
 
   private readonly documents: DocumentRecord[] = [];
   private readonly chunks: DocumentChunk[] = [];
   readonly stat: VendorRunStat = {
     pages_visited: 0, documents_found: 0, documents_unchanged: 0,
-    documents_skipped: 0, errors: [],
+    documents_skipped: 0, hit_deadline: false, errors: [],
   };
 
   constructor(site: VendorSite, opts: VendorWebAdapterOptions) {
@@ -70,6 +79,14 @@ export class VendorWebAdapter implements SourceAdapter {
     this.known = opts.known ?? new Map();
     this.maxPages = opts.maxPages ?? MAX_PAGES_PER_VENDOR;
     this.maxDocuments = opts.maxDocuments ?? MAX_DOCUMENTS_PER_VENDOR;
+    this.deadlineAt = opts.deadlineAt ?? Number.POSITIVE_INFINITY;
+  }
+
+  /** True once the time budget is spent; the caller re-queues this vendor. */
+  private outOfTime(): boolean {
+    if (Date.now() < this.deadlineAt) return false;
+    this.stat.hit_deadline = true;
+    return true;
   }
 
   /** Documents discovered during the last fetch(). */
@@ -103,6 +120,7 @@ export class VendorWebAdapter implements SourceAdapter {
 
     for (const url of candidates) {
       if (this.documents.length >= this.maxDocuments) break;
+      if (this.outOfTime()) break;
 
       const items = await this.ingest(url, wanted);
       raw.push(...items);
@@ -117,6 +135,7 @@ export class VendorWebAdapter implements SourceAdapter {
 
     for (const seed of this.site.seeds) {
       if (this.stat.pages_visited >= this.maxPages) break;
+      if (this.outOfTime()) break;
 
       const res = await this.fetcher.get(seed);
       this.stat.pages_visited++;

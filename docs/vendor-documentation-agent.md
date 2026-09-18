@@ -4,13 +4,32 @@ Monthly job that finds new or changed vendor documentation, stores it, and lets
 the troubleshooting engine answer from it.
 
 ## Schedule
-`vercel.json` runs `GET /api/cron/monthly-refresh` at `0 6 1 * *` (06:00 UTC on
-the 1st). Vercel sends `Authorization: Bearer $CRON_SECRET`; anything else gets
-401, and a missing `CRON_SECRET` gets 503.
+Two cron entries in `vercel.json`:
 
-One invocation handles `DEFAULT_VENDORS_PER_BATCH` vendors, then returns with
-`resume_required: true` and the rest in `report_json.pending`. The next call
-resumes the same run row. This keeps every request inside the function timeout.
+| Schedule | Path | Purpose |
+| --- | --- | --- |
+| `0 6 1 * *` | `/api/cron/monthly-refresh` | Starts the month's run |
+| `30 * 1-2 * *` | `/api/cron/monthly-refresh?continue=true` | Drains it hourly |
+
+Vercel sends `Authorization: Bearer $CRON_SECRET`; anything else gets 401, and a
+missing `CRON_SECRET` gets 503.
+
+The drain entry exists because one invocation cannot finish every vendor. A
+polite crawl is slow on purpose: a measured live crawl of two vendors took about
+73 seconds, and serverless functions have a hard wall-clock limit. So each
+invocation takes a time budget (`BUDGET_MS`, 45 s, under the route's 60 s
+`maxDuration`), crawls until the budget is spent, re-queues whatever it did not
+finish, and returns `resume_required: true`. A vendor stopped mid-crawl goes to
+the front of the queue.
+
+`?continue=true` resumes an open run and does nothing when none is open, so the
+hourly trigger never starts an extra run. Without it, the monthly trigger alone
+would leave the run unfinished until the following month.
+
+If your Vercel plan does not allow sub-daily cron, the run still completes: it
+just takes a few daily invocations instead of a few hourly ones. If your plan
+allows longer functions, raise `maxDuration` and `BUDGET_MS` together for fewer
+invocations.
 
 Manual trigger: `POST /api/refresh` (admin only), or the Run now button on
 `/admin/documents`.
@@ -57,8 +76,17 @@ need a licensed feed, or their documents stay curated by hand in
   an authority tier.
 - `020_document_chunks.sql` — searchable passages with a `tsvector` and GIN index.
 
-Seed the curated catalogue with `npx tsx scripts/seed-documents.ts` (add
-`--dry-run` to preview). Curated entries are marked `discovered_by: 'seed'`.
+Both tables enable RLS with a read policy for `authenticated` and no write
+policy: only the service-role key writes to them. `SUPABASE_SERVICE_ROLE_KEY` is
+therefore required for search, not optional — an anon key would return an empty
+result and a misconfiguration would look like a document with no matches.
+
+These migrations depend on `sources` (001), and the agent also needs
+`knowledge_items` (002) and `source_refresh_runs` (007) at runtime. Apply the
+earlier migrations first; see the deploy checklist in the README.
+
+Seed the curated catalogue with `npm run seed:documents` (add `-- --dry-run` to
+preview). Curated entries are marked `discovered_by: 'seed'`.
 
 ## Limits
 Per vendor per run: 40 pages, 25 documents, 1.5 s between requests, 20 s request
