@@ -1,4 +1,5 @@
-// POST /api/refresh — triggers the monthly acquisition pipeline.
+// POST /api/refresh — admin-only manual trigger for the acquisition pipeline.
+// The scheduled monthly run lives at GET /api/cron/monthly-refresh.
 //
 // Body (all optional):
 //   dry_run:    boolean  — run without writing to DB (default: false)
@@ -18,11 +19,16 @@ import {
   getPrimaryAdapters,
   type PersistenceAdapter,
 } from '@/agents/acquisition';
+import { requireAdmin } from '@/lib/require-admin';
 import type { Technique } from '@/lib/types';
 
 const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS']);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  // Manual trigger: admins only. The scheduled path is /api/cron/monthly-refresh.
+  const denied = await requireAdmin();
+  if (denied) return denied;
+
   let body: Record<string, unknown> = {};
   try {
     const text = await req.text();

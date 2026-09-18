@@ -22,6 +22,11 @@ const ENV_VARS: EnvVar[] = [
   { key: 'NEXT_PUBLIC_SITE_URL', required: false, isPublic: true },
   { key: 'RESEND_API_KEY', required: false },
   { key: 'RESEND_FROM_EMAIL', required: false },
+  // Shared secret Vercel Cron sends to /api/cron/monthly-refresh.
+  // Without it the scheduled documentation refresh refuses to run.
+  { key: 'CRON_SECRET', required: false },
+  // Recipient of the monthly refresh report; no email is sent when unset.
+  { key: 'REFRESH_REPORT_EMAIL', required: false },
 ];
 
 export function validateEnv(): { valid: boolean; missing: string[]; warnings: string[] } {
