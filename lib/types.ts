@@ -173,6 +173,29 @@ export interface MissingInfoResult {
   missing_fields: MissingInfoField[];
   critical_missing: MissingInfoField[];   // subset that triggers confidence cap
   follow_up_questions: string[];
+  /** Fields not given as structured inputs but recognised in free text (method summary, symptom, extra context) */
+  inferred_from_text?: Partial<Record<MissingInfoField, string>>;
+}
+
+// ─── Pipeline / generation status ────────────────────────────────────
+
+export type AIStatus = 'ok' | 'skipped_no_key' | 'skipped_not_needed' | 'error';
+
+export type AIErrorCode =
+  | 'billing' | 'auth' | 'rate_limit' | 'model_unavailable'
+  | 'bad_request' | 'timeout' | 'network' | 'server' | 'unknown';
+
+export type ContentSource = 'knowledge_base' | 'ai' | 'generic_procedure' | 'knowledge_base+generic';
+
+/** Machine-readable record of how an answer was produced, so failures are never silent. */
+export interface GenerationStatus {
+  ai_status: AIStatus;
+  ai_error_code: AIErrorCode | null;
+  ai_http_status: number | null;
+  ai_reason: string | null;        // sanitised, safe to show to users
+  model_used: string | null;
+  content_source: ContentSource;
+  notice: string | null;           // one-line user-facing notice, null when nothing to flag
 }
 
 // ─── Structured Report & Hypotheses ──────────────────────────────────
@@ -246,4 +269,6 @@ export interface RankedAnswerV2 extends RankedAnswer {
   safety_warnings: string[];
   verification_criteria: VerificationCriterion[];
   action_details: ActionDetail[];
+  // V7: how the answer was produced (AI status, content source)
+  generation?: GenerationStatus;
 }

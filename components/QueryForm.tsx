@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import type { Technique, LabReport, RankedAnswer } from '@/lib/types';
+import type { Technique, LabReport, RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
 import { addReport } from '@/lib/reportStore';
 import { exportAsText, exportAsCSV } from '@/lib/export';
@@ -18,6 +18,8 @@ import QueryFormStep3, { type Step3Data } from './QueryFormStep3';
 interface ApiResult {
   ranked_answer: RankedAnswer;
   ai_assisted: boolean;
+  ai_status?: 'ok' | 'skipped_no_key' | 'skipped_not_needed' | 'error';
+  ai_reason?: string | null;
   modes: {
     concise:  TextOutput;
     standard: TextOutput;
@@ -415,6 +417,7 @@ export default function QueryForm() {
             modes={result.modes}
             confidence={result.ranked_answer.confidence}
             selected={mode}
+            rankedAnswer={'confidence_breakdown' in result.ranked_answer ? (result.ranked_answer as RankedAnswerV2) : undefined}
           />
           <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }} data-no-print>
             <button

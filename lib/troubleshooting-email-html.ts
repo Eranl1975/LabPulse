@@ -93,12 +93,36 @@ export function buildTroubleshootingEmailHtml(
   }
   html += `</table>`;
 
+  // Generation notice (AI unavailable, generic procedure, related-technique evidence)
+  if (v2?.generation?.notice) {
+    html += `
+  <div style="margin:0 0 16px;padding:10px 14px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;font-size:12px;color:#334155;line-height:1.5;">
+    <strong>Notice:</strong> ${esc(v2.generation.notice)}
+  </div>`;
+  }
+
   // Problem Summary
   if (answer.problem_summary) {
     html += `
   <div style="${sectionStyle}">
     <h3 style="${sectionTitle}">Problem Summary</h3>
     <p style="margin:0;font-size:13px;color:#334155;line-height:1.5;">${esc(answer.problem_summary)}</p>
+  </div>`;
+  }
+
+  // Ranked Hypotheses (V2) — with the diagnostic test that confirms or rules out each one
+  if (v2?.hypotheses && v2.hypotheses.length > 0) {
+    html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Most Likely Causes (ranked)</h3>
+    <ol style="margin:0;padding-left:20px;">
+      ${v2.hypotheses.map(h =>
+        `<li style="font-size:13px;color:#334155;margin:0 0 8px;line-height:1.5;"><strong>${esc(h.cause)}</strong> <span style="font-size:11px;color:#64748b;">[${esc(h.probability)} probability — ${h.status === 'confirmed' ? 'confirmed' : 'suspected'}]</span>` +
+        (h.diagnostic_test ? `<br><span style="font-size:12px;color:#475569;"><em>Test:</em> ${esc(h.diagnostic_test)}</span>` : '') +
+        (h.expected_result ? `<br><span style="font-size:12px;color:#475569;"><em>Expected if true:</em> ${esc(h.expected_result)}</span>` : '') +
+        `</li>`
+      ).join('\n      ')}
+    </ol>
   </div>`;
   }
 
@@ -115,8 +139,8 @@ export function buildTroubleshootingEmailHtml(
   </div>`;
   }
 
-  // Likely Causes
-  if (answer.likely_causes.length > 0) {
+  // Likely Causes (only when there are no ranked hypotheses to avoid duplication)
+  if (answer.likely_causes.length > 0 && !(v2?.hypotheses && v2.hypotheses.length > 0)) {
     html += `
   <div style="${sectionStyle}">
     <h3 style="${sectionTitle}">Likely Causes</h3>

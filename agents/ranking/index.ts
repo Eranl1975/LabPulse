@@ -98,7 +98,11 @@ export function rankItems(query: RankingQuery, items: KnowledgeItem[]): RankedAn
     ? Math.min(rawConfidence, 0.35)
     : rawConfidence;
 
+  const relatedTechniques = [...new Set(filtered.filter(t => t.technique !== query.technique).map(t => t.technique))];
   const uncertainties: string[] = [
+    ...(relatedTechniques.length > 0
+      ? [`No ${query.technique}-specific knowledge items for this issue; evidence from a related technique (${relatedTechniques.join(', ')}) is shown and ranked below exact matches.`]
+      : []),
     ...tiered.low_confidence.map(
       t => `Low confidence match: "${t.item.symptom}" (score: ${t.score.total.toFixed(2)})`,
     ),
@@ -165,6 +169,11 @@ export function rankItemsV2(query: RankingQueryV2, items: KnowledgeItem[]): Rank
   const caps: string[] = [];
   let confidence = base.confidence;
 
+  if (filtered.length > 0 && filtered.every(item => item.technique !== query.technique)) {
+    caps.push(`Evidence from a related technique only (no ${query.technique}-specific items): max ${CONFIDENCE_CAPS.RELATED_TECHNIQUE_ONLY * 100}%`);
+    confidence = Math.min(confidence, CONFIDENCE_CAPS.RELATED_TECHNIQUE_ONLY);
+  }
+
   if (missingInfo.critical_missing.length > 0) {
     caps.push(`Missing critical method info (${missingInfo.critical_missing.join(', ')}): max ${CONFIDENCE_CAPS.MISSING_CRITICAL_INFO * 100}%`);
     confidence = Math.min(confidence, CONFIDENCE_CAPS.MISSING_CRITICAL_INFO);
@@ -217,6 +226,19 @@ export function rankItemsV2(query: RankingQueryV2, items: KnowledgeItem[]): Rank
       },
     };
   });
+
+  // 7b. Flag evidence that comes from another vendor's documentation so part
+  // numbers and software names are adapted rather than followed literally.
+  if (query.vendor) {
+    const otherVendor = [...new Set(base.evidence_summary
+      .filter(es => !validateSourceForVendor(es.source_id, query.vendor))
+      .map(es => es.source_id))];
+    if (otherVendor.length > 0) {
+      base.uncertainties.push(
+        `Some evidence comes from another vendor's documentation (${otherVendor.join(', ')}); adapt part numbers, software names and procedures to your ${query.vendor} system.`,
+      );
+    }
+  }
 
   // 8. Build confidence breakdown
   const topScores = scoredV2.filter(s => s.score.total >= 0.45);

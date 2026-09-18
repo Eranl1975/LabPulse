@@ -7,14 +7,19 @@ export function formatConcise(answer: RankedAnswer): TextOutput {
 
   lines.push(`Issue: ${answer.problem_summary}`);
 
-  if (answer.confidence === 0 || answer.likely_causes.length === 0) {
+  const v2 = 'hypotheses' in answer ? (answer as RankedAnswerV2) : null;
+  if (v2?.generation?.notice) {
+    lines.push(`Notice: ${v2.generation.notice}`);
+  }
+
+  const hasContent = answer.likely_causes.length > 0 || (v2?.hypotheses?.length ?? 0) > 0;
+  if (!hasContent) {
     lines.push('Most likely cause: Insufficient evidence.');
     if (answer.next_questions.length > 0) {
       lines.push(`Start with: ${answer.next_questions[0]}`);
     }
   } else {
-    // Use top hypothesis if V2
-    const v2 = 'hypotheses' in answer ? (answer as RankedAnswerV2) : null;
+    // Use top hypothesis if V2 (a low confidence score never hides the ranked causes)
     if (v2 && v2.hypotheses.length > 0) {
       lines.push(`Top hypothesis: ${v2.hypotheses[0].cause} [${v2.hypotheses[0].probability} probability — ${v2.hypotheses[0].status}]`);
     } else {

@@ -9,6 +9,7 @@ import {
   CHECKED_PENALTY,
 } from './weights';
 import { classifySource, tierToAuthorityScore } from '@/lib/evidence-hierarchy';
+import { isFamilyTechnique, matchIssue } from './families';
 
 // --- Individual factor scorers (exported for unit tests) ---
 
@@ -20,7 +21,10 @@ export function scoreSourceAuthority(source_id: string): number {
 }
 
 export function scoreTechniqueRelevance(query: RankingQuery, item: KnowledgeItem): number {
-  if (item.technique !== query.technique) return 0.0;
+  if (item.technique !== query.technique) {
+    // Related-technique evidence (e.g. HPLC item for a UHPLC query) is usable but ranks below exact matches.
+    return isFamilyTechnique(query.technique, item.technique) ? 0.8 : 0.0;
+  }
   let score = 1.0;
   // Small bonus for specific instrument family or model match
   if (query.vendor && item.instrument_family !== 'generic') {
@@ -38,8 +42,9 @@ export function scoreTechniqueRelevance(query: RankingQuery, item: KnowledgeItem
 
 export function scoreIssueRelevance(query: RankingQuery, item: KnowledgeItem): number {
   if (query.issue_category !== null) {
-    // Exact match only; non-matching items are already filtered out upstream
-    return item.issue_category === query.issue_category ? 1.0 : 0.0;
+    // Non-matching items are already filtered out upstream; synonyms rank slightly below exact.
+    const match = matchIssue(query.issue_category, item.issue_category);
+    return match === 'exact' ? 1.0 : match === 'synonym' ? 0.9 : 0.0;
   }
   // No category — fall back to keyword overlap with symptom + causes
   const itemText = [item.symptom, ...item.likely_causes].join(' ');

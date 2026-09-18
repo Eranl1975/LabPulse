@@ -316,7 +316,7 @@ export default function QueryFormStep2({
   data, technique, issueCategory, onChange, onNext, onBack,
 }: QueryFormStep2Props) {
   const schema = useMemo(() => getContextSchema(technique), [technique]);
-  const promotedKeys = useMemo(() => new Set(getPromotedFields(issueCategory)), [issueCategory]);
+  const promotedKeys = useMemo(() => new Set(getPromotedFields(issueCategory, technique)), [issueCategory, technique]);
 
   // Compute effective priority for each field (promoted fields become priority 1)
   const fieldsWithPriority = useMemo(() => {

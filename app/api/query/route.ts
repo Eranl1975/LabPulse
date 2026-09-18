@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { rankItems, rankItemsV2 } from '@/agents/ranking/index';
 import { present }   from '@/agents/presentation/index';
-import { readItems } from '@/lib/store';
-import { aiAnswerFallback, aiAnswerFallbackV2 } from '@/lib/ai-fallback';
+import { aiAnswerFallbackV2 } from '@/lib/ai-fallback';
+import { runTroubleshootingPipeline } from '@/lib/troubleshooting-pipeline';
 import { getUser, getProfile } from '@/lib/auth';
 import { hasAppAccess } from '@/lib/auth-shared';
 import { checkQueryRateLimit } from '@/lib/rate-limit';
-import { sanitizeAnswerV2 } from '@/lib/sanitize';
-import { runQualityChecks } from '@/lib/quality-control';
 import { createLogger } from '@/lib/logger';
 import type { RankingQueryV2 } from '@/agents/ranking/types';
-import type { Technique, RankedAnswerV2, SampleMatrixType } from '@/lib/types';
+import type { Technique, SampleMatrixType } from '@/lib/types';
 
 const log = createLogger('api/query');
+
+// The AI call (Sonnet, optional Opus escalation, optional QC retry) can take well
+// over the default serverless timeout. Vercel Hobby allows up to 60 s.
+export const maxDuration = 60;
 
 const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
 
@@ -122,73 +123,31 @@ export async function POST(req: NextRequest) {
                               : undefined,
   };
 
-  const AI_ONLY_TECHNIQUES = new Set<Technique>(['UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
+  // Knowledge base → AI fallback → QC gate → content guarantee.
+  // AI failures are never silent: they are returned as ai_status/ai_reason and
+  // shown to the user as a notice inside the answer.
+  const { answer, generation } = await runTroubleshootingPipeline(query, {
+    hasAIKey: !!process.env.ANTHROPIC_API_KEY,
+    aiFallback: aiAnswerFallbackV2,
+  });
 
-  // V2 ranking with confidence caps and structured output
-  let ranked: RankedAnswerV2 = rankItemsV2(query, readItems());
-
-  // AI fallback: when rule-based system has no/low confidence matches, OR when
-  // the technique is outside the rule-based knowledge base
-  const needsAI = ranked.confidence < 0.4 || AI_ONLY_TECHNIQUES.has(query.technique);
-  if (needsAI && process.env.ANTHROPIC_API_KEY) {
-    try {
-      ranked = await aiAnswerFallbackV2(query, ranked);
-    } catch (err) {
-      // If AI call fails, return the original result rather than crashing
-      log.error('ai-fallback', 'AI fallback V2 failed', { error: String(err) });
-    }
+  if (generation.ai_status === 'error') {
+    log.error('ai-status', 'Query answered without AI', {
+      code: generation.ai_error_code, http_status: generation.ai_http_status, technique: query.technique,
+    });
   }
-
-  // Quality control gate
-  let qc = runQualityChecks(ranked, query);
-
-  if (qc.action === 'regenerate') {
-    // Retry AI once with stricter guidance if available
-    if (needsAI && process.env.ANTHROPIC_API_KEY) {
-      try {
-        ranked = await aiAnswerFallbackV2(query, ranked);
-        qc = runQualityChecks(ranked, query);
-      } catch (err) {
-        console.error('[ai-fallback-v2] regeneration retry error:', err);
-      }
-    }
-    // If still failing after retry (or no AI available), hard-cap confidence
-    if (qc.action === 'regenerate') {
-      ranked.confidence = Math.min(ranked.confidence, 0.30);
-      ranked.confidence_breakdown.final_score = ranked.confidence;
-      ranked.confidence_breakdown.label = 'Insufficient evidence';
-      ranked.confidence_breakdown.caps_applied.push('Quality control regeneration cap (0.30)');
-      ranked.uncertainties.push(...qc.failures.map(f => `QC: ${f.message}`));
-    }
-  }
-
-  if (qc.action === 'downgrade') {
-    // Use QC recommended confidence cap if available, otherwise penalize per error
-    const errors = qc.failures.filter(f => f.severity === 'error');
-    let newConfidence: number;
-    if (qc.recommended_confidence !== null) {
-      newConfidence = Math.min(ranked.confidence, qc.recommended_confidence);
-    } else {
-      newConfidence = Math.max(0, ranked.confidence - errors.length * 0.15);
-    }
-    ranked.confidence = newConfidence;
-    ranked.confidence_breakdown.final_score = ranked.confidence;
-    ranked.confidence_breakdown.label = ranked.confidence >= 0.60 ? 'Probable cause' : ranked.confidence >= 0.40 ? 'Preliminary hypothesis' : 'Insufficient evidence';
-    ranked.confidence_breakdown.caps_applied.push('Quality control downgrade');
-    ranked.uncertainties.push(...qc.failures.map(f => `QC: ${f.message}`));
-  }
-
-  // Sanitize AI-generated content to prevent XSS
-  const sanitized = sanitizeAnswerV2(ranked);
 
   return NextResponse.json({
-    ranked_answer: sanitized,
-    ai_assisted: sanitized.evidence_summary.some(e => e.source_id.startsWith('claude-')),
+    ranked_answer: answer,
+    ai_assisted: generation.ai_status === 'ok',
+    ai_status: generation.ai_status,
+    ai_reason: generation.ai_reason,
+    content_source: generation.content_source,
     modes: {
-      concise:  present(sanitized, 'concise'),
-      standard: present(sanitized, 'standard'),
-      deep:     present(sanitized, 'deep'),
-      manager:  present(sanitized, 'manager'),
+      concise:  present(answer, 'concise'),
+      standard: present(answer, 'standard'),
+      deep:     present(answer, 'deep'),
+      manager:  present(answer, 'manager'),
     },
   });
 }

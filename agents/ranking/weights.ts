@@ -55,6 +55,7 @@ export const CONFIDENCE_CAPS = {
   MISSING_CRITICAL_INFO:         0.60,
   NO_EXACT_MODEL_SOURCE:         0.70,
   SYMPTOMS_ONLY:                 0.50,
+  RELATED_TECHNIQUE_ONLY:        0.45,  // evidence borrowed from a related technique (e.g. HPLC items for UHPLC)
   CONFLICTING_EVIDENCE_REDUCTION: 0.15,  // subtracted from raw score
 } as const;
 

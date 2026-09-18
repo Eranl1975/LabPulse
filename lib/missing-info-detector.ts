@@ -64,11 +64,49 @@ const QUESTION_TEMPLATES: Record<MissingInfoField, string> = {
   method_transfer_source: 'What instrument/site is the method being transferred from?',
 };
 
+// ─── Free-text recognition ──────────────────────────────────────────
+// Users often type method details into the Method Summary box or the symptom
+// description instead of the dedicated inputs. These patterns recognise the
+// critical chromatographic fields there so the answer is not penalised for
+// information the user actually supplied.
+
+const TEXT_PATTERNS: Partial<Record<MissingInfoField, RegExp>> = {
+  column: /\bcolumn\b|\bC(?:4|8|18)\b|phenyl|hilic|\bbeh\b|zorbax|acquity|kinetex|poroshell|xbridge|xselect|\bluna\b|hypersil|chromolith|cortecs|\d+(?:\.\d+)?\s*[x×]\s*\d+(?:\.\d+)?\s*mm|\d(?:\.\d+)?\s*(?:µ|u)m\b/i,
+  mobile_phase: /mobile phase|eluent|acetonitrile|\bacn\b|methanol|\bmeoh\b|formic acid|\btfa\b|trifluoroacetic|ammonium (?:formate|acetate|bicarbonate)|phosphate buffer|\d+\s*%\s*[ab]\b/i,
+  flow_rate: /\d+(?:\.\d+)?\s*(?:ml|µl|ul)\s*\/\s*min|flow rate|\bflow\s*[:=]?\s*\d/i,
+  ionization_mode: /\besi\b|\bapci\b|\bappi\b|positive (?:ion )?mode|negative (?:ion )?mode|esi\s*[+-]/i,
+};
+
+function freeText(query: RankingQueryV2): string {
+  return [
+    query.method_conditions ?? '',
+    query.symptom_description ?? '',
+    ...Object.values(query.extra_context ?? {}),
+  ].join('\n');
+}
+
+/** Return a short excerpt around the first pattern match, for traceability. */
+function inferFromText(text: string, field: MissingInfoField): string | null {
+  const pattern = TEXT_PATTERNS[field];
+  if (!pattern) return null;
+  const m = pattern.exec(text);
+  if (!m) return null;
+  const start = Math.max(0, m.index - 25);
+  const end = Math.min(text.length, m.index + m[0].length + 35);
+  return text.slice(start, end).replace(/\s+/g, ' ').trim();
+}
+
+/** Critical fields for a technique (excluding manufacturer/model), for form prioritisation. */
+export function getCriticalFields(technique: Technique): MissingInfoField[] {
+  return CRITICAL_BY_TECHNIQUE[technique] ?? [];
+}
+
 // ─── Main Detection Function ────────────────────────────────────────
 
 /**
  * Detect which critical technical context fields are missing from a query.
  * Returns missing fields, the critical subset (triggers confidence cap), and follow-up questions.
+ * Fields recognised in free text count as present and are reported in `inferred_from_text`.
  */
 export function detectMissingInfo(
   query: RankingQueryV2,
@@ -76,10 +114,22 @@ export function detectMissingInfo(
 ): MissingInfoResult {
   const all_missing: MissingInfoField[] = [];
   const critical_missing: MissingInfoField[] = [];
+  const inferred_from_text: Partial<Record<MissingInfoField, string>> = {};
+  const text = freeText(query);
+
+  const isPresent = (field: MissingInfoField): boolean => {
+    if (hasValue(query, field)) return true;
+    const excerpt = inferFromText(text, field);
+    if (excerpt) {
+      inferred_from_text[field] = excerpt;
+      return true;
+    }
+    return false;
+  };
 
   // Check always-critical fields
   for (const field of ALWAYS_CRITICAL) {
-    if (!hasValue(query, field)) {
+    if (!isPresent(field)) {
       all_missing.push(field);
       critical_missing.push(field);
     }
@@ -88,7 +138,7 @@ export function detectMissingInfo(
   // Check technique-specific critical fields
   const techCritical = CRITICAL_BY_TECHNIQUE[technique] ?? [];
   for (const field of techCritical) {
-    if (!hasValue(query, field)) {
+    if (!isPresent(field)) {
       all_missing.push(field);
       critical_missing.push(field);
     }
@@ -97,7 +147,7 @@ export function detectMissingInfo(
   // Check technique-specific optional fields (informational, not critical)
   const techOptional = OPTIONAL_BY_TECHNIQUE[technique] ?? [];
   for (const field of techOptional) {
-    if (!all_missing.includes(field) && !hasValue(query, field)) {
+    if (!all_missing.includes(field) && !isPresent(field)) {
       all_missing.push(field);
     }
   }
@@ -105,7 +155,7 @@ export function detectMissingInfo(
   // Generate follow-up questions only for critical missing fields
   const follow_up_questions = critical_missing.map(f => QUESTION_TEMPLATES[f]);
 
-  return { missing_fields: all_missing, critical_missing, follow_up_questions };
+  return { missing_fields: all_missing, critical_missing, follow_up_questions, inferred_from_text };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────

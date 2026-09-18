@@ -25,8 +25,9 @@ function bulletList(items: string[]): string {
 
 // Standard troubleshooting: all seven sections, clean markdown.
 export function formatStandard(answer: RankedAnswer): TextOutput {
-  // Use V2 formatter if V2 fields are present
-  if ('hypotheses' in answer && (answer as RankedAnswerV2).hypotheses?.length > 0) {
+  // Use V2 formatter whenever the structured fields are present, even when
+  // hypotheses are empty — a low or zero score must never collapse the report.
+  if ('confidence_breakdown' in answer && (answer as RankedAnswerV2).confidence_breakdown) {
     return formatStandardV2(answer as RankedAnswerV2);
   }
 
@@ -92,6 +93,11 @@ function safetyLevelLabel(level: string): string {
 function formatStandardV2(answer: RankedAnswerV2): TextOutput {
   const sections: string[] = [];
 
+  // 0. Generation notice (AI unavailable, generic procedure, etc.)
+  if (answer.generation?.notice) {
+    sections.push(`> **Notice:** ${answer.generation.notice}`);
+  }
+
   // 1. Problem Definition
   sections.push(`## 1. Problem Interpretation`);
   sections.push(`**Reported observation:** ${answer.problem_summary}`);
@@ -100,9 +106,15 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
   }
 
   // 2. Missing Information
-  if (answer.missing_information.critical_missing.length > 0) {
+  const inferred = Object.entries(answer.missing_information.inferred_from_text ?? {});
+  if (answer.missing_information.critical_missing.length > 0 || inferred.length > 0) {
     sections.push(`## 2. Missing Information`);
-    sections.push(`**Critical fields missing:** ${answer.missing_information.critical_missing.join(', ')}`);
+    if (answer.missing_information.critical_missing.length > 0) {
+      sections.push(`**Critical fields missing:** ${answer.missing_information.critical_missing.join(', ')}`);
+    }
+    if (inferred.length > 0) {
+      sections.push(`**Recognised from your free text:** ${inferred.map(([f, ex]) => `${f} ("${ex}")`).join('; ')}`);
+    }
     if (answer.missing_information.follow_up_questions.length > 0) {
       sections.push(`**Follow-up questions:**`);
       sections.push(numberedList(answer.missing_information.follow_up_questions));

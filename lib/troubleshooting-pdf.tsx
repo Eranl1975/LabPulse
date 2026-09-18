@@ -78,6 +78,11 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
           </Text>
         </View>
 
+        {/* Generation notice */}
+        {answer.generation?.notice ? (
+          <Text style={[s.item, { color: '#475569' }]}>Notice: {answer.generation.notice}</Text>
+        ) : null}
+
         {/* Problem Summary */}
         <Text style={s.sectionTitle}>Problem Summary</Text>
         <Text style={s.item}>{answer.problem_summary}</Text>
@@ -98,9 +103,14 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
         </Text>
         {answer.hypotheses?.length ? (
           answer.hypotheses.map((h, i) => (
-            <Text key={i} style={s.item}>
-              {h.rank}. [{h.probability}] {h.cause} — {h.status === 'confirmed' ? 'CONFIRMED' : 'suspected'}
-            </Text>
+            <View key={i}>
+              <Text style={s.item}>
+                {h.rank}. [{h.probability}] {h.cause} — {h.status === 'confirmed' ? 'CONFIRMED' : 'suspected'}
+              </Text>
+              {h.diagnostic_test ? (
+                <Text style={[s.item, { marginLeft: 12, color: '#475569' }]}>Test: {h.diagnostic_test}{h.expected_result ? ` — Expected if true: ${h.expected_result}` : ''}</Text>
+              ) : null}
+            </View>
           ))
         ) : (
           answer.likely_causes.map((c, i) => (

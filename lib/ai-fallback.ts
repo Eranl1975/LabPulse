@@ -4,7 +4,6 @@ import type { RankingQuery, RankingQueryV2 } from '@/agents/ranking/types';
 import { getCapability } from './instrument-capabilities';
 import { detectMissingInfo } from './missing-info-detector';
 import { deduplicateItems } from './deduplication';
-import { runQualityChecks } from './quality-control';
 import { validateSourceForVendor } from './evidence-hierarchy';
 import { getConfidenceLabelV2 } from '@/agents/ranking/tiering';
 import { CONFIDENCE_CAPS } from '@/agents/ranking/weights';
@@ -54,11 +53,9 @@ CRITICAL RULES:
 - Separate immediate diagnostic checks from corrective actions — corrective actions should only follow confirmed diagnosis
 - Exclude steps already tried (listed under "already_checked")
 
-HARD CONFIDENCE RULES — you MUST follow these, violations will be overridden by the system:
-- Symptom description only, no diagnostic results provided → confidence MUST be ≤ 0.40
-- Missing manufacturer or model information → confidence MUST be ≤ 0.35
-- Missing critical method context (column, mobile phase, ionization mode for LCMS) → confidence MUST be ≤ 0.30
-- No exact-model documentation cited → confidence MUST be ≤ 0.50
+CONFIDENCE AND COMPLETENESS RULES:
+- Report confidence (0.0–1.0) as your honest estimate that the top-ranked hypothesis is the root cause given the evidence provided. The system applies evidence-hierarchy caps afterwards (missing method context, no exact-model source, symptoms only) — do NOT pre-apply them or reduce your answer because of them.
+- ALWAYS return complete ranked hypotheses, diagnostic checks, corrective actions and verification criteria, regardless of confidence or missing information. Missing information lowers confidence; it never justifies an empty or truncated answer. State the assumptions you made where information is missing, and say which missing detail would most change the ranking.
 - User reports an observation AND proposes a diagnosis without experimental evidence → treat the diagnosis as an UNCONFIRMED HYPOTHESIS, not a fact. List the user's proposed diagnosis as one hypothesis among several.
 - High TIC baseline ≠ ion suppression. These are DIFFERENT problems with different root causes and diagnostics. High TIC suggests contamination, column bleed, or mobile phase background. Ion suppression requires matrix factor evaluation (post-extraction spike vs neat standard).
 - NEVER use "50% suppression" or any fixed percentage as a universal threshold for ion suppression
@@ -684,26 +681,8 @@ export async function aiAnswerFallbackV2(
     result.likely_causes = filtered;
   }
 
-  // Run quality checks — enforce caps directly
-  const qc = runQualityChecks(result, query);
-  if (qc.action === 'downgrade' || qc.action === 'regenerate') {
-    // Apply recommended confidence cap from QC
-    if (qc.recommended_confidence !== null && qc.recommended_confidence < result.confidence) {
-      result.confidence = qc.recommended_confidence;
-    } else {
-      // Fallback: subtract 0.15 per error
-      const errorCount = qc.failures.filter(f => f.severity === 'error').length;
-      result.confidence = Math.max(0, result.confidence - errorCount * 0.15);
-    }
-    result.confidence = parseFloat(result.confidence.toFixed(2));
-    result.confidence_breakdown.final_score = result.confidence;
-    result.confidence_breakdown.label = getConfidenceLabelV2(result.confidence);
-    result.confidence_breakdown.caps_applied.push(`Quality control ${qc.action}: ${qc.failures.length} issue(s)`);
-    result.uncertainties.push(
-      ...qc.failures.map(f => `QC ${f.severity}: ${f.message}`)
-    );
-  }
-
+  // Quality control runs once, in the pipeline (lib/troubleshooting-pipeline.ts),
+  // so the same failure is never penalised twice.
   return result;
 }
 
@@ -834,7 +813,13 @@ function buildUserMessageV2(query: RankingQueryV2, kbResult?: RankedAnswer): str
   if (missingInfo.critical_missing.length > 0) {
     lines.push('');
     lines.push(`=== MISSING CRITICAL INFO: ${missingInfo.critical_missing.join(', ')} ===`);
-    lines.push('Due to missing information, your confidence MUST NOT exceed 0.30. Note what additional details would improve the diagnosis.');
+    lines.push('Give your best-ranked hypotheses under clearly stated assumptions for the missing items. List which of these details would most change the ranking, and phrase method-dependent recommendations as starting points to verify.');
+  }
+  const inferred = Object.entries(missingInfo.inferred_from_text ?? {});
+  if (inferred.length > 0) {
+    lines.push('');
+    lines.push('=== METHOD DETAILS RECOGNISED IN FREE TEXT (use these; do not ask for them again) ===');
+    for (const [field, excerpt] of inferred) lines.push(`${field}: "${excerpt}"`);
   }
 
   return lines.join('\n');

@@ -6,6 +6,9 @@
 // Keys can be either existing Step2Data fields or dynamic keys from
 // context-schemas.ts.
 
+import type { MissingInfoField, Technique } from './types';
+import { getCriticalFields } from './missing-info-detector';
+
 /**
  * Map of issue category (lowercase, from issue-detector or user selection)
  * to field keys that should be promoted to priority 1.
@@ -45,7 +48,7 @@ export const ISSUE_FIELD_PRIORITIES: Record<string, string[]> = {
     'sst_resolution', 'sst_plates', 'retentionTime',
   ],
   'carryover': [
-    'injectionVolume', 'sampleMatrix', 'column', 'mobilephase',
+    'injectionVolume', 'sampleMatrix', 'column', 'mobilephase', 'flowRate',
     'recentMaint', 'analyte',
   ],
   'low sensitivity': [
@@ -423,12 +426,32 @@ export const ISSUE_FIELD_PRIORITIES: Record<string, string[]> = {
   ],
 };
 
+/** Map missing-info critical fields to Step 2 form keys. */
+const CRITICAL_FIELD_FORM_KEYS: Partial<Record<MissingInfoField, string>> = {
+  column: 'column',
+  mobile_phase: 'mobilephase',
+  flow_rate: 'flowRate',
+  ionization_mode: 'ionizationMode',
+  sample_matrix: 'sampleMatrix',
+  analyte: 'analyte',
+};
+
 /**
  * Get the set of field keys that should be promoted to high priority
- * for a given issue category.  Returns empty array if no match.
+ * for a given issue category and (optionally) technique. Fields that the
+ * missing-info detector treats as critical for the technique are always
+ * promoted, so users see them before the confidence cap can apply.
  */
-export function getPromotedFields(issueCategory: string): string[] {
-  if (!issueCategory) return [];
-  const key = issueCategory.toLowerCase().trim();
-  return ISSUE_FIELD_PRIORITIES[key] ?? [];
+export function getPromotedFields(issueCategory: string, technique?: Technique | string): string[] {
+  const keys = new Set<string>();
+  if (issueCategory) {
+    for (const k of ISSUE_FIELD_PRIORITIES[issueCategory.toLowerCase().trim()] ?? []) keys.add(k);
+  }
+  if (technique) {
+    for (const field of getCriticalFields(technique as Technique)) {
+      const formKey = CRITICAL_FIELD_FORM_KEYS[field];
+      if (formKey) keys.add(formKey);
+    }
+  }
+  return [...keys];
 }

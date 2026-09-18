@@ -336,6 +336,24 @@ export default function AnswerDisplay({ modes, confidence, selected, rankedAnswe
       padding: '1.625rem 1.75rem',
       boxShadow: '0 2px 14px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04)',
     }}>
+      {rankedAnswer?.generation?.notice && (
+        <div
+          role="status"
+          style={{
+            marginBottom: '0.875rem',
+            padding: '0.625rem 0.875rem',
+            borderRadius: '8px',
+            border: '1px dashed var(--color-slate-400)',
+            background: 'var(--color-slate-50)',
+            fontSize: '0.8125rem',
+            color: 'var(--color-slate-700)',
+            lineHeight: 1.5,
+          }}
+        >
+          <strong style={{ color: 'var(--color-navy-800)' }}>Notice: </strong>
+          {rankedAnswer.generation.notice}
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <ConfidenceBar confidence={confidence} />
         {rankedAnswer && technique && (
