@@ -3,11 +3,16 @@
 // Query params: page, limit, vendor, technique, doc_type, q (title substring).
 // Falls back to the curated catalogue (data/instrument-docs.json) when Supabase
 // is not configured, so the admin view is never blank without explanation.
+//
+// Each item carries `chunk_count` and `searchable`: a document with metadata but
+// no passages cannot be cited by an answer, and used to be indistinguishable
+// here from a fully searchable one.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/require-admin';
 import { paginate } from '@/lib/pagination';
 import { loadSeedDocuments } from '@/lib/document-seed';
+import { fetchChunkCounts, summarizeSearchability } from '@/lib/document-chunk-counts';
 import { isDocType, type DocumentRecord } from '@/lib/document-types';
 import { createLogger } from '@/lib/logger';
 
@@ -42,10 +47,32 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     (!q         || d.title.toLowerCase().includes(q)),
   );
 
+  const pageResult = paginate(filtered, page, limit);
+
+  // null means the counts could not be read (no Supabase, or migration 022 not
+  // applied). Reported as unknown rather than as "every document is empty".
+  const counts = remote ? await fetchChunkCounts() : null;
+  const summary = counts ? summarizeSearchability(source.map(d => d.id), counts) : null;
+
+  const items = pageResult.items.map(d => ({
+    ...d,
+    chunk_count: counts ? counts.get(d.id) ?? 0 : null,
+    searchable: counts ? (counts.get(d.id) ?? 0) > 0 : null,
+  }));
+
   return NextResponse.json({
-    ...paginate(filtered, page, limit),
+    ...pageResult,
+    items,
     source: remote ? 'supabase' : 'seed_catalogue',
     vendors: [...new Set(source.map(d => d.vendor))].sort(),
+    searchability: summary
+      ? {
+          total: summary.total,
+          searchable: summary.searchable,
+          metadata_only: summary.metadataOnly,
+          banner: summary.banner,
+        }
+      : null,
   });
 }
 

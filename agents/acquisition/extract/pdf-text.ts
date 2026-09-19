@@ -32,7 +32,7 @@ export async function extractPdfText(data: Buffer): Promise<PdfExtraction> {
     const result = await parser.getText();
 
     const pages: PdfPage[] = result.pages
-      .map(p => ({ page: p.num, text: normalize(p.text) }))
+      .map(p => ({ page: p.num, text: normalizePdfText(p.text) }))
       .filter(p => p.text.length > 0);
 
     if (pages.length === 0) {
@@ -62,8 +62,12 @@ export async function extractPdfText(data: Buffer): Promise<PdfExtraction> {
   }
 }
 
-/** PDF text arrives with hard line breaks and hyphenation; rejoin for searchability. */
-function normalize(text: string): string {
+/**
+ * PDF text arrives with hard line breaks and hyphenation; rejoin for searchability.
+ * Exported so the browser extractor in lib/pdf-text-browser.ts produces identical
+ * text, and therefore identical chunks, to this server-side path.
+ */
+export function normalizePdfText(text: string): string {
   return text
     .replace(/\r/g, '')
     .replace(/-\n(?=[a-z])/g, '')     // de-hyphenate across line breaks

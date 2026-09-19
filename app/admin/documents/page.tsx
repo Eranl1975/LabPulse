@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getProfile } from '@/lib/auth';
 import { loadSeedDocuments } from '@/lib/document-seed';
+import { fetchChunkCounts, summarizeSearchability } from '@/lib/document-chunk-counts';
 import type { DocumentRecord } from '@/lib/document-types';
 import {
   SupabaseRunStateStore, hasRunStateCredentials, type RefreshRun,
@@ -16,6 +17,11 @@ export default async function AdminDocumentsPage() {
 
   const [documents, remoteBacked] = await loadDocuments();
   const { runs, runsError } = await loadRuns();
+
+  // null when the counts cannot be read (no Supabase, or migration 022 not
+  // applied); the panel then says so instead of calling every document empty.
+  const counts = remoteBacked ? await fetchChunkCounts() : null;
+  const summary = counts ? summarizeSearchability(documents.map(d => d.id), counts) : null;
 
   return (
     <div>
@@ -34,6 +40,8 @@ export default async function AdminDocumentsPage() {
         runs={runs}
         runsError={runsError}
         remoteBacked={remoteBacked}
+        chunkCounts={counts ? Object.fromEntries(counts) : null}
+        banner={summary?.banner ?? null}
       />
     </div>
   );

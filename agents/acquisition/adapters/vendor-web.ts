@@ -232,6 +232,7 @@ export class VendorWebAdapter implements SourceAdapter {
       first_seen_at: now,
       last_checked_at: now,
       last_changed_at: now,
+      ingested_at: null,
     };
 
     this.documents.push(document);
