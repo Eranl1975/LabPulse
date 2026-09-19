@@ -117,6 +117,7 @@ export function seedDocumentsFrom(parsed: unknown): DocumentRecord[] {
         first_seen_at: now,
         last_checked_at: null,
         last_changed_at: null,
+        ingested_at: null,
       });
     }
   }

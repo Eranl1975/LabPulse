@@ -50,6 +50,8 @@ export interface DocumentRecord {
   first_seen_at: string;
   last_checked_at: string | null;
   last_changed_at: string | null;
+  /** When an operator last ingested a local PDF into document_chunks (022). */
+  ingested_at: string | null;
 }
 
 /** A searchable passage of a document (mirrors 020_document_chunks.sql). */

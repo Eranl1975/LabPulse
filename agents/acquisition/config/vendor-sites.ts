@@ -9,6 +9,12 @@ import type { Technique } from '@/lib/types';
  * `blocked` vendors return HTTP 403 to any non-browser client via their WAF —
  * including their public PDF libraries. LabPulse does not disguise itself to get
  * around that; those vendors need a licensed feed or manual curation instead.
+ *
+ * `unverified` means "re-test from the deployed function", not "unreachable".
+ * A production dry run on 2026-09-19 reached Waters and Thermo Fisher from
+ * Vercel's iad1 region even though both time out from the developer's machine,
+ * so a local timeout says nothing about what the monthly run can fetch. Promote
+ * a vendor to `reachable` on the strength of a deployed run, not a local one.
  */
 export type VendorAccess = 'reachable' | 'blocked' | 'unverified';
 

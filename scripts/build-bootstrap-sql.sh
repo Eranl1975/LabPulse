@@ -5,7 +5,8 @@
 #   bash scripts/build-bootstrap-sql.sh > bootstrap.sql
 #
 # Order matters: 019 references sources (001), 020 references documents (019),
-# and 021 widens a constraint created in 002. Every migration is idempotent
+# 021 widens a constraint created in 002, and 022 adds documents.ingested_at
+# plus the document_chunk_counts view. Every migration is idempotent
 # (create table if not exists / drop constraint if exists), so re-running is safe.
 #
 # This concatenates the real migration files rather than duplicating their SQL,
@@ -23,6 +24,7 @@ MIGRATIONS=(
   019_documents
   020_document_chunks
   021_widen_technique_check
+  022_documents_ingested_at
 )
 
 echo "-- LabPulse: schema required by the vendor documentation agent."

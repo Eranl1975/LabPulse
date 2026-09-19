@@ -40,7 +40,8 @@ Deploy checklist:
    `bash scripts/build-bootstrap-sql.sh > bootstrap.sql`
    It concatenates `001_sources`, `002_knowledge_items`, `007_source_refresh_runs`,
    `009_agent_runs`, `017_kb_fulltext`, `019_documents`, `020_document_chunks`
-   and `021_widen_technique_check` inside one transaction. Every statement is
+   `021_widen_technique_check` and `022_documents_ingested_at` inside one
+   transaction. Every statement is
    idempotent, so re-running is safe.
    021 is not optional: 002 limits `technique` to four values, so without it
    every UHPLC item the agent finds is rejected by the database.

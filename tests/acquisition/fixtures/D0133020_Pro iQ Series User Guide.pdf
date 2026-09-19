@@ -1,0 +1,81 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 3 /Kids [4 0 R 6 0 R 8 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 407 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+1 0 0 1 56 760 Tm
+(3.1 Baseline Drift) Tj T*
+(The detector baseline drifts upward when the nebulizer gas pressure falls below the spec) Tj T*
+(ified range. Confirm the regulator setting, then inspect the supply line for a partial b) Tj T*
+(lockage before replacing the detector cell. A slow drift over several hours usually poin) Tj T*
+(ts to temperature rather than gas supply.) Tj T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 405 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+1 0 0 1 56 760 Tm
+(3.2 High Backpressure) Tj T*
+(Replace the inlet frit when backpressure rises above the documented limit for the instal) Tj T*
+(led column. Flush the system with the recommended solvent for twenty minutes and record ) Tj T*
+(the resulting pressure. If pressure does not fall, isolate the pump head and repeat the ) Tj T*
+(measurement with the column removed.) Tj T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 393 >>
+stream
+BT
+/F1 11 Tf
+14 TL
+1 0 0 1 56 760 Tm
+(3.3 Retention Time Shift) Tj T*
+(Retention times shift earlier when the mobile phase composition changes. Verify the prop) Tj T*
+(ortioning valve seal and check the solvent reservoir levels. Degas the mobile phase befo) Tj T*
+(re every sequence, because dissolved air produces irregular flow and irreproducible rete) Tj T*
+(ntion across the run.) Tj T*
+ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000323 00000 n 
+0000000781 00000 n 
+0000000907 00000 n 
+0000001363 00000 n 
+0000001489 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+1933
+%%EOF

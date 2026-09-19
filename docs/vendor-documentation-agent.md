@@ -77,6 +77,9 @@ need a licensed feed, or their documents stay curated by hand in
 - `019_documents.sql` — one row per document, with change-detection fields and
   an authority tier.
 - `020_document_chunks.sql` — searchable passages with a `tsvector` and GIN index.
+- `022_documents_ingested_at.sql` — `documents.ingested_at` plus the
+  `document_chunk_counts` view the admin page reads (PostgREST aggregates are
+  disabled on this project, so the count is done in the database).
 
 Both tables enable RLS with a read policy for `authenticated` and no write
 policy: only the service-role key writes to them. `SUPABASE_SERVICE_ROLE_KEY` is
@@ -92,6 +95,26 @@ the deploy checklist in the README.
 
 Seed the curated catalogue with `npm run seed:documents` (add `-- --dry-run` to
 preview). Curated entries are marked `discovered_by: 'seed'`.
+
+## Operator-supplied documents
+Seeding stores metadata only, so a seeded document is listed but cannot be cited.
+Chunks otherwise come from a crawl, which is impossible for Agilent and Restek.
+
+A person who may read those public manuals downloads them and ingests the local
+files:
+
+    npm run ingest:pdfs -- ./manuals            # ingest a folder
+    npm run ingest:pdfs -- ./manuals --dry-run  # report matches, write nothing
+
+Each file is matched to an existing row by the `document_number` in its filename
+(case- and separator-insensitive), then by the basename of the row's `url`.
+Ingestion never creates rows. `/admin/documents` does the same through the
+browser: it extracts the text locally and posts only the text, because the Hobby
+plan caps a request body at about 4.5 MB and a manual rarely fits as a PDF.
+
+The PDF is not stored — only the passages and the vendor URL. `ingested_at`
+records when an operator last did this; the admin table shows each document as
+`searchable` or `metadata only` so an un-ingested document is no longer silent.
 
 ## Limits
 Per vendor per run: 40 pages, 25 documents, 1.5 s between requests, 20 s request
