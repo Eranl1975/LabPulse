@@ -33,14 +33,17 @@ See docs/vendor-documentation-agent.md.
 
 Deploy checklist:
 
-1. Apply the migrations the agent depends on, in order. As of 2026-09-18 the
-   hosted project had none of these tables, so applying 019 alone fails on the
-   missing `sources` table:
-   `001_sources` → `002_knowledge_items` → `007_source_refresh_runs` →
-   `009_agent_runs` → `017_kb_fulltext` → `019_documents` →
-   `020_document_chunks` → `021_widen_technique_check`.
+1. Apply the migrations the agent depends on, in dependency order. As of
+   2026-09-18 the hosted project had none of these tables, so applying 019 alone
+   fails on the missing `sources` table. Generate one file and run it in the
+   Supabase SQL editor:
+   `bash scripts/build-bootstrap-sql.sh > bootstrap.sql`
+   It concatenates `001_sources`, `002_knowledge_items`, `007_source_refresh_runs`,
+   `009_agent_runs`, `017_kb_fulltext`, `019_documents`, `020_document_chunks`
+   and `021_widen_technique_check` inside one transaction. Every statement is
+   idempotent, so re-running is safe.
    021 is not optional: 002 limits `technique` to four values, so without it
-   every UHPLC item the agent finds fails to insert.
+   every UHPLC item the agent finds is rejected by the database.
 2. Set `CRON_SECRET` in Vercel (required; the cron route returns 503 without it).
 3. Confirm `SUPABASE_SERVICE_ROLE_KEY` is set. Document search needs it, because
    the new tables have RLS with no anon read policy.
