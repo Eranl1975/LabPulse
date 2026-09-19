@@ -9,7 +9,7 @@ Two cron entries in `vercel.json`:
 | Schedule | Path | Purpose |
 | --- | --- | --- |
 | `0 6 1 * *` | `/api/cron/monthly-refresh` | Starts the month's run |
-| `30 * 1-2 * *` | `/api/cron/monthly-refresh?continue=true` | Drains it hourly |
+| `0 7 * * *` | `/api/cron/monthly-refresh?continue=true` | Drains it daily |
 
 Vercel sends `Authorization: Bearer $CRON_SECRET`; anything else gets 401, and a
 missing `CRON_SECRET` gets 503.
@@ -26,10 +26,12 @@ the front of the queue.
 hourly trigger never starts an extra run. Without it, the monthly trigger alone
 would leave the run unfinished until the following month.
 
-If your Vercel plan does not allow sub-daily cron, the run still completes: it
-just takes a few daily invocations instead of a few hourly ones. If your plan
-allows longer functions, raise `maxDuration` and `BUDGET_MS` together for fewer
-invocations.
+The drain runs daily, not hourly, because the Hobby plan caps both the number of
+cron jobs (2, which this uses exactly) and how often one may fire. On the days
+when no run is open the drain call returns `idle` immediately, so it costs
+almost nothing. A full pass therefore completes over the first few days of the
+month. On a plan with longer functions, raise `maxDuration` and `BUDGET_MS`
+together to finish in fewer invocations.
 
 Manual trigger: `POST /api/refresh` (admin only), or the Run now button on
 `/admin/documents`.
