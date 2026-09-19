@@ -2,11 +2,14 @@ import { rankItemsV2 } from '@/agents/ranking/index';
 import { getConfidenceLabelV2 } from '@/agents/ranking/tiering';
 import type { RankingQueryV2 } from '@/agents/ranking/types';
 import type { KnowledgeItem, RankedAnswerV2, Technique, GenerationStatus } from './types';
+import type { DocumentHit } from './document-types';
 import { readItems } from './store';
 import { runQualityChecks } from './quality-control';
 import { sanitizeAnswerV2 } from './sanitize';
 import { classifyAIError } from './ai-errors';
 import { mergeGenericProcedure } from './generic-procedures';
+import { searchDocuments, type DocumentSearchQuery } from './document-search';
+import { mergeDocumentEvidence, buildGroundingContext } from './document-evidence';
 import { createLogger } from './logger';
 
 const log = createLogger('troubleshooting-pipeline');
@@ -18,7 +21,15 @@ export const AI_ONLY_TECHNIQUES = new Set<Technique>([
 
 const AI_TRIGGER_CONFIDENCE = 0.4;
 
-export type AIFallbackFn = (query: RankingQueryV2, kb: RankedAnswerV2) => Promise<RankedAnswerV2>;
+/** `grounding` carries retrieved vendor documentation the model must cite from. */
+export type AIFallbackFn = (
+  query: RankingQueryV2,
+  kb: RankedAnswerV2,
+  grounding?: string,
+) => Promise<RankedAnswerV2>;
+
+/** Returns null when the document backend is unavailable, [] when nothing matched. */
+export type DocumentSearchFn = (q: DocumentSearchQuery) => Promise<DocumentHit[] | null>;
 
 export interface PipelineDeps {
   /** Knowledge items; defaults to the on-disk store. */
@@ -27,6 +38,10 @@ export interface PipelineDeps {
   hasAIKey: boolean;
   /** The AI fallback implementation (injected so tests can simulate failures). */
   aiFallback?: AIFallbackFn;
+  /** Vendor-document search; defaults to Supabase full-text search. */
+  documentSearch?: DocumentSearchFn;
+  /** Set false to skip document retrieval entirely (used by offline tests). */
+  useDocuments?: boolean;
 }
 
 export interface PipelineResult {
@@ -36,6 +51,52 @@ export interface PipelineResult {
 
 function isAIAnswer(answer: RankedAnswerV2): boolean {
   return answer.evidence_summary.some(e => e.source_id.startsWith('claude-'));
+}
+
+/**
+ * Search stored vendor documentation for this query and record the outcome.
+ * A search failure is reported in `generation`, never thrown: the answer must
+ * still be produced from the knowledge base and generic procedures.
+ */
+async function retrieveDocuments(
+  query: RankingQueryV2,
+  deps: PipelineDeps,
+  generation: GenerationStatus,
+): Promise<DocumentHit[]> {
+  if (deps.useDocuments === false) return [];
+
+  const search = deps.documentSearch ?? searchDocuments;
+  const text = [
+    query.symptom_description,
+    query.issue_category,
+    query.expected_result,
+  ].filter(Boolean).join(' ');
+
+  if (!text.trim()) {
+    generation.document_search = 'skipped';
+    return [];
+  }
+
+  let hits: DocumentHit[] | null;
+  try {
+    hits = await search({
+      text,
+      technique: query.technique,
+      vendor: query.vendor,
+      model: query.model,
+    });
+  } catch (err) {
+    log.warn('document-search', 'vendor document search failed', { error: String(err) });
+    generation.document_search = 'unavailable';
+    return [];
+  }
+
+  if (hits === null) {
+    generation.document_search = 'unavailable';
+    return [];
+  }
+  generation.document_search = hits.length > 0 ? 'ok' : 'no_matches';
+  return hits;
 }
 
 function modelUsed(answer: RankedAnswerV2): string | null {
@@ -90,7 +151,14 @@ export async function runTroubleshootingPipeline(
     model_used: null,
     content_source: 'knowledge_base',
     notice: null,
+    document_search: 'skipped',
+    documents_used: 0,
   };
+
+  // Retrieve vendor documentation first: it grounds the AI layer and is cited
+  // in the answer even when the rule-based result already scores well.
+  const hits = await retrieveDocuments(query, deps, generation);
+  const grounding = buildGroundingContext(hits);
 
   const needsAI = kb.confidence < AI_TRIGGER_CONFIDENCE || AI_ONLY_TECHNIQUES.has(query.technique);
   const canRunAI = needsAI && deps.hasAIKey && !!deps.aiFallback;
@@ -102,7 +170,7 @@ export async function runTroubleshootingPipeline(
 
   if (canRunAI) {
     try {
-      answer = await deps.aiFallback!(query, kb);
+      answer = await deps.aiFallback!(query, kb, grounding || undefined);
       generation.ai_status = 'ok';
       generation.content_source = 'ai';
       generation.model_used = modelUsed(answer);
@@ -124,7 +192,7 @@ export async function runTroubleshootingPipeline(
 
   if (qc.action === 'regenerate' && generation.ai_status === 'ok') {
     try {
-      answer = await deps.aiFallback!(query, kb);
+      answer = await deps.aiFallback!(query, kb, grounding || undefined);
       qc = runQualityChecks(answer, query);
     } catch (err) {
       const c = classifyAIError(err);
@@ -151,6 +219,11 @@ export async function runTroubleshootingPipeline(
   if (merged.added && !isAIAnswer(answer)) {
     generation.content_source = contentBefore ? 'knowledge_base+generic' : 'generic_procedure';
   }
+
+  // Cite the retrieved vendor documentation, ordered by evidence tier.
+  const withDocs = mergeDocumentEvidence(answer, hits);
+  answer = withDocs.answer;
+  generation.documents_used = withDocs.added;
 
   generation.notice = buildNotice(generation, hadKBContent);
   answer.generation = generation;

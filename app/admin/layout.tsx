@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <span style={{ color: '#f97316', marginLeft: '0.5rem', fontSize: '0.75rem', fontWeight: 600 }}>ADMIN</span>
         </span>
         <Link href="/admin/users" style={{ color: '#94a3b8', fontSize: '0.875rem', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>Users</Link>
+        <Link href="/admin/documents" style={{ color: '#94a3b8', fontSize: '0.875rem', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>Documents</Link>
         <Link href="/ask" style={{ color: '#94a3b8', fontSize: '0.875rem', textDecoration: 'none', fontWeight: 500, marginLeft: 'auto', whiteSpace: 'nowrap' }}>← App</Link>
       </nav>
       <main style={{ padding: 'clamp(1rem, 4vw, 2rem)' }}>{children}</main>

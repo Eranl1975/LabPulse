@@ -187,6 +187,9 @@ export type AIErrorCode =
 
 export type ContentSource = 'knowledge_base' | 'ai' | 'generic_procedure' | 'knowledge_base+generic';
 
+/** Outcome of the vendor-documentation search that grounds an answer. */
+export type DocumentSearchStatus = 'ok' | 'no_matches' | 'unavailable' | 'skipped';
+
 /** Machine-readable record of how an answer was produced, so failures are never silent. */
 export interface GenerationStatus {
   ai_status: AIStatus;
@@ -196,6 +199,9 @@ export interface GenerationStatus {
   model_used: string | null;
   content_source: ContentSource;
   notice: string | null;           // one-line user-facing notice, null when nothing to flag
+  /** How the vendor-document search went, and how many passages were cited. */
+  document_search: DocumentSearchStatus;
+  documents_used: number;
 }
 
 // ─── Structured Report & Hypotheses ──────────────────────────────────

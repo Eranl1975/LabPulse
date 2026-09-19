@@ -484,8 +484,9 @@ export async function aiAnswerFallback(query: RankingQuery): Promise<RankedAnswe
 export async function aiAnswerFallbackV2(
   query: RankingQueryV2,
   kbResult?: RankedAnswer,
+  grounding?: string,
 ): Promise<RankedAnswerV2> {
-  const userMessage = buildUserMessageV2(query, kbResult);
+  const userMessage = buildUserMessageV2(query, kbResult, grounding);
 
   // Default: Sonnet
   let { parsed, modelUsed } = await callModelV2('claude-sonnet-4-6', userMessage);
@@ -701,10 +702,15 @@ function buildUserMessage(query: RankingQuery): string {
   return lines.join('\n');
 }
 
-function buildUserMessageV2(query: RankingQueryV2, kbResult?: RankedAnswer): string {
-  const lines: string[] = [
-    `Technique: ${query.technique}`,
-  ];
+function buildUserMessageV2(
+  query: RankingQueryV2,
+  kbResult?: RankedAnswer,
+  grounding?: string,
+): string {
+  const lines: string[] = [];
+  // Retrieved vendor documentation goes first so it frames everything that follows.
+  if (grounding) lines.push(grounding, '');
+  lines.push(`Technique: ${query.technique}`);
   if (query.vendor)            lines.push(`Vendor: ${query.vendor}`);
   if (query.model)             lines.push(`Model: ${query.model}`);
   if (query.issue_category)    lines.push(`Issue category: ${query.issue_category}`);
