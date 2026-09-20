@@ -8,6 +8,8 @@ const FILE = path.join(process.cwd(), 'data', 'knowledge-items.json');
 
 // In-memory cache with TTL (5 minutes)
 const CACHE_TTL_MS = 5 * 60 * 1000;
+/** Ceiling on rows pulled from Supabase in one knowledge-base read. */
+const MAX_SUPABASE_ITEMS = 5000;
 let cachedItems: KnowledgeItem[] | null = null;
 let cacheTimestamp = 0;
 
@@ -59,7 +61,9 @@ export async function readItemsFromSupabase(
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!url || !key) return null;
 
-    let endpoint = `${url}/rest/v1/knowledge_items?is_deprecated=eq.false&deleted_at=is.null&order=updated_at.desc`;
+    // Bounded: the monthly agent appends to this table indefinitely, and the
+    // caller ranks over the whole set. deleted_at requires migration 023.
+    let endpoint = `${url}/rest/v1/knowledge_items?is_deprecated=eq.false&deleted_at=is.null&order=updated_at.desc&limit=${MAX_SUPABASE_ITEMS}`;
     if (searchQuery) {
       const terms = searchQuery.trim().split(/\s+/).join(' & ');
       endpoint += `&tsv=fts.${encodeURIComponent(terms)}`;
@@ -83,9 +87,32 @@ export async function readItemsFromSupabase(
   }
 }
 
-/** Hybrid read: tries Supabase first, falls back to JSON file. */
+/**
+ * Merge the curated catalogue with whatever the monthly agent has stored.
+ *
+ * This used to return the Supabase rows INSTEAD of the file whenever Supabase
+ * had any match, which meant a handful of crawled items could displace the whole
+ * curated knowledge base for a query. The curated items are the higher-quality
+ * set, so they are always included; crawled items are additive.
+ *
+ * On an id collision the Supabase row wins: it is the same item, refreshed.
+ * When Supabase is unavailable or empty the result is exactly the file contents,
+ * so the offline behaviour is unchanged.
+ */
 export async function readItemsHybrid(searchQuery?: string): Promise<KnowledgeItem[]> {
   const supabaseItems = await readItemsFromSupabase(searchQuery);
-  if (supabaseItems && supabaseItems.length > 0) return supabaseItems;
-  return readItems();
+  const fileItems = readItems();
+  if (!supabaseItems || supabaseItems.length === 0) return fileItems;
+
+  // Supersede in place rather than rebuilding from a Map keyed by id: the
+  // curated catalogue currently contains two different TGA items that share the
+  // id 'tga-002', and keying by id would silently drop one of them.
+  const supabaseById = new Map(supabaseItems.map(item => [item.id, item]));
+  const merged = fileItems.map(item => supabaseById.get(item.id) ?? item);
+
+  const fileIds = new Set(fileItems.map(item => item.id));
+  for (const item of supabaseItems) {
+    if (!fileIds.has(item.id)) merged.push(item);
+  }
+  return merged;
 }

@@ -3,7 +3,7 @@ import { getConfidenceLabelV2 } from '@/agents/ranking/tiering';
 import type { RankingQueryV2 } from '@/agents/ranking/types';
 import type { KnowledgeItem, RankedAnswerV2, Technique, GenerationStatus } from './types';
 import type { DocumentHit } from './document-types';
-import { readItems } from './store';
+import { readItemsHybrid } from './store';
 import { runQualityChecks } from './quality-control';
 import { sanitizeAnswerV2 } from './sanitize';
 import { classifyAIError } from './ai-errors';
@@ -138,7 +138,9 @@ export async function runTroubleshootingPipeline(
   query: RankingQueryV2,
   deps: PipelineDeps,
 ): Promise<PipelineResult> {
-  const items = deps.items ?? readItems();
+  // Curated catalogue merged with whatever the monthly agent has stored.
+  // Falls back to the catalogue alone when Supabase is unavailable.
+  const items = deps.items ?? await readItemsHybrid();
   const kb = rankItemsV2(query, items);
   const hadKBContent = kb.hypotheses.length > 0 || kb.likely_causes.length > 0;
   let answer: RankedAnswerV2 = kb;

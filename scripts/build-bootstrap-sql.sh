@@ -5,8 +5,16 @@
 #   bash scripts/build-bootstrap-sql.sh > bootstrap.sql
 #
 # Order matters: 019 references sources (001), 020 references documents (019),
-# 021 widens a constraint created in 002, and 022 adds documents.ingested_at
-# plus the document_chunk_counts view. Every migration is idempotent
+# 021 widens a constraint created in 002, 022 adds documents.ingested_at plus the
+# document_chunk_counts view, and 023 adds knowledge_items.deleted_at.
+#
+# 023 exists because 014_v4_upgrades.sql is deliberately NOT in this list: it
+# creates three tables no code references, and its CREATE INDEX / CREATE POLICY
+# statements are not idempotent. The only part of 014 the app needs is the
+# deleted_at column, which lib/store.ts filters on — without it every Supabase
+# knowledge-base read returned HTTP 400.
+#
+# Every migration is idempotent
 # (create table if not exists / drop constraint if exists), so re-running is safe.
 #
 # This concatenates the real migration files rather than duplicating their SQL,
@@ -25,6 +33,7 @@ MIGRATIONS=(
   020_document_chunks
   021_widen_technique_check
   022_documents_ingested_at
+  023_knowledge_items_deleted_at
 )
 
 echo "-- LabPulse: schema required by the vendor documentation agent."
