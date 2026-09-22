@@ -53,12 +53,14 @@ export class MockPersistenceAdapter implements PersistenceAdapter {
 // Also upserts source records into the sources table (001) for traceability.
 // ---------------------------------------------------------------------------
 export class SupabasePersistenceAdapter implements PersistenceAdapter {
-  private db: ReturnType<typeof import('@/lib/supabase').getSupabaseClient>;
+  private db: ReturnType<typeof import('@/lib/supabase').getSupabaseServiceClient>;
 
   constructor() {
+    // Service role, not anon: sources and knowledge_items have RLS enabled with
+    // no write policy, so the pipeline writes as trusted server code only.
     // Defer client creation to first use so SSR prerender never fails.
-    const { getSupabaseClient } = require('@/lib/supabase');
-    this.db = getSupabaseClient();
+    const { getSupabaseServiceClient } = require('@/lib/supabase');
+    this.db = getSupabaseServiceClient();
   }
 
   async getAll(): Promise<AcquiredItem[]> {
