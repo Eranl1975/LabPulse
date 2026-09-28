@@ -9,6 +9,7 @@ import { CONFIDENCE_CAPS } from './weights';
 import { detectMissingInfo } from '@/lib/missing-info-detector';
 import { deduplicateItems } from '@/lib/deduplication';
 import { classifySource, validateSourceForVendor } from '@/lib/evidence-hierarchy';
+import { clusterHypotheses } from '@/lib/hypothesis-clustering';
 
 function dedup(arr: string[]): string[] {
   return [...new Set(arr)];
@@ -204,8 +205,9 @@ export function rankItemsV2(query: RankingQueryV2, items: KnowledgeItem[]): Rank
   const dedupChecks = deduplicateItems(base.checks, 12);
   const dedupActions = deduplicateItems(base.corrective_actions, 12);
 
-  // 6. Build hypotheses from scored items
-  const hypotheses = buildHypotheses(scoredV2, base);
+  // 6. Build hypotheses from scored items, then merge the ones that a single
+  // diagnostic test discriminates into one ranked entry.
+  const hypotheses = clusterHypotheses(buildHypotheses(scoredV2, base));
 
   // 7. Build evidence summaries with metadata
   const sourcesWithMetadata: EvidenceSummaryV2[] = base.evidence_summary.map(es => {
@@ -338,7 +340,11 @@ function buildHypotheses(
       supporting_evidence: supportingEvidence,
       contradicting_evidence: contradicting,
       diagnostic_test: data.items[0]?.diagnostics[0] ?? 'Perform baseline diagnostic check',
-      expected_result: `If this cause is correct, the diagnostic should confirm the issue`,
+      // Knowledge items carry no per-cause expected result. Restating the test
+      // as "a positive result implicates this cause" is a tautology, and
+      // repeated once per cause it was most of what made the old report
+      // unreadable, so the line is left empty and the formatters omit it.
+      expected_result: '',
       status: 'suspected',
     });
   }
@@ -346,8 +352,16 @@ function buildHypotheses(
   return hypotheses;
 }
 
-function buildVerificationSteps(actions: string[]): string[] {
-  return actions.map(a => `After "${a.substring(0, 60)}..." — verify the symptom is resolved and system performance is within specification`);
+/**
+ * Verification steps are only worth printing when they say something the
+ * corrective action does not. Restating every action as "after X, verify the
+ * symptom is resolved" added a paragraph per action and no information, so the
+ * rule-based path contributes none: the measurable acceptance criteria and the
+ * single re-verification instruction in the report cover it. The AI layer still
+ * supplies real, step-specific verification when it runs.
+ */
+function buildVerificationSteps(_actions: string[]): string[] {
+  return [];
 }
 
 function identifyMethodDependentItems(items: string[]): string[] {

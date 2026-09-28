@@ -1,4 +1,5 @@
 import type { RankedAnswer, RankedAnswerV2 } from './types';
+import { hypothesisHeading } from './hypothesis-clustering';
 
 // ── HTML entity escaping ────────────────────────────────────────────────────────
 
@@ -117,7 +118,10 @@ export function buildTroubleshootingEmailHtml(
     <h3 style="${sectionTitle}">Most Likely Causes (ranked)</h3>
     <ol style="margin:0;padding-left:20px;">
       ${v2.hypotheses.map(h =>
-        `<li style="font-size:13px;color:#334155;margin:0 0 8px;line-height:1.5;"><strong>${esc(h.cause)}</strong> <span style="font-size:11px;color:#64748b;">[${esc(h.probability)} probability — ${h.status === 'confirmed' ? 'confirmed' : 'suspected'}]</span>` +
+        `<li style="font-size:13px;color:#334155;margin:0 0 8px;line-height:1.5;"><strong>${esc(hypothesisHeading(h))}</strong> <span style="font-size:11px;color:#64748b;">[${esc(h.probability)} probability — ${h.status === 'confirmed' ? 'confirmed' : 'suspected'}]</span>` +
+        (h.grouped_causes && h.grouped_causes.length > 1
+          ? `<br><span style="font-size:12px;color:#475569;"><em>One test separates these ${h.grouped_causes.length} causes:</em> ${esc(h.grouped_causes.join('; '))}</span>`
+          : '') +
         (h.diagnostic_test ? `<br><span style="font-size:12px;color:#475569;"><em>Test:</em> ${esc(h.diagnostic_test)}</span>` : '') +
         (h.expected_result ? `<br><span style="font-size:12px;color:#475569;"><em>Expected if true:</em> ${esc(h.expected_result)}</span>` : '') +
         `</li>`
@@ -162,6 +166,28 @@ export function buildTroubleshootingEmailHtml(
         `<li style="font-size:13px;color:#334155;margin:0 0 4px;line-height:1.5;">${esc(c)}</li>`
       ).join('\n      ')}
     </ol>
+  </div>`;
+  }
+
+  // Detector-Specific Checks — the half of a hyphenated instrument that
+  // technique-keyed knowledge misses.
+  if (v2?.detector_checks && v2.detector_checks.length > 0) {
+    html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Detector-Specific Checks</h3>
+    ${v2.detector_checks.map(block => `
+    <p style="margin:8px 0 4px;font-size:12px;font-weight:700;color:#0f172a;">${esc(block.label)} — ${esc(block.title)}</p>
+    <ol style="margin:0;padding-left:20px;">
+      ${block.checks.map(c =>
+        `<li style="font-size:13px;color:#334155;margin:0 0 4px;line-height:1.5;">${esc(c)}</li>`
+      ).join('\n      ')}
+    </ol>` + (block.ion_reference && block.ion_reference.length > 0 ? `
+    <p style="margin:8px 0 4px;font-size:12px;font-weight:700;color:#0f172a;">Reference ion sets</p>
+    <ul style="margin:0;padding-left:20px;">
+      ${block.ion_reference.map(r =>
+        `<li style="font-size:12px;color:#475569;margin:0 0 4px;line-height:1.5;"><strong>${esc(r.ions)}</strong> — ${esc(r.meaning)}</li>`
+      ).join('\n      ')}
+    </ul>` : '')).join('\n')}
   </div>`;
   }
 

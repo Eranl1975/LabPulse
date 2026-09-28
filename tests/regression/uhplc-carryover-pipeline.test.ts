@@ -35,10 +35,19 @@ const billingError = new Anthropic.BadRequestError(
 );
 
 function expectActionable(answer: RankedAnswerV2) {
-  expect(answer.hypotheses.length).toBeGreaterThanOrEqual(3);
+  // Causes that one diagnostic test discriminates are clustered into a single
+  // ranked entry, so the content guarantee is counted in candidate causes, not
+  // in entries: three causes under one test is still three causes.
+  const candidateCauses = answer.hypotheses.reduce(
+    (n, h) => n + Math.max(1, h.grouped_causes?.length ?? 1), 0,
+  );
+  expect(answer.hypotheses.length).toBeGreaterThanOrEqual(1);
+  expect(candidateCauses).toBeGreaterThanOrEqual(3);
   for (const h of answer.hypotheses) {
     expect(h.diagnostic_test.length).toBeGreaterThan(10);
-    expect(h.expected_result.length).toBeGreaterThan(5);
+    // An expected result is printed only when it says something the diagnostic
+    // test does not; when present it must be substantive.
+    if (h.expected_result) expect(h.expected_result.length).toBeGreaterThan(5);
   }
   expect(answer.checks.length).toBeGreaterThanOrEqual(4);
   expect(answer.corrective_actions.length).toBeGreaterThanOrEqual(3);

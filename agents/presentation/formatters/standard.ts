@@ -1,5 +1,6 @@
 import type { RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import type { TextOutput } from '../types';
+import { hypothesisHeading } from '@/lib/hypothesis-clustering';
 
 function dataQualityRisk(answer: RankedAnswer): string {
   if (answer.stop_conditions.length > 0) {
@@ -135,7 +136,12 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
   } else {
     for (const h of answer.hypotheses) {
       const statusBadge = h.status === 'confirmed' ? '✓ Confirmed' : '? Suspected';
-      sections.push(`### ${h.rank}. ${h.cause} [${h.probability} probability — ${statusBadge}]`);
+      const grouped = h.grouped_causes && h.grouped_causes.length > 1 ? h.grouped_causes : null;
+      sections.push(`### ${h.rank}. ${hypothesisHeading(h)} [${h.probability} probability — ${statusBadge}]`);
+      if (grouped) {
+        sections.push(`*One diagnostic test separates these ${grouped.length} causes, so they are ranked together.*`);
+        sections.push(`**Candidate causes:**\n${bulletList(grouped)}`);
+      }
       if (h.supporting_evidence.length > 0) {
         sections.push(`**Supporting evidence:**\n${bulletList(h.supporting_evidence)}`);
       }
@@ -143,7 +149,9 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
         sections.push(`**Contradicting evidence:**\n${bulletList(h.contradicting_evidence)}`);
       }
       sections.push(`**Diagnostic test:** ${h.diagnostic_test}`);
-      sections.push(`**Expected result:** ${h.expected_result}`);
+      if (h.expected_result.trim()) {
+        sections.push(`**Expected result:** ${h.expected_result}`);
+      }
     }
   }
 
@@ -152,6 +160,20 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
     sections.push(`## 5. Suggested Diagnostic Checks`);
     sections.push('*Ordered from safest and quickest to most invasive.*');
     sections.push(numberedList(answer.immediate_checks));
+  }
+
+  // 5b. Detector-specific checks — the half of a hyphenated instrument that
+  // technique-keyed knowledge misses.
+  if (answer.detector_checks && answer.detector_checks.length > 0) {
+    sections.push(`## 5b. Detector-Specific Checks`);
+    for (const block of answer.detector_checks) {
+      sections.push(`### ${block.label} — ${block.title}`);
+      sections.push(numberedList(block.checks));
+      if (block.ion_reference && block.ion_reference.length > 0) {
+        sections.push('**Reference ion sets — match the background-subtracted spectrum against these:**');
+        sections.push(block.ion_reference.map(r => `- **${r.ions}** — ${r.meaning}`).join('\n'));
+      }
+    }
   }
 
   // 6. Corrective Action Items
@@ -205,7 +227,9 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
     sections.push('**Verification Steps:**');
     sections.push(numberedList(answer.verification_steps));
   }
-  if ((!answer.verification_criteria || answer.verification_criteria.length === 0) && answer.verification_steps.length === 0) {
+  if (answer.verification_criteria && answer.verification_criteria.length > 0) {
+    sections.push('Apply one corrective action at a time and re-check the criteria above after each, so the action that fixed the problem is known.');
+  } else if (answer.verification_steps.length === 0) {
     sections.push('Run system suitability test and verify all relevant parameters are within specification.');
   }
 
@@ -252,16 +276,17 @@ function formatStandardV2(answer: RankedAnswerV2): TextOutput {
   sections.push(`- Recency: ${(factors.recency * 100).toFixed(0)}%`);
   sections.push(`- Evidence strength: ${(factors.evidence_strength * 100).toFixed(0)}%`);
 
-  // 11. Printable Checklist
+  // 11. Printable checklist — sections 5 and 6 already list every item, so the
+  // on-screen report points at the printable copy instead of repeating it.
   if (answer.printable_checklist.length > 0) {
     sections.push(`## 11. Checklist`);
-    sections.push(answer.printable_checklist.join('\n'));
+    sections.push(`${answer.printable_checklist.length} tick-box items covering the diagnostic checks and corrective actions above are included in the PDF and print views.`);
   }
 
   // Remaining uncertainty
   if (answer.remaining_uncertainty.length > 0) {
     sections.push(`## Remaining Uncertainty`);
-    sections.push(bulletList(answer.remaining_uncertainty));
+    sections.push(bulletList([...new Set(answer.remaining_uncertainty)]));
   }
 
   return { mode: 'standard', text: sections.join('\n\n') };

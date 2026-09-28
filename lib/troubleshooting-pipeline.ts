@@ -10,6 +10,8 @@ import { classifyAIError } from './ai-errors';
 import { mergeGenericProcedure } from './generic-procedures';
 import { searchDocuments, type DocumentSearchQuery } from './document-search';
 import { mergeDocumentEvidence, buildGroundingContext } from './document-evidence';
+import { appendDetectorAddenda } from './detector-addenda';
+import { clusterHypotheses } from './hypothesis-clustering';
 import { createLogger } from './logger';
 
 const log = createLogger('troubleshooting-pipeline');
@@ -221,6 +223,23 @@ export async function runTroubleshootingPipeline(
   if (merged.added && !isAIAnswer(answer)) {
     generation.content_source = contentBefore ? 'knowledge_base+generic' : 'generic_procedure';
   }
+
+  // Detector-specific checks. The knowledge base is organised by technique, so
+  // a hyphenated instrument (a GC-MS queried as "GC", an LC with a DAD) loses
+  // the diagnostics that belong to its detector. These are appended for every
+  // detector in play and never raise the confidence score.
+  const withDetectors = appendDetectorAddenda(answer, query);
+  answer = withDetectors.answer;
+  if (withDetectors.detectors.length > 0) {
+    log.info('detector-addenda', 'appended detector-specific checks', {
+      technique: query.technique, detectors: withDetectors.detectors.join(','),
+    });
+  }
+
+  // Merge hypotheses that one diagnostic test discriminates. Runs last so it
+  // also covers what the AI layer, the generic procedure and the detector
+  // addenda contributed.
+  answer.hypotheses = clusterHypotheses(answer.hypotheses);
 
   // Cite the retrieved vendor documentation, ordered by evidence tier.
   const withDocs = mergeDocumentEvidence(answer, hits);

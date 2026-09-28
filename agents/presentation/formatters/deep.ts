@@ -98,6 +98,19 @@ export function formatDeep(answer: RankedAnswer): TextOutput {
     sections.push(v2.method_dependent_flags.map(f => `- ${f}`).join('\n'));
   }
 
+  // V7: detector-specific diagnostics (the MS half of a hyphenated instrument)
+  if (v2?.detector_checks && v2.detector_checks.length > 0) {
+    sections.push(`## Detector-Specific Diagnostics`);
+    for (const block of v2.detector_checks) {
+      sections.push(`### ${block.label} — ${block.title}`);
+      sections.push(block.checks.map((c, i) => `${i + 1}. ${c}`).join('\n'));
+      if (block.ion_reference && block.ion_reference.length > 0) {
+        sections.push('**Reference ion sets:**');
+        sections.push(block.ion_reference.map(r => `- **${r.ions}** — ${r.meaning}`).join('\n'));
+      }
+    }
+  }
+
   // V3: Safety warnings
   if (v2?.safety_warnings && v2.safety_warnings.length > 0) {
     sections.push(`## Safety & Preservation Warnings`);

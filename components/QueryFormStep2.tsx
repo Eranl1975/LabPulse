@@ -8,7 +8,9 @@ import {
 } from './query-form-options';
 import { getContextSchema, type ContextFieldDef, type ContextGroupDef } from '@/lib/context-schemas';
 import { getPromotedFields } from '@/lib/context-priorities';
+import { getColumnFamily, columnContextKeys, type ColumnParts } from '@/lib/column-catalog';
 import ComboInput from './ComboInput';
+import ColumnSelector from './ColumnSelector';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -271,10 +273,34 @@ function GroupSection({
 // ── Dynamic field renderer ──────────────────────────────────────────────────
 
 function DynamicField({
-  field, value, onChange,
+  field, value, onChange, technique, columnParts, onColumnChange,
 }: {
   field: ContextFieldDef; value: string; onChange: (v: string) => void;
+  technique: string;
+  columnParts: Partial<ColumnParts>;
+  onColumnChange: (composed: string, context: Record<string, string>) => void;
 }) {
+  // The column is matched by key rather than by technique, so every technique
+  // whose schema has a column field gets the catalogue and the dimension
+  // dropdowns without each schema having to opt in.
+  if (field.key === 'column') {
+    return (
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          label={field.label}
+          hint={field.hint ?? 'Pick the phase from the catalogue or type it, then set the dimensions.'}
+        >
+          <ColumnSelector
+            technique={technique}
+            value={value}
+            parts={columnParts}
+            placeholder={field.placeholder}
+            onChange={(composed, _parts, context) => onColumnChange(composed, context)}
+          />
+        </Field>
+      </div>
+    );
+  }
   if (field.type === 'textarea') {
     return (
       <Field label={field.label} hint={field.hint}>
@@ -372,6 +398,34 @@ export default function QueryFormStep2({
     return fields.filter(f => getValue(f.key).trim()).length;
   }
 
+  // ── Column: composed string into `column`, parts into extraContext ───
+
+  const columnFamily = getColumnFamily(technique);
+
+  const columnParts: Partial<ColumnParts> = useMemo(() => {
+    if (!columnFamily) return {};
+    const keys = columnContextKeys(columnFamily);
+    const parts: Partial<ColumnParts> = {};
+    for (const [contextKey, partKey] of Object.entries(keys)) {
+      const stored = data.extraContext[contextKey];
+      if (stored) parts[partKey] = stored;
+    }
+    return parts;
+  }, [columnFamily, data.extraContext]);
+
+  /**
+   * One update carries both representations: the canonical string the backend
+   * already understands, and the structured parts that let ranking and the AI
+   * prompt reason about stationary phase and dimensions.
+   */
+  function setColumn(composed: string, context: Record<string, string>) {
+    onChange({
+      ...data,
+      column: composed,
+      extraContext: { ...data.extraContext, ...context },
+    });
+  }
+
   return (
     <div>
       <div style={SECTION}>
@@ -387,6 +441,9 @@ export default function QueryFormStep2({
                   field={f}
                   value={getValue(f.key)}
                   onChange={v => setValue(f.key, v)}
+                  technique={technique}
+                  columnParts={columnParts}
+                  onColumnChange={setColumn}
                 />
               ))}
             </div>
@@ -412,6 +469,9 @@ export default function QueryFormStep2({
                       field={f}
                       value={getValue(f.key)}
                       onChange={v => setValue(f.key, v)}
+                      technique={technique}
+                      columnParts={columnParts}
+                      onColumnChange={setColumn}
                     />
                   ))}
                 </GroupSection>

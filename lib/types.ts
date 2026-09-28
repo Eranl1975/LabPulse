@@ -209,6 +209,12 @@ export interface GenerationStatus {
 export interface Hypothesis {
   rank: number;
   cause: string;
+  /**
+   * V7: every candidate cause this entry's diagnostic test discriminates,
+   * present only when more than one cause was clustered into it. `cause` stays
+   * the highest-probability member so existing consumers keep working.
+   */
+  grouped_causes?: string[];
   probability: 'high' | 'medium' | 'low';
   supporting_evidence: string[];
   contradicting_evidence: string[];
@@ -277,4 +283,24 @@ export interface RankedAnswerV2 extends RankedAnswer {
   action_details: ActionDetail[];
   // V7: how the answer was produced (AI status, content source)
   generation?: GenerationStatus;
+  /** V7: checks that belong to the detectors in play, not to the technique. */
+  detector_checks?: DetectorCheckBlock[];
+}
+
+/** V7: a reference ion set and what it indicates, for mass-spectral checks. */
+export interface IonReference {
+  ions: string;
+  meaning: string;
+}
+
+/**
+ * V7: diagnostics contributed by a detector rather than by the technique, so a
+ * hyphenated instrument (GC-MS, LC-MS) gets the checks for both halves.
+ */
+export interface DetectorCheckBlock {
+  detector: string;
+  label: string;
+  title: string;
+  checks: string[];
+  ion_reference?: IonReference[];
 }

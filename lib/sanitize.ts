@@ -62,11 +62,25 @@ export function sanitizeAnswerV2(answer: RankedAnswerV2): RankedAnswerV2 {
     hypotheses: (answer.hypotheses ?? []).map(h => ({
       ...h,
       cause: sanitizeText(h.cause),
+      ...(h.grouped_causes ? { grouped_causes: sanitizeStringArray(h.grouped_causes) } : {}),
       supporting_evidence: sanitizeStringArray(h.supporting_evidence),
       contradicting_evidence: sanitizeStringArray(h.contradicting_evidence),
       diagnostic_test: sanitizeText(h.diagnostic_test),
       expected_result: sanitizeText(h.expected_result),
     })),
+    ...(answer.detector_checks
+      ? {
+          detector_checks: answer.detector_checks.map(b => ({
+            ...b,
+            label: sanitizeText(b.label),
+            title: sanitizeText(b.title),
+            checks: sanitizeStringArray(b.checks),
+            ...(b.ion_reference
+              ? { ion_reference: b.ion_reference.map(r => ({ ions: sanitizeText(r.ions), meaning: sanitizeText(r.meaning) })) }
+              : {}),
+          })),
+        }
+      : {}),
     immediate_checks: sanitizeStringArray(answer.immediate_checks ?? []),
     verification_steps: sanitizeStringArray(answer.verification_steps ?? []),
     escalation_criteria: sanitizeStringArray(answer.escalation_criteria ?? []),

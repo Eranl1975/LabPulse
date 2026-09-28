@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
 import type { RankedAnswerV2 } from './types';
+import { hypothesisHeading } from './hypothesis-clustering';
 
 const s = StyleSheet.create({
   page: {
@@ -105,8 +106,13 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
           answer.hypotheses.map((h, i) => (
             <View key={i}>
               <Text style={s.item}>
-                {h.rank}. [{h.probability}] {h.cause} — {h.status === 'confirmed' ? 'CONFIRMED' : 'suspected'}
+                {h.rank}. [{h.probability}] {hypothesisHeading(h)} — {h.status === 'confirmed' ? 'CONFIRMED' : 'suspected'}
               </Text>
+              {h.grouped_causes && h.grouped_causes.length > 1 ? (
+                <Text style={[s.item, { marginLeft: 12, color: '#475569' }]}>
+                  One test separates these {h.grouped_causes.length} causes: {h.grouped_causes.join('; ')}
+                </Text>
+              ) : null}
               {h.diagnostic_test ? (
                 <Text style={[s.item, { marginLeft: 12, color: '#475569' }]}>Test: {h.diagnostic_test}{h.expected_result ? ` — Expected if true: ${h.expected_result}` : ''}</Text>
               ) : null}
@@ -123,6 +129,29 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
         {answer.checks.map((c, i) => (
           <Text key={i} style={s.item}>{i + 1}. {c}</Text>
         ))}
+
+        {/* Detector-Specific Checks */}
+        {answer.detector_checks?.length ? (
+          <>
+            <Text style={s.sectionTitle}>Detector-Specific Checks</Text>
+            {answer.detector_checks.map((block, bi) => (
+              <View key={bi}>
+                <Text style={[s.item, { fontWeight: 700 }]}>{block.label} — {block.title}</Text>
+                {block.checks.map((c, i) => (
+                  <Text key={i} style={[s.item, { marginLeft: 12 }]}>{i + 1}. {c}</Text>
+                ))}
+                {block.ion_reference?.length ? (
+                  <>
+                    <Text style={[s.item, { marginLeft: 12, fontWeight: 700 }]}>Reference ion sets:</Text>
+                    {block.ion_reference.map((r, i) => (
+                      <Text key={i} style={[s.item, { marginLeft: 24, color: '#475569' }]}>{r.ions} — {r.meaning}</Text>
+                    ))}
+                  </>
+                ) : null}
+              </View>
+            ))}
+          </>
+        ) : null}
 
         {/* Corrective Actions */}
         <Text style={s.sectionTitle}>Corrective Actions</Text>
