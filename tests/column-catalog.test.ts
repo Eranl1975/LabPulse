@@ -146,3 +146,98 @@ describe('a catalogue selection satisfies the column critical-field check', () =
     expect(result.critical_missing).not.toContain('column');
   });
 });
+
+describe('catalogue coverage', () => {
+  const REPORTED = 'XBridge Premier Oligonucleotide BEH C18 300Å';
+
+  it('lists the reported Waters oligonucleotide column', () => {
+    const phase = COLUMN_FAMILIES.lc.phases.find(p => p.name === REPORTED);
+    expect(phase, `${REPORTED} missing from the LC catalogue`).toBeDefined();
+    expect(phase!.vendor).toBe('Waters');
+  });
+
+  it('can express the reported column at its catalogue dimensions', () => {
+    const { length, id, particle } = Object.fromEntries(
+      COLUMN_FAMILIES.lc.dimensions.map(d => [d.key, d.options]),
+    ) as Record<'length' | 'id' | 'particle', string[]>;
+    expect(length).toContain('150');
+    expect(id).toContain('4.6');
+    expect(particle).toContain('2.5');
+
+    const parts = { ...EMPTY_COLUMN_PARTS, phase: REPORTED, length: '150', id: '4.6', particle: '2.5' };
+    const composed = composeColumnString('lc', parts);
+    expect(composed).toBe(`${REPORTED} 150 × 4.6 mm, 2.5 µm`);
+    expect(parseColumnString('lc', composed)).toEqual(parts);
+  });
+
+  it('keeps every family broad enough to find a real column in', () => {
+    const minimum: Record<string, number> = { gc: 150, lc: 150, ic: 40, sfc: 25, sec: 50 };
+    for (const [family, spec] of Object.entries(COLUMN_FAMILIES)) {
+      expect(spec.phases.length, `${family} catalogue shrank`).toBeGreaterThanOrEqual(minimum[family]);
+    }
+  });
+
+  it('covers the vendors a lab actually buys from, in each family', () => {
+    const expected: Record<string, string[]> = {
+      gc: ['Agilent J&W', 'Restek', 'Phenomenex', 'Thermo Scientific', 'Trajan (SGE)'],
+      lc: ['Waters', 'Agilent', 'Thermo Scientific', 'Phenomenex', 'Shimadzu', 'Merck', 'YMC'],
+      ic: ['Thermo Scientific', 'Metrohm', 'Shodex', 'Hamilton'],
+      sfc: ['Waters', 'Daicel', 'Phenomenex'],
+      sec: ['Cytiva', 'Tosoh', 'Agilent', 'Waters'],
+    };
+    for (const [family, vendors] of Object.entries(expected)) {
+      const present = new Set(COLUMN_FAMILIES[family as keyof typeof COLUMN_FAMILIES].phases.map(p => p.vendor));
+      for (const vendor of vendors) {
+        expect(present.has(vendor), `${family} catalogue has no ${vendor} column`).toBe(true);
+      }
+    }
+  });
+
+  it('covers the modern LC product classes, not just small-molecule reversed phase', () => {
+    const groups = groupPhasesByChemistry(COLUMN_FAMILIES.lc.phases).map(g => g.chemistry);
+    for (const chemistry of [
+      'Reversed phase — oligonucleotide / nucleic acid',
+      'Reversed phase — peptide / protein (wide pore)',
+      'Mixed-mode',
+      'GPC / polymer SEC',
+      'Preparative',
+    ]) {
+      expect(groups, `LC catalogue is missing the ${chemistry} group`).toContain(chemistry);
+    }
+  });
+
+  it('offers affinity, HIC and desalting columns to FPLC users', () => {
+    const groups = groupPhasesByChemistry(COLUMN_FAMILIES.sec.phases).map(g => g.chemistry);
+    for (const chemistry of ['Affinity (FPLC)', 'Hydrophobic interaction (FPLC)', 'Desalting / buffer exchange']) {
+      expect(groups, `SEC/FPLC catalogue is missing the ${chemistry} group`).toContain(chemistry);
+    }
+  });
+
+  it('gives IC users carbohydrate and ion-exclusion columns', () => {
+    const groups = groupPhasesByChemistry(COLUMN_FAMILIES.ic.phases).map(g => g.chemistry);
+    expect(groups).toContain('Carbohydrate (HPAE-PAD)');
+    expect(groups).toContain('Ion exclusion');
+  });
+
+  it('describes every entry well enough for the picker to be useful', () => {
+    for (const spec of Object.values(COLUMN_FAMILIES)) {
+      for (const phase of spec.phases) {
+        expect(phase.name.trim()).toBe(phase.name);
+        expect(phase.name.length).toBeGreaterThan(1);
+        expect(phase.vendor.length).toBeGreaterThan(1);
+        expect(phase.chemistry.length).toBeGreaterThan(1);
+        expect(phase.description.length, `${phase.name} has no description`).toBeGreaterThan(8);
+      }
+    }
+  });
+
+  it('gives every technique with a column field a catalogue worth browsing', () => {
+    for (const technique of TECHNIQUE_OPTIONS) {
+      const hasColumnField = getContextSchema(technique).fields.some(f => f.key === 'column');
+      if (!hasColumnField) continue;
+      const spec = getColumnFamilySpec(technique);
+      expect(spec, `${technique} has a column field but no catalogue family`).not.toBeNull();
+      expect(spec!.phases.length, `${technique} sees only ${spec!.phases.length} phases`).toBeGreaterThanOrEqual(25);
+    }
+  });
+});
