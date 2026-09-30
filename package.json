@@ -8,7 +8,9 @@
     "start": "next start",
     "test": "vitest",
     "seed:documents": "tsx --env-file-if-exists=.env.local scripts/seed-documents.ts",
-    "ingest:pdfs": "tsx --env-file-if-exists=.env.local scripts/ingest-pdfs.ts"
+    "ingest:pdfs": "tsx --env-file-if-exists=.env.local scripts/ingest-pdfs.ts",
+    "import:columns": "tsx scripts/import-column-catalog.ts",
+    "seed:columns": "tsx --env-file-if-exists=.env.local scripts/seed-column-catalog.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",
