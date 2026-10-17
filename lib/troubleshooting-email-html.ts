@@ -1,5 +1,8 @@
 import type { RankedAnswer, RankedAnswerV2 } from './types';
+import type { EvidenceLabel } from './visual-types';
 import { hypothesisHeading } from './hypothesis-clustering';
+import { labelForSource, labelForGeneration, LABEL_COLOURS } from './evidence-labels';
+import { pctLabel } from './visual-report';
 
 // ── HTML entity escaping ────────────────────────────────────────────────────────
 
@@ -21,6 +24,80 @@ export interface TroubleshootingEmailOptions {
   symptomDescription?: string;
   message?: string;
   date?: string;
+  /** Visual thumbnails sent as small inline attachments, referenced by Content-ID. */
+  inlineImages?: Array<{ cid: string; label: string }>;
+}
+
+function badge(label: EvidenceLabel): string {
+  const c = LABEL_COLOURS[label];
+  return `<span style="display:inline-block;padding:1px 6px;border:1px solid ${c.border};background:${c.bg};color:${c.fg};font-size:9px;font-weight:700;border-radius:8px;letter-spacing:0.3px;white-space:nowrap;">${esc(label)}</span>`;
+}
+
+function safeHref(url: string | null | undefined): string | null {
+  return typeof url === 'string' && /^https?:\/\//i.test(url) ? esc(url) : null;
+}
+
+function visualHtml(answer: RankedAnswerV2, options: TroubleshootingEmailOptions, sectionStyle: string, sectionTitle: string): string {
+  const f = answer.visual_findings;
+  if (!f) return '';
+  const a = f.analysis;
+  const li = 'font-size:12px;color:#334155;margin:0 0 3px;line-height:1.5;';
+  const imageName = (i: number | null) => (i === null ? '' : ` <span style="color:#94a3b8;">(${esc(f.media[i]?.label ?? `Image ${i + 1}`)})</span>`);
+  let html = `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Visual Findings</h3>`;
+
+  if (options.inlineImages?.length) {
+    html += `<table cellpadding="0" cellspacing="0" style="margin:0 0 8px;"><tr>${options.inlineImages.map(img =>
+      `<td style="padding:0 6px 6px 0;vertical-align:top;"><img src="cid:${esc(img.cid)}" width="120" alt="${esc(img.label)}" style="display:block;width:120px;height:auto;border-radius:6px;border:1px solid #e2e8f0;"><div style="font-size:10px;color:#64748b;">${esc(img.label)}</div></td>`,
+    ).join('')}</tr></table>`;
+  }
+  for (const n of f.status.notices) {
+    html += `<p style="margin:0 0 6px;font-size:12px;color:#475569;"><strong>Notice:</strong> ${esc(n)}</p>`;
+  }
+  if (f.user_description) {
+    html += `<p style="margin:0 0 6px;font-size:12px;color:#334155;"><strong>User description:</strong> ${esc(f.user_description)}</p>`;
+  }
+  if (a) {
+    if (a.summary) html += `<p style="margin:0 0 6px;font-size:12px;color:#334155;">${esc(a.summary)}</p>`;
+    if (a.instrument_consistency.status === 'mismatch') {
+      html += `<p style="margin:0 0 6px;font-size:12px;color:#991b1b;"><strong>Instrument mismatch:</strong> ${esc(a.instrument_consistency.explanation)}</p>`;
+    }
+    if (a.ocr_text.length) {
+      html += `<p style="margin:6px 0 2px;font-size:12px;font-weight:700;color:#475569;">Text read from the images</p><ul style="margin:0;padding-left:18px;">${a.ocr_text.map(o =>
+        `<li style="${li}">&ldquo;${esc(o.text)}&rdquo; — ${pctLabel(o.confidence)}${o.low_confidence ? ' <em>(low confidence)</em>' : ''}${imageName(o.image_index)}</li>`).join('')}</ul>`;
+    }
+    if (a.observations.length) {
+      html += `<p style="margin:6px 0 2px;font-size:12px;font-weight:700;color:#475569;">Observations</p><ul style="margin:0;padding-left:18px;">${a.observations.map(o =>
+        `<li style="${li}">${o.hazard ? '<strong style="color:#b91c1c;">⚠</strong> ' : ''}${esc(o.description)} — ${pctLabel(o.confidence)}${o.low_confidence ? ' <em>(low confidence, not stated as fact)</em>' : ''}${imageName(o.image_index)}</li>`).join('')}</ul>`;
+    }
+    if (a.components.length) {
+      html += `<p style="margin:6px 0 2px;font-size:12px;color:#334155;"><strong>Components:</strong> ${a.components.map(c => `${esc(c.name)} (${pctLabel(c.confidence)}${c.low_confidence ? ', low confidence' : ''})`).join('; ')}</p>`;
+    }
+    for (const u of a.uncertainties) {
+      html += `<p style="margin:0 0 3px;font-size:11px;color:#64748b;">Could not determine: ${esc(u.what)}${u.better_photo ? ` — better photo: ${esc(u.better_photo)}` : ''}</p>`;
+    }
+  } else {
+    html += `<p style="margin:0;font-size:12px;color:#64748b;">No image analysis is available for this report.</p>`;
+  }
+
+  if (f.internal_references.length) {
+    html += `<p style="margin:8px 0 2px;font-size:12px;font-weight:700;color:#475569;">LabPulse documents for this instrument</p><ul style="margin:0;padding-left:18px;">${f.internal_references.map(r => {
+      const href = safeHref(r.url);
+      const title = href ? `<a href="${href}" style="color:#0f766e;">${esc(r.title)}</a>` : esc(r.title);
+      return `<li style="${li}">${badge(r.label)} ${title}${r.content_read ? '' : ' <span style="color:#94a3b8;">(cited by title and link; content not read)</span>'}</li>`;
+    }).join('')}</ul>`;
+  }
+  if (f.web_sources.length) {
+    html += `<p style="margin:8px 0 2px;font-size:12px;font-weight:700;color:#475569;">Web research</p><ul style="margin:0;padding-left:18px;">${f.web_sources.map(w => {
+      const href = safeHref(w.url);
+      const title = href ? `<a href="${href}" style="color:#0f766e;">${esc(w.title)}</a>` : esc(w.title);
+      return `<li style="${li}">${badge(w.label)} ${title} <span style="color:#94a3b8;">· ${esc(w.category)}</span>${w.summary ? `<br><span style="color:#475569;">${esc(w.summary)}</span>` : ''}</li>`;
+    }).join('')}</ul>`;
+  }
+  html += `
+  </div>`;
+  return html;
 }
 
 export function buildTroubleshootingEmailHtml(
@@ -100,6 +177,24 @@ export function buildTroubleshootingEmailHtml(
   <div style="margin:0 0 16px;padding:10px 14px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;font-size:12px;color:#334155;line-height:1.5;">
     <strong>Notice:</strong> ${esc(v2.generation.notice)}
   </div>`;
+  }
+
+  // Visual safety steps lead the report, before any troubleshooting action.
+  if (v2?.visual_findings?.safety_first.length) {
+    html += `
+  <div style="margin:0 0 16px;padding:12px 16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;">
+    <h3 style="margin:0 0 8px;font-size:12px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:0.5px;">⚠ Safety first — before any troubleshooting step</h3>
+    <ul style="margin:0;padding-left:20px;">
+      ${v2.visual_findings.safety_first.map(w => `<li style="font-size:13px;color:#991b1b;margin:0 0 4px;line-height:1.5;">${esc(w)}</li>`).join('\n      ')}
+    </ul>
+  </div>`;
+  }
+
+  if (v2?.visual_findings) html += visualHtml(v2, options, sectionStyle, sectionTitle);
+
+  if (v2) {
+    html += `
+  <p style="margin:0 0 12px;font-size:12px;color:#475569;">Recommendations below: ${badge(labelForGeneration(v2.generation))}</p>`;
   }
 
   // Problem Summary
@@ -260,7 +355,7 @@ export function buildTroubleshootingEmailHtml(
         const tierBadge = meta ? `[Tier ${meta.tier}: ${esc(meta.classification)}]` : `[${esc(s.classification)}]`;
         const title = meta?.title ?? s.source_id;
         const org = meta?.manufacturer_or_org ? ` — ${esc(meta.manufacturer_or_org)}` : '';
-        return `<li style="font-size:12px;color:#64748b;margin:0 0 3px;line-height:1.5;"><strong>${esc(title)}</strong>${org} <span style="font-size:10px;color:#94a3b8;">${tierBadge}</span></li>`;
+        return `<li style="font-size:12px;color:#64748b;margin:0 0 3px;line-height:1.5;">${badge(labelForSource(s))} <strong>${esc(title)}</strong>${org} <span style="font-size:10px;color:#94a3b8;">${tierBadge}</span></li>`;
       }).join('\n      ')}
     </ul>
   </div>`;

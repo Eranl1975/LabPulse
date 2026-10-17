@@ -9,12 +9,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: { answer: RankedAnswerV2; technique: string; vendor?: string; model?: string; issueCategory?: string };
+  let body: { answer: RankedAnswerV2; ranked_answer?: RankedAnswerV2; technique: string; vendor?: string; model?: string; issueCategory?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
+  // Older clients sent the answer as `ranked_answer`.
+  body.answer = body.answer ?? body.ranked_answer!;
 
   if (!body.answer || !body.technique) {
     return NextResponse.json({ error: 'answer and technique are required' }, { status: 400 });

@@ -5,6 +5,7 @@ import type { RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 // RankedAnswerV2 is kept for the request body type below.
 import { buildTroubleshootingEmailHtml } from '@/lib/troubleshooting-email-html';
 import type { TroubleshootingEmailOptions } from '@/lib/troubleshooting-email-html';
+import { safeThumbnails } from '@/lib/visual-report';
 
 export const maxDuration = 30;
 
@@ -109,6 +110,17 @@ export async function POST(req: NextRequest) {
     date: new Date().toISOString(),
   };
 
+  // Visual thumbnails go as small inline attachments (≤ 60 KB each, ≤ 12),
+  // because most mail clients block data: URIs in <img>.
+  const thumbs = 'confidence_breakdown' in answer ? safeThumbnails(answer as RankedAnswerV2) : [];
+  const attachments = thumbs.map((t, i) => ({
+    filename: `labpulse-image-${i + 1}.jpg`,
+    content: t.base64,
+    contentType: 'image/jpeg',
+    contentId: `labpulse-img-${i + 1}`,
+  }));
+  emailOptions.inlineImages = thumbs.map((t, i) => ({ cid: `labpulse-img-${i + 1}`, label: t.label }));
+
   const htmlBody = buildTroubleshootingEmailHtml(answer, emailOptions);
 
   // ── Send via Resend ───────────────────────────────────────────────────────────
@@ -123,6 +135,7 @@ export async function POST(req: NextRequest) {
       to: [cleanTo],
       subject: cleanSubject,
       html: htmlBody,
+      ...(attachments.length > 0 ? { attachments } : {}),
     });
 
     return NextResponse.json({ success: true });

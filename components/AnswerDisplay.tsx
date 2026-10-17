@@ -2,6 +2,8 @@ import { type ReactNode, useState } from 'react';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
 import type { DisplayMode } from './ModeSwitcher';
 import type { RankedAnswerV2 } from '@/lib/types';
+import VisualFindingsPanel, { EvidenceBadge } from './visual/VisualFindingsPanel';
+import { labelForSource, labelForGeneration } from '@/lib/evidence-labels';
 
 interface Props {
   modes: {
@@ -14,6 +16,9 @@ interface Props {
   selected: DisplayMode;
   rankedAnswer?: RankedAnswerV2;
   technique?: string;
+  vendor?: string;
+  model?: string;
+  issueCategory?: string;
 }
 
 function confidenceInfo(c: number): { label: string; pct: number; color: string; bg: string; border: string } {
@@ -276,7 +281,9 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
 }
 
 // ── PDF Download Button ───────────────────────────────────────────────────────
-function PdfDownloadButton({ rankedAnswer, technique }: { rankedAnswer: RankedAnswerV2; technique: string }) {
+function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCategory }: {
+  rankedAnswer: RankedAnswerV2; technique: string; vendor?: string; model?: string; issueCategory?: string;
+}) {
   const [loading, setLoading] = useState(false);
 
   async function handleDownload() {
@@ -285,7 +292,8 @@ function PdfDownloadButton({ rankedAnswer, technique }: { rankedAnswer: RankedAn
       const res = await fetch('/api/troubleshooting/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ranked_answer: rankedAnswer, technique }),
+        // The route reads `answer` (the old `ranked_answer` key was never read).
+        body: JSON.stringify({ answer: rankedAnswer, technique, vendor, model, issueCategory }),
       });
       if (!res.ok) throw new Error('PDF generation failed');
       const blob = await res.blob();
@@ -327,7 +335,39 @@ function PdfDownloadButton({ rankedAnswer, technique }: { rankedAnswer: RankedAn
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function AnswerDisplay({ modes, confidence, selected, rankedAnswer, technique }: Props) {
+// ── Evidence labels for every cited source ───────────────────────────────────
+function EvidenceLabels({ answer }: { answer: RankedAnswerV2 }) {
+  const sources = answer.sources_with_metadata ?? [];
+  if (sources.length === 0 && answer.visual_findings) return null;
+  return (
+    <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--color-slate-200)' }}>
+      <p className="vt-section-title">Evidence labels</p>
+      {!answer.visual_findings && (
+        <p style={{ margin: '0 0 .5rem', fontSize: '.875rem' }}>
+          Recommendations in this report: <EvidenceBadge label={labelForGeneration(answer.generation)} />
+        </p>
+      )}
+      {sources.length > 0 && (
+        <ul className="vt-list">
+          {sources.map((s, i) => {
+            const url = s.source_metadata?.url;
+            const title = s.source_metadata?.title ?? s.source_id;
+            return (
+              <li key={i}>
+                <EvidenceBadge label={labelForSource(s)} />{' '}
+                {url && /^https?:\/\//i.test(url)
+                  ? <a href={url} target="_blank" rel="noopener noreferrer nofollow" style={{ color: 'var(--color-teal-600)' }}>{title}</a>
+                  : title}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export default function AnswerDisplay({ modes, confidence, selected, rankedAnswer, technique, vendor, model, issueCategory }: Props) {
   return (
     <div style={{
       background: '#fff',
@@ -357,9 +397,12 @@ export default function AnswerDisplay({ modes, confidence, selected, rankedAnswe
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <ConfidenceBar confidence={confidence} />
         {rankedAnswer && technique && (
-          <PdfDownloadButton rankedAnswer={rankedAnswer} technique={technique} />
+          <PdfDownloadButton rankedAnswer={rankedAnswer} technique={technique} vendor={vendor} model={model} issueCategory={issueCategory} />
         )}
       </div>
+
+      {/* Visual findings lead the report, so any safety step comes before the actions. */}
+      {rankedAnswer?.visual_findings && <VisualFindingsPanel answer={rankedAnswer} />}
 
       {selected === 'manager' ? (
         <ManagerView output={modes.manager} />
@@ -368,6 +411,8 @@ export default function AnswerDisplay({ modes, confidence, selected, rankedAnswe
           {renderText(modes[selected].text)}
         </div>
       )}
+
+      {rankedAnswer && <EvidenceLabels answer={rankedAnswer} />}
     </div>
   );
 }

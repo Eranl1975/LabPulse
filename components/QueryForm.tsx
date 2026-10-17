@@ -12,6 +12,7 @@ import EmailTroubleshootingDialog from './EmailTroubleshootingDialog';
 import QueryFormStep1, { type Step1Data } from './QueryFormStep1';
 import QueryFormStep2, { type Step2Data } from './QueryFormStep2';
 import QueryFormStep3, { type Step3Data } from './QueryFormStep3';
+import VisualTroubleshootingDialog, { CameraIcon, type VisualApiResult, type VisualInstrument } from './visual/VisualTroubleshootingDialog';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -163,6 +164,10 @@ export default function QueryForm() {
   const [showModal, setShowModal]       = useState(false);
   const [pendingReportId, setPendingReportId] = useState<string | null>(null);
   const [emailTSOpen, setEmailTSOpen]   = useState(false);
+  const [visualOpen, setVisualOpen]     = useState(false);
+  const [visualInitial, setVisualInitial] = useState<VisualInstrument | null>(null);
+  // Instrument the shown result belongs to (a visual run may differ from the wizard's fields).
+  const [resultContext, setResultContext] = useState<{ technique: string; vendor: string; model: string; issueCategory: string } | null>(null);
 
   const formRef    = useRef<HTMLFormElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -203,6 +208,50 @@ export default function QueryForm() {
     return () => window.removeEventListener('keydown', onKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, step, loading]);
+
+  // /ask?visual=1&technique=LCMS&vendor=Agilent&model=... opens Visual Troubleshooting prefilled.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('visual') === '1') {
+      setVisualInitial({
+        technique: params.get('technique')?.slice(0, 40) ?? '',
+        vendor: params.get('vendor')?.slice(0, 100) ?? '',
+        model: params.get('model')?.slice(0, 200) ?? '',
+      });
+      setVisualOpen(true);
+    }
+  }, []);
+
+  function openVisual() {
+    // Prefill from whatever the user already picked in the wizard.
+    setVisualInitial({ technique: step1.technique, vendor: step1.vendor, model: step1.model });
+    setVisualOpen(true);
+  }
+
+  function handleVisualResult(data: VisualApiResult, ctx: VisualInstrument & { description: string }) {
+    setVisualOpen(false);
+    setError(null);
+    setResult(data as unknown as ApiResult);
+    setMode('standard');
+    setResultContext({ technique: ctx.technique, vendor: ctx.vendor, model: ctx.model, issueCategory: '' });
+
+    const reportId = crypto.randomUUID();
+    addReport({
+      id: reportId,
+      created_at: new Date().toISOString(),
+      technique: ctx.technique,
+      vendor: ctx.vendor || null,
+      model: ctx.model || null,
+      issue_category: null,
+      symptom_description: ctx.description || 'Visual troubleshooting (photo/video)',
+      confidence: data.ranked_answer?.confidence ?? 0,
+      ai_assisted: data.ai_assisted ?? false,
+      status: 'pending',
+      resolution_note: null,
+      resolved_at: null,
+    });
+    setPendingReportId(reportId);
+  }
 
   // Focus management: scroll to results when they appear
   useEffect(() => {
@@ -280,6 +329,7 @@ export default function QueryForm() {
       const data = await res.json() as ApiResult;
       setResult(data);
       setMode('standard');
+      setResultContext({ technique: step1.technique.trim(), vendor: step1.vendor.trim(), model: step1.model.trim(), issueCategory: step1.issueCategory });
 
       // Auto-create troubleshooting report in localStorage
       const reportId = crypto.randomUUID();
@@ -308,6 +358,15 @@ export default function QueryForm() {
 
   return (
     <>
+      {/* Visual Troubleshooting entry point */}
+      <button type="button" className="vt-launch" onClick={openVisual} data-no-print>
+        <span className="vt-launch-icon"><CameraIcon /></span>
+        <span style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+          <span className="vt-launch-title">Visual Troubleshooting</span>
+          <span className="vt-launch-sub">Take or upload a photo, screenshot or short video of the instrument, error screen or leak.</span>
+        </span>
+      </button>
+
       {/* Wizard stepper indicator */}
       <WizardStepper current={step} />
 
@@ -418,6 +477,10 @@ export default function QueryForm() {
             confidence={result.ranked_answer.confidence}
             selected={mode}
             rankedAnswer={'confidence_breakdown' in result.ranked_answer ? (result.ranked_answer as RankedAnswerV2) : undefined}
+            technique={resultContext?.technique || step1.technique}
+            vendor={resultContext?.vendor ?? step1.vendor}
+            model={resultContext?.model ?? step1.model}
+            issueCategory={resultContext?.issueCategory ?? step1.issueCategory}
           />
           <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }} data-no-print>
             <button
@@ -474,11 +537,19 @@ export default function QueryForm() {
       {emailTSOpen && result && (
         <EmailTroubleshootingDialog
           answer={result.ranked_answer}
-          technique={step1.technique}
-          vendor={step1.vendor}
-          model={step1.model}
-          issueCategory={step1.issueCategory}
+          technique={resultContext?.technique || step1.technique}
+          vendor={resultContext?.vendor ?? step1.vendor}
+          model={resultContext?.model ?? step1.model}
+          issueCategory={resultContext?.issueCategory ?? step1.issueCategory}
           onClose={() => setEmailTSOpen(false)}
+        />
+      )}
+
+      {visualOpen && visualInitial && (
+        <VisualTroubleshootingDialog
+          initial={visualInitial}
+          onClose={() => setVisualOpen(false)}
+          onResult={handleVisualResult}
         />
       )}
     </>

@@ -1,6 +1,9 @@
-import { Document, Page, Text, View, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
+import { Document, Page, Text, View, Image, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
 import type { RankedAnswerV2 } from './types';
+import type { EvidenceLabel } from './visual-types';
 import { hypothesisHeading } from './hypothesis-clustering';
+import { labelForSource, labelForGeneration, labelForAction, LABEL_COLOURS } from './evidence-labels';
+import { safeThumbnails, pctLabel } from './visual-report';
 
 const s = StyleSheet.create({
   page: {
@@ -47,7 +50,91 @@ const s = StyleSheet.create({
   tableHeader: { flex: 1, fontSize: 9, fontFamily: 'Helvetica-Bold', paddingHorizontal: 4 },
   footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#94a3b8', textAlign: 'center' },
   checklist: { marginBottom: 2, paddingLeft: 12 },
+  badge: { fontSize: 7, fontFamily: 'Helvetica-Bold', paddingVertical: 1, paddingHorizontal: 4, borderRadius: 6, borderWidth: 1 },
+  thumbs: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 6 },
+  thumb: { width: 110, marginRight: 6, marginBottom: 6 },
+  thumbImg: { width: 110, height: 82, objectFit: 'cover', borderRadius: 3 },
+  thumbCaption: { fontSize: 7, color: '#64748b', marginTop: 1 },
 });
+
+function Badge({ label }: { label: EvidenceLabel }) {
+  const c = LABEL_COLOURS[label];
+  return <Text style={[s.badge, { color: c.fg, backgroundColor: c.bg, borderColor: c.border }]}>{label}</Text>;
+}
+
+function VisualSection({ answer }: { answer: RankedAnswerV2 }) {
+  const f = answer.visual_findings;
+  if (!f) return null;
+  const a = f.analysis;
+  const thumbs = safeThumbnails(answer);
+  const imageName = (i: number | null) => (i === null ? '' : ` (${f.media[i]?.label ?? `Image ${i + 1}`})`);
+  return (
+    <>
+      <Text style={s.sectionTitle}>Visual Findings</Text>
+      {thumbs.length > 0 && (
+        <View style={s.thumbs}>
+          {thumbs.map((t, i) => (
+            <View key={i} style={s.thumb} wrap={false}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image src={t.dataUrl} style={s.thumbImg} />
+              <Text style={s.thumbCaption}>{t.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {f.status.notices.map((n, i) => <Text key={`n${i}`} style={[s.item, { color: '#475569' }]}>Notice: {n}</Text>)}
+      {f.user_description ? <Text style={s.item}>User description: {f.user_description}</Text> : null}
+      {a ? (
+        <>
+          {a.summary ? <Text style={s.item}>{a.summary}</Text> : null}
+          {a.instrument_consistency.status === 'mismatch' ? (
+            <Text style={[s.item, { color: '#991b1b' }]}>Instrument mismatch: {a.instrument_consistency.explanation}</Text>
+          ) : null}
+          {a.ocr_text.length > 0 && <Text style={[s.item, { fontFamily: 'Helvetica-Bold' }]}>Text read from the images</Text>}
+          {a.ocr_text.map((o, i) => (
+            <Text key={`o${i}`} style={[s.item, { marginLeft: 12 }]}>
+              • "{o.text}" — {pctLabel(o.confidence)}{o.low_confidence ? ' (low confidence)' : ''}{imageName(o.image_index)}
+            </Text>
+          ))}
+          {a.observations.length > 0 && <Text style={[s.item, { fontFamily: 'Helvetica-Bold' }]}>Observations</Text>}
+          {a.observations.map((o, i) => (
+            <Text key={`b${i}`} style={[s.item, { marginLeft: 12 }]}>
+              • {o.hazard ? '[HAZARD] ' : ''}{o.description} — {pctLabel(o.confidence)}{o.low_confidence ? ' (low confidence, not stated as fact)' : ''}{imageName(o.image_index)}
+            </Text>
+          ))}
+          {a.components.length > 0 && (
+            <Text style={s.item}>Components: {a.components.map(c => `${c.name} (${pctLabel(c.confidence)}${c.low_confidence ? ', low confidence' : ''})`).join('; ')}</Text>
+          )}
+          {a.uncertainties.map((u, i) => (
+            <Text key={`u${i}`} style={[s.item, { color: '#475569' }]}>Could not determine: {u.what}{u.better_photo ? ` — better photo: ${u.better_photo}` : ''}</Text>
+          ))}
+        </>
+      ) : (
+        <Text style={[s.item, { color: '#475569' }]}>No image analysis is available for this report.</Text>
+      )}
+
+      {f.internal_references.length > 0 && <Text style={[s.item, { fontFamily: 'Helvetica-Bold', marginTop: 4 }]}>LabPulse documents for this instrument</Text>}
+      {f.internal_references.map((r, i) => (
+        <View key={`r${i}`} style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 12, marginBottom: 2 }} wrap={false}>
+          <Badge label={r.label} />
+          <Text style={{ fontSize: 9, marginLeft: 4, flex: 1 }}>{r.title}{r.url ? ` — ${r.url}` : ''}{r.content_read ? '' : ' (cited by title and link; content not read)'}</Text>
+        </View>
+      ))}
+
+      {f.web_sources.length > 0 && <Text style={[s.item, { fontFamily: 'Helvetica-Bold', marginTop: 4 }]}>Web research</Text>}
+      {f.web_sources.map((w, i) => (
+        <View key={`w${i}`} style={{ marginLeft: 12, marginBottom: 3 }} wrap={false}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Badge label={w.label} />
+            <Text style={{ fontSize: 9, marginLeft: 4, flex: 1 }}>{w.title} — {w.category}</Text>
+          </View>
+          <Text style={{ fontSize: 8, color: '#64748b' }}>{w.url}</Text>
+          {w.summary ? <Text style={{ fontSize: 9, color: '#334155' }}>{w.summary}</Text> : null}
+        </View>
+      ))}
+    </>
+  );
+}
 
 function confColor(conf: number): { bg: string; fg: string } {
   if (conf >= 0.80) return { bg: '#ecfdf5', fg: '#065f46' };
@@ -84,6 +171,18 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
           <Text style={[s.item, { color: '#475569' }]}>Notice: {answer.generation.notice}</Text>
         ) : null}
 
+        {/* Visual safety steps lead the report */}
+        {answer.visual_findings?.safety_first.length ? (
+          <View style={s.safetyBox}>
+            <Text style={[s.safetyText, { fontFamily: 'Helvetica-Bold', marginBottom: 4 }]}>Safety first — before any troubleshooting step</Text>
+            {answer.visual_findings.safety_first.map((w, i) => (
+              <Text key={i} style={s.safetyText}>• {w}</Text>
+            ))}
+          </View>
+        ) : null}
+
+        <VisualSection answer={answer} />
+
         {/* Problem Summary */}
         <Text style={s.sectionTitle}>Problem Summary</Text>
         <Text style={s.item}>{answer.problem_summary}</Text>
@@ -97,6 +196,11 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
             ))}
           </View>
         )}
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+          <Text style={{ fontSize: 9, marginRight: 4 }}>Recommendations below:</Text>
+          <Badge label={labelForGeneration(answer.generation)} />
+        </View>
 
         {/* Hypotheses / Likely Causes */}
         <Text style={s.sectionTitle}>
@@ -165,7 +269,10 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
             <Text style={s.sectionTitle}>Action Details</Text>
             {answer.action_details.map((ad, i) => (
               <View key={i} style={{ marginBottom: 6, paddingLeft: 8 }}>
-                <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 10 }}>{i + 1}. {ad.action}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 10, flex: 1 }}>{i + 1}. {ad.action}</Text>
+                  <Badge label={labelForAction(ad, answer.generation)} />
+                </View>
                 <Text style={{ fontSize: 9, color: '#475569' }}>When: {ad.condition}</Text>
                 <Text style={{ fontSize: 9, color: '#475569' }}>Materials: {ad.materials.join(', ') || 'None specified'}</Text>
                 <Text style={{ fontSize: 9, color: '#475569' }}>Safety: {ad.safety_level} | Source: {ad.evidence_source}</Text>
@@ -202,11 +309,22 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
           <Text key={i} style={s.item}>• {s2}</Text>
         ))}
 
-        {/* Sources */}
+        {/* Sources, each with its evidence label */}
         <Text style={s.sectionTitle}>Evidence Sources</Text>
-        {answer.evidence_summary.map((e, i) => (
-          <Text key={i} style={s.item}>• [{e.evidence_strength}] {e.source_id}: {e.excerpt}</Text>
-        ))}
+        {answer.sources_with_metadata?.length ? (
+          answer.sources_with_metadata.map((e, i) => (
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 3, paddingLeft: 8 }} wrap={false}>
+              <Badge label={labelForSource(e)} />
+              <Text style={{ fontSize: 9, marginLeft: 4, flex: 1 }}>
+                {e.source_metadata?.title ?? e.source_id}{e.source_metadata?.url ? ` — ${e.source_metadata.url}` : ''}: {e.excerpt}
+              </Text>
+            </View>
+          ))
+        ) : (
+          answer.evidence_summary.map((e, i) => (
+            <Text key={i} style={s.item}>• [{e.evidence_strength}] {e.source_id}: {e.excerpt}</Text>
+          ))
+        )}
 
         {/* Printable Checklist */}
         {answer.printable_checklist?.length > 0 && (
@@ -219,7 +337,7 @@ function TroubleshootingDocument({ answer, options }: { answer: RankedAnswerV2; 
         )}
 
         <Text style={s.footer}>
-          Generated by LabPulse v5.0.0 · {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          Generated by LabPulse v8.0.0 · {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>
       </Page>
     </Document>

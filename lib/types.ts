@@ -1,5 +1,7 @@
 // Core shared types derived from docs/output-schemas.md
 
+import type { VisualFindings } from './visual-types';
+
 export type Technique = 'LCMS' | 'HPLC' | 'GC' | 'GCMS' | 'UHPLC' | 'IC' | 'CE' | 'SFC' | 'TGA' | 'DSC' | 'FPLC' | 'SPPS' | 'XRD' | 'DLS' | 'Titration' | 'KF' | 'KFO' | 'CD' | 'SEM' | 'Sputter' | 'BET' | 'SECMALS' | 'TEM' | 'Raman' | 'ssNMR' | 'NMR' | 'PrepLC';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type EvidenceStrength = 'strong' | 'moderate' | 'weak' | 'anecdotal';
@@ -285,6 +287,8 @@ export interface RankedAnswerV2 extends RankedAnswer {
   generation?: GenerationStatus;
   /** V7: checks that belong to the detectors in play, not to the technique. */
   detector_checks?: DetectorCheckBlock[];
+  /** V8: present only for Visual Troubleshooting submissions. */
+  visual_findings?: VisualFindings;
 }
 
 /** V7: a reference ion set and what it indicates, for mass-spectral checks. */
