@@ -1,9 +1,11 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
 import type { DisplayMode } from './ModeSwitcher';
 import type { RankedAnswerV2 } from '@/lib/types';
 import VisualFindingsPanel, { EvidenceBadge } from './visual/VisualFindingsPanel';
 import { labelForSource, labelForGeneration } from '@/lib/evidence-labels';
+import { buildQuickSummary, type ResponseFormat } from '@/lib/quick-summary';
+import QuickSummaryView from './QuickSummaryView';
 
 interface Props {
   modes: {
@@ -19,6 +21,9 @@ interface Props {
   vendor?: string;
   model?: string;
   issueCategory?: string;
+  /** Quick Summary or Detailed Analysis of the same answer. Defaults to detailed. */
+  format?: ResponseFormat;
+  onShowDetailed?: () => void;
 }
 
 function confidenceInfo(c: number): { label: string; pct: number; color: string; bg: string; border: string } {
@@ -197,10 +202,7 @@ function ManagerView({ output }: { output: ManagerOutput }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {rows.map(({ key, val }) => (
-        <div key={key} style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(140px, 180px) 1fr',
-          gap: '1rem',
+        <div key={key} className="lp-manager-row" style={{
           padding: '1rem 1.125rem',
           background: 'var(--color-slate-50)',
           borderRadius: '8px',
@@ -247,7 +249,9 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
         borderRadius: '8px',
         background: info.bg,
         border: `1px solid ${info.border}`,
-        marginBottom: '1.375rem',
+        flex: '1 1 15rem',
+        minWidth: 0,
+        flexWrap: 'wrap',
       }}
     >
       <div style={{
@@ -271,8 +275,6 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
         fontSize: '0.8125rem',
         fontWeight: 700,
         color: info.color,
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
       }}>
         {marker} {info.label}
       </span>
@@ -281,8 +283,8 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
 }
 
 // ── PDF Download Button ───────────────────────────────────────────────────────
-function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCategory }: {
-  rankedAnswer: RankedAnswerV2; technique: string; vendor?: string; model?: string; issueCategory?: string;
+function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCategory, format }: {
+  rankedAnswer: RankedAnswerV2; technique: string; vendor?: string; model?: string; issueCategory?: string; format: ResponseFormat;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -293,14 +295,14 @@ function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCatego
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // The route reads `answer` (the old `ranked_answer` key was never read).
-        body: JSON.stringify({ answer: rankedAnswer, technique, vendor, model, issueCategory }),
+        body: JSON.stringify({ answer: rankedAnswer, technique, vendor, model, issueCategory, format }),
       });
       if (!res.ok) throw new Error('PDF generation failed');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `LabPulse-${technique}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.download = `LabPulse-${technique}-${format === 'summary' ? 'summary-' : ''}${new Date().toISOString().slice(0, 10)}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -314,6 +316,7 @@ function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCatego
     <button
       onClick={handleDownload}
       disabled={loading}
+      data-no-print
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -327,6 +330,7 @@ function PdfDownloadButton({ rankedAnswer, technique, vendor, model, issueCatego
         borderRadius: '6px',
         cursor: loading ? 'wait' : 'pointer',
         opacity: loading ? 0.6 : 1,
+        flexShrink: 0,
       }}
     >
       {loading ? 'Generating...' : 'Download PDF'}
@@ -367,16 +371,16 @@ function EvidenceLabels({ answer }: { answer: RankedAnswerV2 }) {
   );
 }
 
-export default function AnswerDisplay({ modes, confidence, selected, rankedAnswer, technique, vendor, model, issueCategory }: Props) {
+export default function AnswerDisplay({ modes, confidence, selected, rankedAnswer, technique, vendor, model, issueCategory, format = 'detailed', onShowDetailed }: Props) {
+  // Derived from the same answer: switching formats never calls the API.
+  const summary = useMemo(
+    () => (format === 'summary' && rankedAnswer ? buildQuickSummary(rankedAnswer) : null),
+    [format, rankedAnswer],
+  );
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: '14px',
-      border: '1px solid var(--color-slate-200)',
-      padding: '1.625rem 1.75rem',
-      boxShadow: '0 2px 14px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04)',
-    }}>
-      {rankedAnswer?.generation?.notice && (
+    <div className="lp-report">
+      {/* The summary shows every notice itself, so it is not repeated here. */}
+      {!summary && rankedAnswer?.generation?.notice && (
         <div
           role="status"
           style={{
@@ -394,25 +398,31 @@ export default function AnswerDisplay({ modes, confidence, selected, rankedAnswe
           {rankedAnswer.generation.notice}
         </div>
       )}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+      <div className="lp-report-head">
         <ConfidenceBar confidence={confidence} />
         {rankedAnswer && technique && (
-          <PdfDownloadButton rankedAnswer={rankedAnswer} technique={technique} vendor={vendor} model={model} issueCategory={issueCategory} />
+          <PdfDownloadButton rankedAnswer={rankedAnswer} technique={technique} vendor={vendor} model={model} issueCategory={issueCategory} format={format} />
         )}
       </div>
 
-      {/* Visual findings lead the report, so any safety step comes before the actions. */}
-      {rankedAnswer?.visual_findings && <VisualFindingsPanel answer={rankedAnswer} />}
-
-      {selected === 'manager' ? (
-        <ManagerView output={modes.manager} />
+      {summary ? (
+        <QuickSummaryView summary={summary} onShowDetailed={onShowDetailed} />
       ) : (
-        <div style={{ paddingTop: '0.25rem' }}>
-          {renderText(modes[selected].text)}
-        </div>
-      )}
+        <>
+          {/* Visual findings lead the report, so any safety step comes before the actions. */}
+          {rankedAnswer?.visual_findings && <VisualFindingsPanel answer={rankedAnswer} />}
 
-      {rankedAnswer && <EvidenceLabels answer={rankedAnswer} />}
+          {selected === 'manager' ? (
+            <ManagerView output={modes.manager} />
+          ) : (
+            <div style={{ paddingTop: '0.25rem' }}>
+              {renderText(modes[selected].text)}
+            </div>
+          )}
+
+          {rankedAnswer && <EvidenceLabels answer={rankedAnswer} />}
+        </>
+      )}
     </div>
   );
 }

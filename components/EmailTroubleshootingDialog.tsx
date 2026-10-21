@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { RankedAnswer } from '@/lib/types';
+import type { ResponseFormat } from '@/lib/quick-summary';
 
 interface Props {
   answer: RankedAnswer;
@@ -9,6 +10,8 @@ interface Props {
   vendor: string;
   model: string;
   issueCategory: string;
+  /** The view on screen; the email sends the same one. Defaults to detailed. */
+  format?: ResponseFormat;
   onClose: () => void;
 }
 
@@ -52,7 +55,7 @@ const LABEL_STYLE: React.CSSProperties = {
   marginBottom: '0.25rem',
 };
 
-export default function EmailTroubleshootingDialog({ answer, technique, vendor, model, issueCategory, onClose }: Props) {
+export default function EmailTroubleshootingDialog({ answer, technique, vendor, model, issueCategory, format = 'detailed', onClose }: Props) {
   const instrumentLabel = [technique, vendor, model].filter(Boolean).join(' — ');
   const defaultSubject = `LabPulse Troubleshooting – ${instrumentLabel}`;
 
@@ -104,6 +107,7 @@ export default function EmailTroubleshootingDialog({ answer, technique, vendor, 
           vendor: vendor || undefined,
           model: model || undefined,
           issueCategory: issueCategory || undefined,
+          format,
         }),
       });
 
@@ -118,7 +122,7 @@ export default function EmailTroubleshootingDialog({ answer, technique, vendor, 
     } finally {
       setSending(false);
     }
-  }, [email, subject, message, answer, technique, vendor, model, issueCategory, defaultSubject, sending]);
+  }, [email, subject, message, answer, technique, vendor, model, issueCategory, format, defaultSubject, sending]);
 
   return (
     <>
@@ -130,11 +134,14 @@ export default function EmailTroubleshootingDialog({ answer, technique, vendor, 
             fontFamily: 'var(--font-display)',
             fontSize: '1.125rem', fontWeight: 800,
             color: 'var(--color-navy-900)',
-            margin: '0 0 1rem',
+            margin: '0 0 0.375rem',
             letterSpacing: '-0.02em',
           }}>
             Email Troubleshooting Report
           </h3>
+          <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: '#64748b' }}>
+            Sends the {format === 'summary' ? 'Quick Summary' : 'Detailed Analysis'} shown on screen.
+          </p>
 
           {/* Close button */}
           <button

@@ -5,6 +5,8 @@ import type { Step1Data } from './QueryFormStep1';
 import type { Step2Data } from './QueryFormStep2';
 import { getFilteredChecked } from './query-form-options';
 import { getContextSchema } from '@/lib/context-schemas';
+import type { ResponseFormat } from '@/lib/quick-summary';
+import { ResponseFormatPicker } from './ResponseFormat';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,6 +23,9 @@ interface QueryFormStep3Props {
   onChange: (data: Step3Data) => void;
   onSubmit: () => void;
   onBack: () => void;
+  /** Which view of the report to show first. Omit to hide the choice. */
+  responseFormat?: ResponseFormat;
+  onResponseFormatChange?: (f: ResponseFormat) => void;
 }
 
 // ── Shared style tokens ──────────────────────────────────────────────────────
@@ -124,7 +129,9 @@ function QuickChips({
               fontWeight: 500,
               cursor: used ? 'default' : 'pointer',
               transition: 'all .12s ease',
-              whiteSpace: 'nowrap',
+              maxWidth: '100%',
+              textAlign: 'left',
+              overflowWrap: 'anywhere',
             }}
           >
             {used && (
@@ -187,7 +194,7 @@ function TextareaField({
 function SummaryRow({ label, value }: { label: string; value: string }) {
   if (!value.trim()) return null;
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.875rem', lineHeight: 1.5 }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 0.5rem', fontSize: '0.875rem', lineHeight: 1.5 }}>
       <span style={{
         fontWeight: 600,
         color: 'var(--color-slate-500)',
@@ -196,7 +203,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
       }}>
         {label}:
       </span>
-      <span style={{ color: 'var(--color-navy-900)', wordBreak: 'break-word' }}>
+      <span style={{ color: 'var(--color-navy-900)', overflowWrap: 'anywhere', minWidth: 0, flex: '1 1 10rem' }}>
         {value}
       </span>
     </div>
@@ -207,6 +214,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 export default function QueryFormStep3({
   data, step1, step2, technique, loading, onChange, onSubmit, onBack,
+  responseFormat, onResponseFormatChange,
 }: QueryFormStep3Props) {
   const filteredChecked = getFilteredChecked(technique);
 
@@ -337,8 +345,12 @@ export default function QueryFormStep3({
         })()}
       </div>
 
-      {/* Navigation + Submit */}
-      <div style={{ display: 'flex', gap: '0.75rem' }}>
+      {responseFormat && onResponseFormatChange && (
+        <ResponseFormatPicker name="text-response-format" value={responseFormat} onChange={onResponseFormatChange} disabled={loading} />
+      )}
+
+      {/* Navigation + Submit (wraps on narrow phones instead of overflowing) */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
         <BackButton onClick={onBack} />
         <SubmitButton loading={loading} onClick={onSubmit} />
       </div>
@@ -374,6 +386,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
         cursor: 'pointer',
         transition: 'background .15s ease',
         minWidth: '120px',
+        flex: '0 1 auto',
       }}
     >
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -402,8 +415,8 @@ function SubmitButton({ loading, onClick }: { loading: boolean; onClick: () => v
         alignItems: 'center',
         justifyContent: 'center',
         gap: '0.5rem',
-        flex: 1,
-        padding: '0.9375rem 1.5rem',
+        flex: '1 1 13rem',
+        padding: '0.9375rem 1.25rem',
         background: loading
           ? 'var(--color-slate-300)'
           : hovered

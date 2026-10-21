@@ -41,7 +41,7 @@ export default async function AskPage() {
 
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(1.625rem, 3.5vw, 2.25rem)',
+            fontSize: 'clamp(1.375rem, 3.5vw, 2.25rem)',
             fontWeight: 800,
             color: '#f97316',
             letterSpacing: '-0.02em',

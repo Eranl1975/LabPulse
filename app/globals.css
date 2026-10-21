@@ -105,6 +105,8 @@
     line-height: 1.2;
     color: var(--color-navy-900);
     margin: 0;
+    /* A single long word (e.g. "Troubleshooting" at display size) breaks rather than widening the page. */
+    overflow-wrap: break-word;
   }
 
   ::selection { background-color: var(--color-teal-100); color: var(--color-navy-900); }
@@ -135,8 +137,10 @@
     width: 100%;
     max-width: 1200px;
     margin-inline: auto;
-    padding-inline: 1.75rem;
+    /* 16 px gutter on phones; 28 px left only ~264 px of content at 320 px. */
+    padding-inline: 1rem;
   }
+  @media (min-width: 420px)  { .lab-container { padding-inline: 1.75rem; } }
   @media (min-width: 640px)  { .lab-container { padding-inline: 2.25rem; } }
   @media (min-width: 1024px) { .lab-container { padding-inline: 2.75rem; } }
 
@@ -309,7 +313,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 240px;
+    max-width: min(240px, 100%);
   }
   .source-vendor     { background: var(--color-teal-50);  color: var(--color-teal-700); }
   .source-scientific { background: #eff6ff;               color: #1d4ed8; }
@@ -563,17 +567,22 @@
   .vt-camera-video { flex: 1; width: 100%; min-height: 0; object-fit: contain; background: #000; }
   .vt-camera-bar { display: flex; gap: .625rem; justify-content: center; padding: 1rem; background: rgba(0,0,0,.85); flex-wrap: wrap; }
 
+  /* Badges wrap: "LABPULSE INTERNAL KNOWLEDGE" alone is ~340 px wide unbroken,
+     which pushed every source list past a phone's right edge. */
   .vt-badge {
     display: inline-block; padding: .125rem .5rem; border-radius: 999px; border: 1px solid;
     font-family: var(--font-display); font-size: .66rem; font-weight: 800; letter-spacing: .04em;
-    white-space: nowrap; vertical-align: middle;
+    white-space: normal; overflow-wrap: anywhere; max-width: 100%; line-height: 1.35; vertical-align: middle;
   }
   .vt-findings { margin-top: 1.25rem; }
   .vt-findings-media { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .5rem; margin-bottom: .875rem; }
   .vt-findings-media figure { margin: 0; }
   .vt-findings-media img { width: 100%; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid var(--color-slate-200); }
-  .vt-findings-media figcaption { font-size: .7rem; color: var(--color-slate-500); margin-top: .2rem; }
-  .vt-list { margin: 0; padding-left: 1.125rem; display: grid; gap: .3rem; font-size: .9rem; color: var(--color-slate-700); line-height: 1.5; }
+  .vt-findings-media figcaption { font-size: .7rem; color: var(--color-slate-500); margin-top: .2rem; overflow-wrap: anywhere; }
+  .vt-list { margin: 0; padding-left: 1.125rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: .3rem; font-size: .9rem; color: var(--color-slate-700); line-height: 1.5; }
+  /* Grid items default to min-width:auto, so one long URL or code widened the whole list. */
+  .vt-list > li { min-width: 0; overflow-wrap: anywhere; }
+  .vt-list code { white-space: pre-wrap; overflow-wrap: anywhere; }
   .vt-safety { padding: .75rem 1rem; border-radius: 10px; background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; margin-bottom: .875rem; }
   .vt-safety strong { display: block; margin-bottom: .25rem; }
   .vt-lowconf { font-size: .72rem; color: var(--color-amber-600); font-weight: 700; margin-left: .25rem; }
@@ -589,6 +598,106 @@
   :is(html.dark) .vt-list { color: var(--color-slate-300); }
   :is(html.dark) .vt-safety { background: rgba(185,28,28,.15); border-color: rgba(252,165,165,.4); color: #fecaca; }
   :is(html.dark) .vt-findings-media img { border-color: var(--color-navy-600); }
+}
+
+/* ── Troubleshooting report, response format, Quick Summary ─────────────────── */
+@layer components {
+  .lp-report {
+    background: #fff; color: var(--color-slate-800);
+    border-radius: 14px; border: 1px solid var(--color-slate-200);
+    padding: 1rem;
+    box-shadow: 0 2px 14px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.04);
+    /* Long part numbers, URLs and compound names break instead of widening the page. */
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  @media (min-width: 640px) { .lp-report { padding: 1.625rem 1.75rem; } }
+  .lp-report-head { display: flex; flex-wrap: wrap; align-items: center; gap: .625rem; margin-bottom: 1.25rem; }
+
+  .lp-manager-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: .375rem; align-items: start; }
+  @media (min-width: 560px) { .lp-manager-row { grid-template-columns: minmax(140px, 180px) minmax(0, 1fr); gap: 1rem; } }
+
+  .mode-switcher {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3125rem;
+    padding: .3rem; background: var(--color-slate-100); border-radius: 11px; margin-bottom: 1.375rem; width: 100%;
+  }
+  @media (min-width: 560px) { .mode-switcher { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .rf-tabs {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3125rem;
+    padding: .3rem; border-radius: 12px; margin-bottom: .75rem;
+    background: var(--color-navy-900);
+  }
+  .rf-tab {
+    min-width: 0; padding: .625rem .5rem; border: none; border-radius: 9px; cursor: pointer;
+    font-family: var(--font-display); font-size: .875rem; font-weight: 800; line-height: 1.25;
+    background: transparent; color: var(--color-slate-300); touch-action: manipulation;
+    transition: background .15s ease, color .15s ease;
+  }
+  .rf-tab[data-active="true"] { background: var(--color-teal-500); color: var(--color-navy-950); }
+  .rf-tab:focus-visible { outline: 2px solid var(--color-teal-300); outline-offset: 2px; }
+
+  .rf-picker { border: none; margin: 0 0 1rem; padding: 0; min-width: 0; }
+  .rf-picker legend { padding: 0; }
+  .rf-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+  @media (min-width: 520px) { .rf-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .rf-option {
+    display: flex; gap: .625rem; align-items: flex-start; min-width: 0; cursor: pointer;
+    padding: .75rem .875rem; border-radius: 10px; border: 1.5px solid var(--color-slate-200); background: #fff;
+    color: var(--color-navy-900);
+  }
+  .rf-option[data-checked="true"] { border-color: var(--color-teal-500); background: var(--color-teal-50); }
+  .rf-option input { margin-top: .2rem; accent-color: var(--color-teal-600); flex-shrink: 0; }
+  .rf-option-title { display: block; font-family: var(--font-display); font-weight: 800; font-size: .9375rem; }
+  .rf-option-desc { display: block; font-size: .8rem; color: var(--color-slate-500); line-height: 1.4; margin-top: .125rem; }
+  .rf-note { font-size: .76rem; color: var(--color-slate-500); margin: .5rem 0 0; }
+  .rf-picker:disabled .rf-option { opacity: .6; cursor: not-allowed; }
+
+  .qs-notice { margin-bottom: 1rem; padding: .625rem .875rem; border-radius: 8px; border: 1px dashed var(--color-slate-400); background: var(--color-slate-50); font-size: .8125rem; line-height: 1.5; color: var(--color-slate-700); }
+  .qs-notice p { margin: 0; }
+  .qs-notice p + p { margin-top: .375rem; }
+  .qs-title {
+    font-family: var(--font-display); font-size: .8125rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--color-teal-700); margin: 1.25rem 0 .5rem;
+  }
+  .qs-title:first-of-type { margin-top: .25rem; }
+  .qs-text { margin: 0 0 .375rem; font-size: .9375rem; line-height: 1.6; color: var(--color-slate-800); }
+  .qs-meta { margin: .375rem 0 0; font-size: .8125rem; color: var(--color-slate-600); line-height: 1.5; }
+  .qs-list { margin: 0; padding-left: 1.375rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; font-size: .9375rem; line-height: 1.55; color: var(--color-slate-800); }
+  .qs-list > li { min-width: 0; list-style: decimal; }
+  .qs-list > li::marker { color: var(--color-teal-700); font-weight: 700; }
+  .qs-tag {
+    display: inline-block; margin-left: .375rem; padding: 0 .4375rem; border-radius: 999px; vertical-align: 1px;
+    font-size: .7rem; font-weight: 700; line-height: 1.6; background: var(--color-slate-100); color: var(--color-slate-600);
+  }
+  .qs-tag[data-level="high"], .qs-tag[data-level="confirmed"] { background: #fef3c7; color: #92400e; }
+  .qs-tag[data-level="medium"] { background: #e0f2fe; color: #075985; }
+  .qs-kind {
+    display: inline-block; margin-right: .375rem; padding: 0 .375rem; border-radius: 4px; vertical-align: 1px;
+    font-family: var(--font-display); font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+    background: #e0f2fe; color: #075985;
+  }
+  .qs-kind[data-kind="fix"] { background: #dcfce7; color: #166534; }
+  .qs-kind[data-kind="info"] { background: var(--color-slate-100); color: var(--color-slate-600); }
+  .qs-hint { font-size: .8rem; color: var(--color-slate-500); }
+  .qs-warnings { margin-bottom: 0; }
+  .qs-link { color: var(--color-teal-700); }
+  .qs-more { margin: 1.25rem 0 0; padding-top: .875rem; border-top: 1px solid var(--color-slate-200); font-size: .8125rem; color: var(--color-slate-600); }
+  .qs-more-btn { border: none; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--color-teal-700); text-decoration: underline; cursor: pointer; }
+
+  /* The report is a light "paper" surface in both themes. Its inline text colours
+     are dark, but in dark mode it inherited light text colours (body, headings,
+     .vt-list), which made parts of it near-invisible. Restore light-surface colours. */
+  :is(html.dark) .lp-report { color: var(--color-slate-800); border-color: var(--color-navy-600); }
+  :is(html.dark) .lp-report :is(h1, h2, h3, h4, h5, h6) { color: var(--color-navy-900); }
+  :is(html.dark) .lp-report .qs-title { color: var(--color-teal-700); }
+  :is(html.dark) .lp-report .vt-list { color: var(--color-slate-700); }
+  :is(html.dark) .lp-report .vt-section-title { color: var(--color-slate-600); }
+  :is(html.dark) .lp-report .vt-safety { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+  :is(html.dark) .lp-report .vt-findings-media img { border-color: var(--color-slate-200); }
+  :is(html.dark) .rf-option { background: var(--color-navy-900); border-color: var(--color-navy-600); color: var(--color-slate-100); }
+  :is(html.dark) .rf-option[data-checked="true"] { border-color: var(--color-teal-500); background: rgba(20,184,166,.12); }
+  :is(html.dark) .rf-option-desc, :is(html.dark) .rf-note { color: var(--color-slate-400); }
 }
 
 /* ── Print styles ──────────────────────────────────────────────────────────── */

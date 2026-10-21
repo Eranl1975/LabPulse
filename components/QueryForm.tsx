@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { Technique, LabReport, RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import type { TextOutput, ManagerOutput } from '@/agents/presentation/types';
-import { addReport } from '@/lib/reportStore';
+import { addReport, snapshotAnswer, updateReportFormat } from '@/lib/reportStore';
 import { exportAsText, exportAsCSV } from '@/lib/export';
 import ReportModal from './ReportModal';
-import ModeSwitcher, { type DisplayMode } from './ModeSwitcher';
-import AnswerDisplay from './AnswerDisplay';
+import type { DisplayMode } from './ModeSwitcher';
+import TroubleshootingReport from './TroubleshootingReport';
+import { useResponseFormatPreference } from './ResponseFormat';
+import type { ResponseFormat } from '@/lib/quick-summary';
 import EmailTroubleshootingDialog from './EmailTroubleshootingDialog';
 import QueryFormStep1, { type Step1Data } from './QueryFormStep1';
 import QueryFormStep2, { type Step2Data } from './QueryFormStep2';
@@ -27,6 +29,11 @@ interface ApiResult {
     deep:     TextOutput;
     manager:  ManagerOutput;
   };
+}
+
+/** The structured answer when the API returned one (always, since V2). */
+function v2Answer(answer: RankedAnswer | undefined): RankedAnswerV2 | undefined {
+  return answer && 'confidence_breakdown' in answer ? (answer as RankedAnswerV2) : undefined;
 }
 
 // ── Initial data helpers ─────────────────────────────────────────────────────
@@ -161,6 +168,10 @@ export default function QueryForm() {
   const [result, setResult]   = useState<ApiResult | null>(null);
   const [error, setError]     = useState<string | null>(null);
   const [mode, setMode]       = useState<DisplayMode>('standard');
+  // Chosen before the analysis (remembered per browser); sets the first view.
+  const [preferredFormat, setPreferredFormat] = useResponseFormatPreference();
+  // The view on screen. Switching it re-renders the same answer: no API call.
+  const [format, setFormat]   = useState<ResponseFormat>('detailed');
   const [showModal, setShowModal]       = useState(false);
   const [pendingReportId, setPendingReportId] = useState<string | null>(null);
   const [emailTSOpen, setEmailTSOpen]   = useState(false);
@@ -193,6 +204,7 @@ export default function QueryForm() {
         if (modeIdx >= 0 && modeIdx < modes.length && result) {
           e.preventDefault();
           setMode(modes[modeIdx]);
+          setFormat('detailed');
         }
       }
       if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
@@ -228,11 +240,18 @@ export default function QueryForm() {
     setVisualOpen(true);
   }
 
+  function changeFormat(f: ResponseFormat) {
+    setFormat(f);
+    if (pendingReportId) updateReportFormat(pendingReportId, f);
+  }
+
   function handleVisualResult(data: VisualApiResult, ctx: VisualInstrument & { description: string }) {
     setVisualOpen(false);
     setError(null);
     setResult(data as unknown as ApiResult);
     setMode('standard');
+    setFormat(preferredFormat);
+    const saved = v2Answer(data.ranked_answer);
     setResultContext({ technique: ctx.technique, vendor: ctx.vendor, model: ctx.model, issueCategory: '' });
 
     const reportId = crypto.randomUUID();
@@ -249,6 +268,8 @@ export default function QueryForm() {
       status: 'pending',
       resolution_note: null,
       resolved_at: null,
+      answer: saved ? snapshotAnswer(saved) : null,
+      response_format: preferredFormat,
     });
     setPendingReportId(reportId);
   }
@@ -329,6 +350,8 @@ export default function QueryForm() {
       const data = await res.json() as ApiResult;
       setResult(data);
       setMode('standard');
+      setFormat(preferredFormat);
+      const saved = v2Answer(data.ranked_answer);
       setResultContext({ technique: step1.technique.trim(), vendor: step1.vendor.trim(), model: step1.model.trim(), issueCategory: step1.issueCategory });
 
       // Auto-create troubleshooting report in localStorage
@@ -346,6 +369,9 @@ export default function QueryForm() {
         status: 'pending',
         resolution_note: null,
         resolved_at: null,
+        // Both formats are derived from this one analysis, under this report id.
+        answer: saved ? snapshotAnswer(saved) : null,
+        response_format: preferredFormat,
       };
       addReport(report);
       setPendingReportId(reportId);
@@ -405,6 +431,8 @@ export default function QueryForm() {
               onChange={setStep3}
               onSubmit={handleSubmit}
               onBack={() => setStep(2)}
+              responseFormat={preferredFormat}
+              onResponseFormatChange={setPreferredFormat}
             />
 
             {/* Error */}
@@ -471,12 +499,14 @@ export default function QueryForm() {
             </span>
             <div style={{ flex: 1, height: '1px', background: 'var(--color-slate-200)' }} />
           </div>
-          <ModeSwitcher selected={mode} onChange={setMode} />
-          <AnswerDisplay
+          <TroubleshootingReport
             modes={result.modes}
             confidence={result.ranked_answer.confidence}
-            selected={mode}
-            rankedAnswer={'confidence_breakdown' in result.ranked_answer ? (result.ranked_answer as RankedAnswerV2) : undefined}
+            rankedAnswer={v2Answer(result.ranked_answer)}
+            format={format}
+            onFormatChange={changeFormat}
+            mode={mode}
+            onModeChange={setMode}
             technique={resultContext?.technique || step1.technique}
             vendor={resultContext?.vendor ?? step1.vendor}
             model={resultContext?.model ?? step1.model}
@@ -527,7 +557,7 @@ export default function QueryForm() {
           </div>
           <div style={{ marginTop: '0.75rem', textAlign: 'center' }} data-no-print>
             <span style={{ fontSize: '0.75rem', color: 'var(--color-slate-400)' }}>
-              Ctrl+1-4: switch views | Ctrl+Enter: submit | /: focus search
+              Ctrl+1-4: switch detail level | Ctrl+Enter: submit | /: focus search
             </span>
           </div>
         </div>
@@ -541,6 +571,7 @@ export default function QueryForm() {
           vendor={resultContext?.vendor ?? step1.vendor}
           model={resultContext?.model ?? step1.model}
           issueCategory={resultContext?.issueCategory ?? step1.issueCategory}
+          format={v2Answer(result.ranked_answer) ? format : 'detailed'}
           onClose={() => setEmailTSOpen(false)}
         />
       )}
@@ -550,6 +581,8 @@ export default function QueryForm() {
           initial={visualInitial}
           onClose={() => setVisualOpen(false)}
           onResult={handleVisualResult}
+          responseFormat={preferredFormat}
+          onResponseFormatChange={setPreferredFormat}
         />
       )}
     </>

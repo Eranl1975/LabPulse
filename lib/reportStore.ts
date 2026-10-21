@@ -1,6 +1,9 @@
-import type { LabReport, ReportStatus, AnalyticsSummary } from './types';
+import type { LabReport, ReportStatus, AnalyticsSummary, RankedAnswerV2 } from './types';
 
 const KEY = 'LABPULSE_REPORTS';
+
+/** Reports that keep their full analysis; older ones keep their metadata only. */
+export const MAX_SAVED_ANALYSES = 30;
 
 export function getReports(): LabReport[] {
   if (typeof window === 'undefined') return [];
@@ -12,14 +15,54 @@ export function getReports(): LabReport[] {
   }
 }
 
-export function saveReports(reports: LabReport[]): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(KEY, JSON.stringify(reports));
+/**
+ * Save, never throwing. Saved analyses are the large part of the history, so
+ * when storage is full they are dropped from the oldest reports first; the
+ * reports themselves (status, notes, confidence) are always kept.
+ */
+export function saveReports(reports: LabReport[]): boolean {
+  if (typeof window === 'undefined') return false;
+  let list = reports;
+  for (;;) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(list));
+      return true;
+    } catch {
+      const last = list.map(r => !!r.answer).lastIndexOf(true);
+      if (last === -1) return false;
+      list = list.map((r, i) => (i === last ? { ...r, answer: null } : r));
+    }
+  }
+}
+
+/**
+ * The analysis as stored with a report: image thumbnails (data URLs of up to
+ * ~60 KB each) are left out to keep the history small. Everything the Quick
+ * Summary and the Detailed Analysis read is kept.
+ */
+export function snapshotAnswer(answer: RankedAnswerV2): RankedAnswerV2 {
+  if (!answer.visual_findings) return answer;
+  return {
+    ...answer,
+    visual_findings: {
+      ...answer.visual_findings,
+      media: answer.visual_findings.media.map(m => ({ ...m, thumbnail: null })),
+    },
+  };
 }
 
 export function addReport(report: LabReport): void {
   const reports = getReports();
   reports.unshift(report);
+  saveReports(reports.map((r, i) => (i >= MAX_SAVED_ANALYSES && r.answer ? { ...r, answer: null } : r)));
+}
+
+/** Remember which view a report was last shown in. */
+export function updateReportFormat(id: string, format: 'summary' | 'detailed'): void {
+  const reports = getReports();
+  const idx = reports.findIndex(r => r.id === id);
+  if (idx === -1 || reports[idx].response_format === format) return;
+  reports[idx] = { ...reports[idx], response_format: format };
   saveReports(reports);
 }
 

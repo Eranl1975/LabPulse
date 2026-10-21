@@ -17,15 +17,8 @@ export default function ModeSwitcher({ selected, onChange }: Props) {
     <div
       role="tablist"
       aria-label="Answer detail level"
-      style={{
-        display: 'flex',
-        gap: '0.3125rem',
-        padding: '0.3rem',
-        background: 'var(--color-slate-100)',
-        borderRadius: '11px',
-        marginBottom: '1.375rem',
-        width: '100%',
-      }}
+      className="mode-switcher"
+      data-no-print
     >
       {MODES.map(({ key, label, desc }) => {
         const active = selected === key;
@@ -38,7 +31,7 @@ export default function ModeSwitcher({ selected, onChange }: Props) {
             title={desc}
             onClick={() => onChange(key)}
             style={{
-              flex: 1,
+              minWidth: 0,
               padding: '0.5625rem 0.375rem',
               borderRadius: '8px',
               border: 'none',
@@ -51,9 +44,7 @@ export default function ModeSwitcher({ selected, onChange }: Props) {
               background:  active ? '#fff' : 'transparent',
               color:       active ? 'var(--color-teal-600)' : 'var(--color-slate-500)',
               boxShadow:   active ? '0 1px 5px rgba(15,23,42,.10)' : 'none',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              lineHeight: 1.25,
             }}
           >
             {label}

@@ -6,6 +6,7 @@ import type { RankedAnswer, RankedAnswerV2 } from '@/lib/types';
 import { buildTroubleshootingEmailHtml } from '@/lib/troubleshooting-email-html';
 import type { TroubleshootingEmailOptions } from '@/lib/troubleshooting-email-html';
 import { safeThumbnails } from '@/lib/visual-report';
+import { isResponseFormat } from '@/lib/quick-summary';
 
 export const maxDuration = 30;
 
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 });
   }
 
-  const { to, subject, message, answer, technique, vendor, model, issueCategory } = body as {
+  const { to, subject, message, answer, technique, vendor, model, issueCategory, format } = body as {
     to?: string;
     subject?: string;
     message?: string;
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
     vendor?: string;
     model?: string;
     issueCategory?: string;
+    format?: unknown;
   };
 
   // ── Validate inputs ───────────────────────────────────────────────────────────
@@ -108,11 +110,14 @@ export async function POST(req: NextRequest) {
     symptomDescription: answer.problem_summary,
     message: cleanMessage,
     date: new Date().toISOString(),
+    // Anything but an explicit 'summary' keeps the detailed email (older clients send none).
+    format: isResponseFormat(format) ? format : 'detailed',
   };
 
   // Visual thumbnails go as small inline attachments (≤ 60 KB each, ≤ 12),
   // because most mail clients block data: URIs in <img>.
-  const thumbs = 'confidence_breakdown' in answer ? safeThumbnails(answer as RankedAnswerV2) : [];
+  // The Quick Summary shows no images, so it carries no image attachments.
+  const thumbs = 'confidence_breakdown' in answer && emailOptions.format !== 'summary' ? safeThumbnails(answer as RankedAnswerV2) : [];
   const attachments = thumbs.map((t, i) => ({
     filename: `labpulse-image-${i + 1}.jpg`,
     content: t.base64,

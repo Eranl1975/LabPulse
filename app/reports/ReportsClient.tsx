@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import type { LabReport, ReportStatus, AnalyticsSummary } from '@/lib/types';
 import { getReports, getAnalyticsSummary } from '@/lib/reportStore';
 import ReportModal from '@/components/ReportModal';
+import SavedReportViewer from '@/components/SavedReportViewer';
+import { buildQuickSummary, quickSummaryText } from '@/lib/quick-summary';
+
+/** Report fields are user text: escape before writing them into the export page. */
+function esc(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 // ── PDF export ────────────────────────────────────────────────────────────────
 
@@ -14,14 +21,17 @@ function exportPDF(report: LabReport) {
   };
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
-<title>LabPulse — ${report.technique} — ${report.created_at.slice(0,10)}</title>
+<title>LabPulse — ${esc(report.technique)} — ${report.created_at.slice(0,10)}</title>
 <style>
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:680px;margin:40px auto;padding:0 24px;color:#0f172a}
   h1{font-size:22px;color:#14b8a6;margin:0 0 4px}
   .sub{color:#64748b;font-size:13px;margin:0 0 28px}
   table{width:100%;border-collapse:collapse}
   td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:14px;vertical-align:top}
-  td:first-child{font-weight:600;color:#64748b;width:160px;white-space:nowrap}
+  td:first-child{font-weight:600;color:#64748b;width:160px}
+  td{overflow-wrap:anywhere}
+  h2{font-size:15px;margin:28px 0 8px;color:#0f172a}
+  pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px}
   .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
   .resolved{background:#dcfce7;color:#16a34a}
   .partially{background:#ffedd5;color:#ea580c}
@@ -34,17 +44,18 @@ function exportPDF(report: LabReport) {
 <p class="sub">Generated ${new Date().toLocaleString()}</p>
 <table>
 <tr><td>Date</td><td>${new Date(report.created_at).toLocaleString()}</td></tr>
-<tr><td>Technique</td><td>${report.technique}</td></tr>
-${report.vendor ? `<tr><td>Vendor</td><td>${report.vendor}</td></tr>` : ''}
-${report.model ? `<tr><td>Model</td><td>${report.model}</td></tr>` : ''}
-${report.issue_category ? `<tr><td>Issue Type</td><td>${report.issue_category}</td></tr>` : ''}
-<tr><td>Problem</td><td>${report.symptom_description.replace(/\n/g,'<br>')}</td></tr>
+<tr><td>Technique</td><td>${esc(report.technique)}</td></tr>
+${report.vendor ? `<tr><td>Vendor</td><td>${esc(report.vendor)}</td></tr>` : ''}
+${report.model ? `<tr><td>Model</td><td>${esc(report.model)}</td></tr>` : ''}
+${report.issue_category ? `<tr><td>Issue Type</td><td>${esc(report.issue_category)}</td></tr>` : ''}
+<tr><td>Problem</td><td>${esc(report.symptom_description).replace(/\n/g,'<br>')}</td></tr>
 <tr><td>Confidence</td><td>${Math.round(report.confidence * 100)}%</td></tr>
 <tr><td>AI Assisted</td><td>${report.ai_assisted ? 'Yes (Claude)' : 'No (rule-based)'}</td></tr>
 <tr><td>Status</td><td><span class="badge ${report.status}">${STATUS_LABEL[report.status]}</span></td></tr>
-${report.resolution_note ? `<tr><td>Resolution Note</td><td>${report.resolution_note.replace(/\n/g,'<br>')}</td></tr>` : ''}
+${report.resolution_note ? `<tr><td>Resolution Note</td><td>${esc(report.resolution_note).replace(/\n/g,'<br>')}</td></tr>` : ''}
 ${report.resolved_at ? `<tr><td>Resolved At</td><td>${new Date(report.resolved_at).toLocaleString()}</td></tr>` : ''}
 </table>
+${report.answer ? `<h2>Quick Summary</h2><pre>${esc(quickSummaryText(buildQuickSummary(report.answer)))}</pre>` : ''}
 <button class="btn" onclick="window.print()">Print / Save as PDF</button>
 </body></html>`;
   const blob = new Blob([html], { type: 'text/html' });
@@ -237,6 +248,7 @@ export default function ReportsClient() {
   const [filterTech,   setFilterTech]   = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [modalId,      setModalId]      = useState<string | null>(null);
+  const [viewId,       setViewId]       = useState<string | null>(null);
 
   const reload = useCallback(() => {
     const r = getReports();
@@ -295,7 +307,7 @@ export default function ReportsClient() {
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(1.625rem, 3.5vw, 2.25rem)',
+            fontSize: 'clamp(1.375rem, 3.5vw, 2.25rem)',
             fontWeight: 800, color: '#f97316',
             letterSpacing: '-0.02em', lineHeight: 1.25,
             margin: '0 0 0.75rem', paddingLeft: '0.05em',
@@ -521,7 +533,23 @@ export default function ReportsClient() {
                     {/* Right: status + actions */}
                     <div style={{ display:'flex',flexDirection:'column',alignItems:'flex-end',gap:'0.5rem',flexShrink:0 }}>
                       <StatusBadge status={report.status} />
-                      <div style={{ display:'flex',gap:'0.375rem' }}>
+                      <div style={{ display:'flex',gap:'0.375rem',flexWrap:'wrap',justifyContent:'flex-end' }}>
+                        <button
+                          onClick={() => setViewId(report.id)}
+                          title={report.answer ? 'Open as Quick Summary or Detailed Analysis' : 'Saved details only (report saved before v8.1)'}
+                          style={{
+                            padding:'0.375rem 0.75rem',
+                            background:'#fff',
+                            border:'1.5px solid var(--color-teal-600)',
+                            borderRadius:'7px',
+                            fontSize:'0.78rem',fontWeight:600,
+                            color:'var(--color-teal-600)',
+                            cursor:'pointer',
+                            whiteSpace:'nowrap',
+                          }}
+                        >
+                          View
+                        </button>
                         <button
                           onClick={() => { setModalId(report.id); }}
                           style={{
@@ -562,6 +590,11 @@ export default function ReportsClient() {
           </div>
         </div>
       </div>
+
+      {viewId && (() => {
+        const r = reports.find(x => x.id === viewId);
+        return r ? <SavedReportViewer report={r} onClose={() => { setViewId(null); reload(); }} /> : null;
+      })()}
 
       {/* Status update modal */}
       {modalId && (

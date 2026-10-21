@@ -3,6 +3,7 @@ import type { EvidenceLabel } from './visual-types';
 import { hypothesisHeading } from './hypothesis-clustering';
 import { labelForSource, labelForGeneration, LABEL_COLOURS } from './evidence-labels';
 import { pctLabel } from './visual-report';
+import { buildQuickSummary, type ResponseFormat } from './quick-summary';
 
 // ── HTML entity escaping ────────────────────────────────────────────────────────
 
@@ -26,6 +27,61 @@ export interface TroubleshootingEmailOptions {
   date?: string;
   /** Visual thumbnails sent as small inline attachments, referenced by Content-ID. */
   inlineImages?: Array<{ cid: string; label: string }>;
+  /** Quick Summary or Detailed Analysis (default) of the same answer. */
+  format?: ResponseFormat;
+}
+
+/** The Quick Summary, derived from the same answer as the detailed email. */
+function quickSummaryHtml(answer: RankedAnswerV2, sectionStyle: string, sectionTitle: string): string {
+  const q = buildQuickSummary(answer);
+  const li = 'font-size:13px;color:#334155;margin:0 0 6px;line-height:1.5;';
+  let html = '';
+  for (const n of q.notices) {
+    html += `
+  <div style="margin:0 0 12px;padding:10px 14px;background:#f8fafc;border:1px dashed #94a3b8;border-radius:8px;font-size:12px;color:#334155;line-height:1.5;">
+    <strong>Notice:</strong> ${esc(n)}
+  </div>`;
+  }
+  html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">1 · Identified problem</h3>
+    <p style="margin:0 0 6px;font-size:13px;color:#334155;line-height:1.5;">${esc(q.problem)}</p>
+    ${q.observed ? `<p style="margin:0 0 6px;font-size:13px;color:#334155;line-height:1.5;"><strong>Seen in the images:</strong> ${esc(q.observed)}</p>` : ''}
+    <p style="margin:0;font-size:12px;color:#64748b;">Assessment: <strong>${esc(q.assessment)}</strong>${q.missing_info.length ? ` · confidence limited by missing ${esc(q.missing_info.join(', '))}` : ''}</p>
+  </div>
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">2 · Most likely causes</h3>
+    ${q.causes.length
+      ? `<ol style="margin:0;padding-left:20px;">${q.causes.map(c => `<li style="${li}">${esc(c.text)}${c.probability ? ` <span style="font-size:11px;color:#64748b;">[${c.confirmed ? 'confirmed' : `${esc(c.probability)} probability`}]</span>` : ''}</li>`).join('')}</ol>`
+      : '<p style="margin:0;font-size:13px;color:#334155;">No cause could be ranked from the available evidence.</p>'}
+  </div>
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">3 · Recommended actions</h3>
+    <ol style="margin:0;padding-left:20px;">${q.actions.map(x => `<li style="${li}">${x.kind === 'check' ? '<strong>Check:</strong> ' : x.kind === 'info' ? '<strong>Provide:</strong> ' : ''}${esc(x.text)}</li>`).join('')}</ol>
+    <p style="margin:8px 0 0;font-size:12px;color:#475569;">Recommendations: ${badge(q.recommendations_label)}</p>
+  </div>`;
+  if (q.warnings.length || q.escalate) {
+    html += `
+  <div style="margin:0 0 16px;padding:12px 16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;">
+    <h3 style="margin:0 0 8px;font-size:12px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:0.5px;">⚠ 4 · Critical warnings</h3>
+    <ul style="margin:0;padding-left:20px;">
+      ${q.warnings.map(w => `<li style="font-size:13px;color:#991b1b;margin:0 0 4px;line-height:1.5;">${esc(w)}</li>`).join('')}
+      ${q.escalate ? `<li style="font-size:13px;color:#991b1b;margin:0 0 4px;line-height:1.5;"><strong>Stop and escalate if:</strong> ${esc(q.escalate)}</li>` : ''}
+    </ul>
+  </div>`;
+  }
+  html += `
+  <div style="${sectionStyle}">
+    <h3 style="${sectionTitle}">Sources</h3>
+    ${q.sources.length
+      ? `<ul style="margin:0;padding-left:20px;">${q.sources.map(src => {
+          const href = safeHref(src.url);
+          return `<li style="${li}word-break:break-word;">${badge(src.label)} ${href ? `<a href="${href}" style="color:#0f9188;">${esc(src.title)}</a>` : esc(src.title)}</li>`;
+        }).join('')}</ul>`
+      : '<p style="margin:0;font-size:13px;color:#334155;">No documented source backs these recommendations.</p>'}
+  </div>
+  <p style="margin:0 0 16px;font-size:12px;color:#64748b;">This is the Quick Summary of the analysis. The Detailed Analysis has every hypothesis, diagnostic, action, reference and precaution.</p>`;
+  return html;
 }
 
 function badge(label: EvidenceLabel): string {
@@ -136,7 +192,7 @@ export function buildTroubleshootingEmailHtml(
 
 <!-- Header -->
 <tr><td style="background:#0a1628;padding:24px 28px;">
-  <h1 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#ffffff;">Troubleshooting Report</h1>
+  <h1 style="margin:0 0 4px;font-size:20px;font-weight:800;color:#ffffff;">Troubleshooting Report${options.format === 'summary' && v2 ? ' — Quick Summary' : ''}</h1>
   <p style="margin:0;font-size:14px;color:#94a3b8;">${instrumentLabel}</p>
 </td></tr>
 
@@ -170,6 +226,11 @@ export function buildTroubleshootingEmailHtml(
     html += `<tr><td style="font-size:12px;color:#64748b;padding:0 0 2px;">Issue: <strong>${esc(options.issueCategory)}</strong></td></tr>`;
   }
   html += `</table>`;
+
+  if (options.format === 'summary' && v2) {
+    html += quickSummaryHtml(v2, sectionStyle, sectionTitle);
+    return html + emailFooter(dateStr);
+  }
 
   // Generation notice (AI unavailable, generic procedure, related-technique evidence)
   if (v2?.generation?.notice) {
@@ -395,8 +456,11 @@ export function buildTroubleshootingEmailHtml(
   </div>`;
   }
 
-  // Footer
-  html += `
+  return html + emailFooter(dateStr);
+}
+
+function emailFooter(dateStr: string): string {
+  return `
 </td></tr>
 
 <!-- Footer -->
@@ -411,6 +475,4 @@ export function buildTroubleshootingEmailHtml(
 </table>
 </body>
 </html>`;
-
-  return html;
 }

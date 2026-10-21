@@ -116,6 +116,14 @@ export interface LabReport {
   status: ReportStatus;
   resolution_note: string | null;
   resolved_at: string | null; // ISO 8601
+  /**
+   * v8.1: the analysis itself, so the report can be reopened from history as a
+   * Quick Summary or a Detailed Analysis. Absent on reports saved before v8.1,
+   * and dropped from the oldest reports when browser storage runs short.
+   */
+  answer?: RankedAnswerV2 | null;
+  /** v8.1: the view the report was last shown in. */
+  response_format?: 'summary' | 'detailed';
 }
 
 export interface AnalyticsSummary {

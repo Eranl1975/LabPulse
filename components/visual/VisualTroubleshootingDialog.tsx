@@ -19,6 +19,8 @@ import {
 } from './media-processing';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { RankedAnswerV2 } from '@/lib/types';
+import type { ResponseFormat } from '@/lib/quick-summary';
+import { ResponseFormatPicker } from '../ResponseFormat';
 
 export interface VisualInstrument {
   technique: string;
@@ -39,6 +41,9 @@ interface Props {
   initial: VisualInstrument;
   onClose: () => void;
   onResult: (result: VisualApiResult, context: VisualInstrument & { description: string }) => void;
+  /** Which view of the report to show first. Omit to hide the choice. */
+  responseFormat?: ResponseFormat;
+  onResponseFormatChange?: (f: ResponseFormat) => void;
 }
 
 type ImageItem = { id: string; kind: 'image'; file: File; type: DetectedImageType; preview: string };
@@ -94,7 +99,7 @@ function FilmUploadIcon() {
   );
 }
 
-export default function VisualTroubleshootingDialog({ initial, onClose, onResult }: Props) {
+export default function VisualTroubleshootingDialog({ initial, onClose, onResult, responseFormat, onResponseFormatChange }: Props) {
   const [technique, setTechnique] = useState(initial.technique);
   const [vendor, setVendor] = useState(initial.vendor);
   const [model, setModel] = useState(initial.model);
@@ -504,6 +509,12 @@ export default function VisualTroubleshootingDialog({ initial, onClose, onResult
               </li>
             ))}
           </ol>
+        )}
+
+        {responseFormat && onResponseFormatChange && (
+          <div style={{ marginTop: '1rem' }}>
+            <ResponseFormatPicker name="visual-response-format" value={responseFormat} onChange={onResponseFormatChange} disabled={busy} />
+          </div>
         )}
 
         <div style={{ display: 'flex', gap: '.625rem', justifyContent: 'flex-end', marginTop: '1rem', flexWrap: 'wrap' }}>
