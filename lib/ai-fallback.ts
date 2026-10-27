@@ -387,25 +387,30 @@ export class AIRefusalError extends Error {
   }
 }
 
+/**
+ * `fallbacks` is newer than the SDK version in package-lock.json (0.90), which
+ * has no type for it. The SDK sends the body as given, so the field is declared
+ * here rather than upgrading the SDK every other Claude call depends on.
+ */
+type RefinementParams = Anthropic.Beta.Messages.MessageCreateParamsNonStreaming & { fallbacks: 'default' };
+
 async function requestV2(model: string, userMessage: string) {
   // Sonnet 5.5 rejects a forced tool_choice, so the tool is offered with "auto"
   // and the system prompt requires it. Thinking is adaptive (the model default);
   // medium effort keeps the call inside the function's time limit. The default
   // server-side fallback re-runs a policy decline on another Claude model.
-  return client.beta.messages.create(
-    {
-      model,
-      max_tokens: 16000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
-      tools: [TROUBLESHOOT_TOOL_V2 as Anthropic.Beta.BetaTool],
-      tool_choice: { type: 'auto' },
-      output_config: { effort: 'medium' },
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-    },
-    { timeout: REFINEMENT_TIMEOUT_MS, maxRetries: 1 },
-  );
+  const params: RefinementParams = {
+    model,
+    max_tokens: 16000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userMessage }],
+    tools: [TROUBLESHOOT_TOOL_V2 as Anthropic.Beta.BetaTool],
+    tool_choice: { type: 'auto' },
+    output_config: { effort: 'medium' },
+    betas: ['server-side-fallback-2026-07-01'],
+    fallbacks: 'default',
+  };
+  return client.beta.messages.create(params, { timeout: REFINEMENT_TIMEOUT_MS, maxRetries: 1 });
 }
 
 async function callModelV2(model: string, userMessage: string): Promise<{ parsed: TroubleshootResultV2; modelUsed: string }> {
