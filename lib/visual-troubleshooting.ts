@@ -35,6 +35,8 @@ export interface VisualDeps {
   webResearch?: typeof runWebResearch;
   pipeline?: Omit<PipelineDeps, 'hasAIKey' | 'aiFallback'>;
   catalogue?: () => DocumentRecord[];
+  /** v8.2: manuals with passage counts; preferred over `catalogue` when given. */
+  library?: () => Promise<{ documents: DocumentRecord[]; chunkCounts: Map<string, number> | null }>;
   cleaning?: (technique: string, vendor: string | null, model: string | null) => CleaningProcedureContent | null;
   now?: () => number;
 }
@@ -207,11 +209,15 @@ export async function runVisualTroubleshooting(
   if (status.partial) notices.push('Part of the analysis was cut short to stay inside the time limit, so this report is partial. Submitting again may give a fuller result.');
   status.notices = notices;
 
+  const library = deps.library
+    ? await deps.library().catch(() => ({ documents: deps.catalogue?.() ?? [], chunkCounts: null }))
+    : { documents: deps.catalogue?.() ?? [], chunkCounts: null };
   const references = internalReferences({
     technique: payload.technique,
     vendor: payload.vendor,
     model: payload.model,
-    catalogue: deps.catalogue?.() ?? [],
+    catalogue: library.documents,
+    chunkCounts: library.chunkCounts,
     cleaning: deps.cleaning?.(payload.technique, payload.vendor, payload.model) ?? null,
     answer,
   });

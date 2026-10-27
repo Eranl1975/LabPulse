@@ -10,6 +10,19 @@ import { CONFIDENCE_CAPS } from '@/agents/ranking/weights';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+/**
+ * The model that refines a knowledge-base answer (v8.2). It runs whenever the
+ * knowledge base and manuals leave the answer below the refinement threshold in
+ * lib/troubleshooting-pipeline.ts, with that evidence as its primary input.
+ */
+export const REFINEMENT_MODEL = 'claude-sonnet-5-5';
+
+/**
+ * Per-call budget. The whole request must finish inside Vercel Hobby's 60 s, after
+ * the knowledge-base ranking and document search, so one retry at most.
+ */
+const REFINEMENT_TIMEOUT_MS = 40_000;
+
 const SYSTEM_PROMPT = `You are an expert analytical chemistry and materials characterisation instrument troubleshooter with deep knowledge across:
 
 Separation techniques: HPLC, UHPLC, LCMS, GC, GCMS, IC (Ion Chromatography — Dionex/Thermo ICS series), CE, SFC
@@ -81,7 +94,9 @@ SAFETY AND COMPREHENSIVE TROUBLESHOOTING REQUIREMENTS:
 - For verification after correction, include measurable acceptance criteria: specific parameter, expected value, tolerance, and measurement method. Examples: "Baseline noise < 0.5 mAU measured over 10 min blank gradient", "RT RSD < 0.5% over 6 injections", "Mass accuracy < 5 ppm on tuning compound"
 - Order diagnostic checks from safest/quickest/least-invasive to most complex
 - Provide 8-12 diagnostic checks and 6-10 corrective actions for complex problems — do not artificially limit to fewer items when more are scientifically warranted
-- Include instrument-specific acceptance criteria when the model is known`;
+- Include instrument-specific acceptance criteria when the model is known
+
+OUTPUT: respond only by calling the troubleshoot_response tool, exactly once, with the complete answer.`;
 
 const DEDUP_LIMIT = 12;
 
@@ -364,15 +379,45 @@ async function callModel(model: string, userMessage: string): Promise<{ parsed: 
   }
 }
 
+/** The model declined the request (stop_reason "refusal"); handled as an AI error, never as an answer. */
+export class AIRefusalError extends Error {
+  constructor(public readonly category: string | null) {
+    super(`The AI model declined this request${category ? ` (${category})` : ''}.`);
+    this.name = 'AIRefusalError';
+  }
+}
+
+async function requestV2(model: string, userMessage: string) {
+  // Sonnet 5.5 rejects a forced tool_choice, so the tool is offered with "auto"
+  // and the system prompt requires it. Thinking is adaptive (the model default);
+  // medium effort keeps the call inside the function's time limit. The default
+  // server-side fallback re-runs a policy decline on another Claude model.
+  return client.beta.messages.create(
+    {
+      model,
+      max_tokens: 16000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userMessage }],
+      tools: [TROUBLESHOOT_TOOL_V2 as Anthropic.Beta.BetaTool],
+      tool_choice: { type: 'auto' },
+      output_config: { effort: 'medium' },
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+    },
+    { timeout: REFINEMENT_TIMEOUT_MS, maxRetries: 1 },
+  );
+}
+
 async function callModelV2(model: string, userMessage: string): Promise<{ parsed: TroubleshootResultV2; modelUsed: string }> {
-  const message = await client.messages.create({
-    model,
-    max_tokens: 8192,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userMessage }],
-    tools: [TROUBLESHOOT_TOOL_V2],
-    tool_choice: { type: 'tool', name: 'troubleshoot_response' },
-  });
+  let message = await requestV2(model, userMessage);
+  if (message.stop_reason === 'refusal') throw new AIRefusalError(message.stop_details?.category ?? null);
+  // Without forced tool use the model can, rarely, answer in prose: ask once more.
+  if (!message.content.some(b => b.type === 'tool_use')) {
+    message = await requestV2(model, userMessage);
+    if (message.stop_reason === 'refusal') throw new AIRefusalError(message.stop_details?.category ?? null);
+  }
+  // The server-side fallback may have served the answer from another model.
+  model = message.model;
 
   const toolBlock = message.content.find(b => b.type === 'tool_use');
 
@@ -488,17 +533,8 @@ export async function aiAnswerFallbackV2(
 ): Promise<RankedAnswerV2> {
   const userMessage = buildUserMessageV2(query, kbResult, grounding);
 
-  // Default: Sonnet
-  let { parsed, modelUsed } = await callModelV2('claude-sonnet-4-6', userMessage);
-
-  // Escalate to Opus if Sonnet confidence is below threshold
-  if (parsed.confidence < OPUS_ESCALATION_THRESHOLD) {
-    const opusResult = await callModelV2('claude-opus-4-6', userMessage);
-    if (opusResult.parsed.confidence >= parsed.confidence) {
-      parsed = opusResult.parsed;
-      modelUsed = opusResult.modelUsed;
-    }
-  }
+  // One refinement call on the refinement model (no escalation to another model).
+  const { parsed, modelUsed } = await callModelV2(REFINEMENT_MODEL, userMessage);
 
   // Detect missing info
   const missingInfo = detectMissingInfo(query, query.technique);
@@ -662,6 +698,15 @@ export async function aiAnswerFallbackV2(
     })),
   };
 
+  // The knowledge-base and manual sources the refinement was built on stay cited
+  // next to what the model added, each with its own evidence label.
+  const kbSources = (kbResult as Partial<RankedAnswerV2> | undefined)?.sources_with_metadata ?? [];
+  for (const src of kbSources) {
+    if (!result.sources_with_metadata.some(s => s.source_id === src.source_id && s.excerpt === src.excerpt)) {
+      result.sources_with_metadata.push(src);
+    }
+  }
+
   // Symptom/cause confusion check: remove causes that restate the symptom
   const symptomWords = getWordSet(query.symptom_description);
   if (symptomWords.size >= 3) {
@@ -803,15 +848,9 @@ function buildUserMessageV2(
     if (capability.notes.length > 0) lines.push(`Notes: ${capability.notes.join('; ')}`);
   }
 
-  // Inject KB evidence if available
-  if (kbResult && kbResult.likely_causes.length > 0) {
-    lines.push('');
-    lines.push('=== KNOWLEDGE BASE EVIDENCE (for context) ===');
-    lines.push(`KB confidence: ${(kbResult.confidence * 100).toFixed(0)}%`);
-    lines.push(`KB likely causes: ${kbResult.likely_causes.slice(0, 3).join('; ')}`);
-    if (kbResult.evidence_summary.length > 0) {
-      lines.push(`KB sources: ${kbResult.evidence_summary.map(e => `${e.source_id} (${e.evidence_strength})`).join(', ')}`);
-    }
+  // The knowledge-base answer is the primary evidence: the model refines it.
+  if (kbResult && (kbResult.likely_causes.length > 0 || ((kbResult as Partial<RankedAnswerV2>).hypotheses?.length ?? 0) > 0)) {
+    lines.push(...knowledgeBaseSection(kbResult));
   }
 
   // Inject missing info
@@ -829,6 +868,57 @@ function buildUserMessageV2(
   }
 
   return lines.join('\n');
+}
+
+/** Caps for how much of the knowledge-base answer is passed to the model. */
+const KB_LIMITS = { hypotheses: 10, checks: 12, actions: 10, safety: 8, sources: 10 };
+
+/**
+ * The knowledge-base answer as primary evidence, with the instruction to refine
+ * it rather than replace it. Exported for tests.
+ */
+export function knowledgeBaseSection(kb: RankedAnswer): string[] {
+  const v2 = kb as Partial<RankedAnswerV2>;
+  const lines: string[] = [
+    '',
+    '=== LABPULSE KNOWLEDGE BASE ANSWER — PRIMARY EVIDENCE TO REFINE ===',
+    `It scored ${(kb.confidence * 100).toFixed(0)}% confidence, below the threshold, so your task is to make it more accurate for THIS user's data:`,
+    '- Keep the causes, checks and actions below that fit what the user reported; re-rank them by fit to the reported symptoms and method.',
+    "- Correct, narrow or drop items the user's data contradicts; say why in contradicting_evidence or uncertainties.",
+    "- Add a cause, check or action the knowledge base lacks only when the user's data calls for it, and cite it as tier 7 (AI-generated inference) unless the vendor documentation above supports it.",
+    '- Prefer the vendor documentation passages above (if any) over everything else, and keep every safety warning that still applies.',
+  ];
+  const hyps = v2.hypotheses ?? [];
+  if (hyps.length > 0) {
+    lines.push('Ranked hypotheses:');
+    for (const h of hyps.slice(0, KB_LIMITS.hypotheses)) {
+      const group = h.grouped_causes && h.grouped_causes.length > 1 ? ` (covers: ${h.grouped_causes.join('; ')})` : '';
+      lines.push(`- [${h.probability}] ${h.cause}${group} — test: ${h.diagnostic_test || 'none given'}`);
+    }
+  } else {
+    lines.push(`Likely causes: ${kb.likely_causes.slice(0, KB_LIMITS.hypotheses).join('; ')}`);
+  }
+  if (kb.checks.length > 0) {
+    lines.push('Diagnostic checks:');
+    for (const c of kb.checks.slice(0, KB_LIMITS.checks)) lines.push(`- ${c}`);
+  }
+  if (kb.corrective_actions.length > 0) {
+    lines.push('Corrective actions:');
+    for (const a of kb.corrective_actions.slice(0, KB_LIMITS.actions)) lines.push(`- ${a}`);
+  }
+  const safety = v2.safety_warnings ?? [];
+  if (safety.length > 0) {
+    lines.push('Safety warnings:');
+    for (const w of safety.slice(0, KB_LIMITS.safety)) lines.push(`- ${w}`);
+  }
+  const sources = v2.sources_with_metadata ?? [];
+  if (sources.length > 0) {
+    const titles = [...new Set(sources.map(s => s.source_metadata?.title ?? s.source_id))].slice(0, KB_LIMITS.sources);
+    lines.push(`Knowledge-base sources: ${titles.join('; ')}`);
+  } else if (kb.evidence_summary.length > 0) {
+    lines.push(`Knowledge-base sources: ${kb.evidence_summary.map(e => `${e.source_id} (${e.evidence_strength})`).join(', ')}`);
+  }
+  return lines;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────

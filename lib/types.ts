@@ -193,7 +193,7 @@ export type AIStatus = 'ok' | 'skipped_no_key' | 'skipped_not_needed' | 'error';
 
 export type AIErrorCode =
   | 'billing' | 'auth' | 'rate_limit' | 'model_unavailable'
-  | 'bad_request' | 'timeout' | 'network' | 'server' | 'unknown';
+  | 'bad_request' | 'timeout' | 'network' | 'server' | 'refusal' | 'unknown';
 
 export type ContentSource = 'knowledge_base' | 'ai' | 'generic_procedure' | 'knowledge_base+generic';
 

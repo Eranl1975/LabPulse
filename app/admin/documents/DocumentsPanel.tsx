@@ -5,6 +5,7 @@ import type { DocumentRecord } from '@/lib/document-types';
 import type { RefreshRun } from '@/agents/acquisition/pipeline/run-state';
 import { matchFileToDocument } from '@/lib/document-match';
 import { extractPdfTextInBrowser } from '@/lib/pdf-text-browser';
+import AddManualForm from './AddManualForm';
 
 const STATUS_COLORS: Record<string, string> = {
   success: '#059669',
@@ -156,7 +157,7 @@ export default function DocumentsPanel({
           status: 'error',
           detail: match.reason === 'ambiguous'
             ? `filename matches several documents (${match.candidates.join(', ')}); rename it to one document number`
-            : 'no stored document matches this filename',
+            : 'no stored document matches this filename; use "Add a manual for any instrument" below',
         });
         continue;
       }
@@ -306,6 +307,8 @@ export default function DocumentsPanel({
           </div>
         )}
       </section>
+
+      <AddManualForm disabled={!remoteBacked} card={card} />
 
       <section style={card}>
         <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>

@@ -21,7 +21,21 @@ export const AI_ONLY_TECHNIQUES = new Set<Technique>([
   'UHPLC', 'IC', 'CE', 'SFC', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC',
 ]);
 
-const AI_TRIGGER_CONFIDENCE = 0.4;
+/**
+ * Below this knowledge-base confidence the answer is refined by the AI model
+ * (lib/ai-fallback.ts, Claude Sonnet 5.5), with the knowledge-base answer and the
+ * retrieved manual passages as its primary evidence. Was 0.4 before v8.2.
+ */
+export const AI_REFINE_BELOW = 0.75;
+
+/** Readable model names for the report notice. */
+function modelName(id: string | null): string {
+  if (!id) return 'the AI model';
+  const m = /^claude-([a-z]+)-(\d+)(?:-(\d+))?/.exec(id);
+  if (!m) return id;
+  const family = m[1][0].toUpperCase() + m[1].slice(1);
+  return `Claude ${family} ${m[2]}${m[3] && m[3].length <= 2 ? `.${m[3]}` : ''}`;
+}
 
 /** `grounding` carries retrieved vendor documentation the model must cite from. */
 export type AIFallbackFn = (
@@ -112,7 +126,11 @@ function setConfidence(answer: RankedAnswerV2, value: number, cap: string): void
   answer.confidence_breakdown.caps_applied.push(cap);
 }
 
-function buildNotice(generation: GenerationStatus, hadKBContent: boolean): string | null {
+function buildNotice(
+  generation: GenerationStatus,
+  hadKBContent: boolean,
+  kbConfidence: number,
+): string | null {
   const sourceText = generation.content_source === 'generic_procedure'
     ? 'Showing a general best-practice procedure for this technique and issue; it is not instrument-specific.'
     : generation.content_source === 'knowledge_base+generic'
@@ -124,6 +142,18 @@ function buildNotice(generation: GenerationStatus, hadKBContent: boolean): strin
       return ['AI analysis is not configured on this server (no API key).', sourceText, 'Contact your LabPulse administrator.'].filter(Boolean).join(' ');
     case 'error':
       return [`AI analysis unavailable: ${generation.ai_reason ?? 'unknown error'}`, sourceText, 'Contact your LabPulse administrator.'].filter(Boolean).join(' ');
+    case 'ok': {
+      // Say what the refinement started from, so its provenance is never hidden.
+      const basis = [
+        hadKBContent ? `the LabPulse knowledge base (${Math.round(kbConfidence * 100)}% confidence before refinement)` : null,
+        generation.documents_used > 0
+          ? `${generation.documents_used} vendor-manual passage${generation.documents_used === 1 ? '' : 's'}`
+          : null,
+      ].filter(Boolean);
+      return `Refined by ${modelName(generation.model_used)}` +
+        (basis.length > 0 ? ` from ${basis.join(' and ')}` : '') +
+        '. AI-refined steps are labelled AI-generated; check them against the cited manuals.';
+    }
     default:
       return generation.content_source === 'generic_procedure' || generation.content_source === 'knowledge_base+generic'
         ? sourceText
@@ -164,7 +194,7 @@ export async function runTroubleshootingPipeline(
   const hits = await retrieveDocuments(query, deps, generation);
   const grounding = buildGroundingContext(hits);
 
-  const needsAI = kb.confidence < AI_TRIGGER_CONFIDENCE || AI_ONLY_TECHNIQUES.has(query.technique);
+  const needsAI = kb.confidence < AI_REFINE_BELOW || AI_ONLY_TECHNIQUES.has(query.technique);
   const canRunAI = needsAI && deps.hasAIKey && !!deps.aiFallback;
 
   if (needsAI && !deps.hasAIKey) {
@@ -246,7 +276,7 @@ export async function runTroubleshootingPipeline(
   answer = withDocs.answer;
   generation.documents_used = withDocs.added;
 
-  generation.notice = buildNotice(generation, hadKBContent);
+  generation.notice = buildNotice(generation, hadKBContent, kb.confidence);
   answer.generation = generation;
   if (generation.notice) {
     answer.uncertainties = [generation.notice, ...answer.uncertainties];

@@ -6,6 +6,7 @@ import { runVisualTroubleshooting, type VisualStage } from '@/lib/visual-trouble
 import { parseVisualPayload } from '@/lib/visual-payload';
 import { isSameOriginRequest } from '@/lib/same-origin';
 import { loadSeedDocuments } from '@/lib/document-seed';
+import { loadDocumentLibrary } from '@/lib/document-library';
 import { findCleaningProcedure } from '@/lib/cleaning-store';
 import { getUser, getProfile } from '@/lib/auth';
 import { hasAppAccess } from '@/lib/auth-shared';
@@ -98,6 +99,7 @@ export async function POST(req: NextRequest) {
             aiFallback: aiAnswerFallbackV2,
             analyze: analyzeVisual,
             catalogue: loadSeedDocuments,
+            library: loadDocumentLibrary,
             cleaning: findCleaningProcedure,
           },
           (stage: VisualStage) => send({ stage }),

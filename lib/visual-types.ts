@@ -104,6 +104,12 @@ export interface InternalReference {
    * the document — many Agilent/Restek manuals are behind a WAF that blocks fetching.
    */
   content_read: boolean;
+  /**
+   * v8.2: `cited` — a passage is quoted in this report; `stored` — LabPulse holds
+   * the text but no passage matched this problem; `title_only` — only the title
+   * and link are held. Absent on reports saved before v8.2.
+   */
+  content_status?: 'cited' | 'stored' | 'title_only';
   label: EvidenceLabel;
 }
 

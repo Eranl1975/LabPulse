@@ -15,6 +15,10 @@ export interface ClassifiedAIError {
 export function classifyAIError(err: unknown): ClassifiedAIError {
   const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
 
+  // AIRefusalError (lib/ai-fallback.ts), matched by name to avoid an import cycle.
+  if (err instanceof Error && err.name === 'AIRefusalError') {
+    return { code: 'refusal', http_status: null, reason: 'The AI model declined to answer this request.', detail };
+  }
   if (err instanceof Anthropic.APIConnectionTimeoutError) {
     return { code: 'timeout', http_status: null, reason: 'The AI service did not respond in time.', detail };
   }

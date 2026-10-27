@@ -119,7 +119,8 @@ describe('UHPLC carryover regression', () => {
     expect(answer.confidence).toBe(0.45);
     expect(answer.confidence_breakdown.label).toBe('Preliminary hypothesis');
     expect(answer.hypotheses[0].cause).toBe('Needle wash solvent too weak');
-    expect(answer.generation?.notice).toBeNull();
+    // v8.2: a refined answer states what it was refined from, so its provenance is visible.
+    expect(answer.generation?.notice).toMatch(/^Refined by Claude Sonnet 4\.6 from the LabPulse knowledge base \(\d+% confidence before refinement\)/);
     expect(formatConcise(answer).text).toContain('Top hypothesis: Needle wash solvent too weak');
   });
 

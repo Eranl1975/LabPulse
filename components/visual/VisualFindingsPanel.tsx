@@ -6,6 +6,7 @@
 import type { RankedAnswerV2 } from '@/lib/types';
 import type { EvidenceLabel, VisualFindings } from '@/lib/visual-types';
 import { LABEL_COLOURS } from '@/lib/evidence-labels';
+import { referenceStatusNote } from '@/lib/visual-query';
 
 export function EvidenceBadge({ label }: { label: EvidenceLabel }) {
   const c = LABEL_COLOURS[label];
@@ -156,7 +157,7 @@ export default function VisualFindingsPanel({ answer }: { answer: RankedAnswerV2
               <li key={i}>
                 <EvidenceBadge label={r.label} />{' '}
                 <SafeLink href={r.url}>{r.title}</SafeLink>
-                {!r.content_read && <span className="vt-hint"> — cited by title and link; LabPulse has not read its content</span>}
+                {referenceStatusNote(r) && <span className="vt-hint"> — {referenceStatusNote(r)}</span>}
               </li>
             ))}
           </ul>

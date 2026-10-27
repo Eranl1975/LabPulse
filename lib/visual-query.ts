@@ -144,8 +144,9 @@ function modelMatches(docModel: string | null, model: string | null): boolean {
 
 /**
  * Manuals LabPulse holds for this instrument, plus the matching cleaning
- * procedure. Most are metadata only (title + link): `content_read` is true only
- * when the document search actually returned a passage from that document.
+ * procedure, each with its real status: quoted in this report, text stored but
+ * not matched, or title and link only. `chunkCounts` (passages per document)
+ * tells stored from title-only; without it, only "quoted" can be known.
  */
 export function internalReferences(params: {
   technique: string;
@@ -154,6 +155,7 @@ export function internalReferences(params: {
   catalogue: DocumentRecord[];
   cleaning: CleaningProcedureContent | null;
   answer: RankedAnswerV2;
+  chunkCounts?: Map<string, number> | null;
 }): InternalReference[] {
   const readIds = new Set(params.answer.sources_with_metadata.map(s => s.source_id));
   const vendor = params.vendor?.toLowerCase() ?? null;
@@ -165,13 +167,23 @@ export function internalReferences(params: {
     .sort((a, b) => Number(b.exact) - Number(a.exact))
     .slice(0, 6);
 
-  const refs: InternalReference[] = docs.map(({ d }) => ({
-    title: d.document_number ? `${d.title} (${d.document_number})` : d.title,
-    url: d.url,
-    kind: 'manual',
-    content_read: readIds.has(d.id),
-    label: labelForTier(d.authority_tier, { hasDocumentOrUrl: !!d.url, internal: true }),
-  }));
+  const refs: InternalReference[] = docs.map(({ d }) => {
+    const cited = readIds.has(d.id);
+    const stored = params.chunkCounts ? (params.chunkCounts.get(d.id) ?? 0) > 0 : false;
+    const content_status: InternalReference['content_status'] = cited
+      ? 'cited'
+      : stored ? 'stored' : params.chunkCounts ? 'title_only' : undefined;
+    const isLink = /^https?:\/\//i.test(d.url);
+    return {
+      title: d.document_number ? `${d.title} (${d.document_number})` : d.title,
+      // A manual added without a public link has a local id, never shown as a link.
+      url: isLink ? d.url : null,
+      kind: 'manual',
+      content_read: cited || stored,
+      ...(content_status ? { content_status } : {}),
+      label: labelForTier(d.authority_tier, { hasDocumentOrUrl: isLink || !!d.document_number, internal: true }),
+    };
+  });
 
   if (params.cleaning) {
     const c = params.cleaning;
@@ -182,10 +194,24 @@ export function internalReferences(params: {
       url: c.source_url,
       kind: 'cleaning_procedure',
       content_read: true,
+      content_status: 'cited',
       label: c.source_type === 'ai_generated'
         ? 'AI-GENERATED RECOMMENDATION'
         : 'LABPULSE INTERNAL KNOWLEDGE',
     });
   }
   return refs;
+}
+
+/** The status note shown after a referenced manual (web, PDF and email), or null for none. */
+export function referenceStatusNote(r: Pick<InternalReference, 'content_read' | 'content_status' | 'kind'>): string | null {
+  if (r.kind === 'cleaning_procedure') return null;
+  switch (r.content_status) {
+    case 'cited': return 'quoted in this report';
+    case 'stored': return 'text held in LabPulse; no passage matched this problem';
+    case 'title_only': return 'LabPulse holds only the title and link; an administrator can upload the PDF (Admin → Documents) to make it searchable';
+    default:
+      // Reports saved before v8.2.
+      return r.content_read ? null : 'cited by title and link; content not read';
+  }
 }

@@ -18,6 +18,7 @@ import { ingestExtractedPages, validateExtraction } from '@/lib/document-ingest'
 import { SupabaseDocumentStore, hasDocumentStoreCredentials } from '@/agents/acquisition/pipeline/document-persist';
 import type { PdfPage } from '@/agents/acquisition/extract/pdf-text';
 import type { DocumentRecord } from '@/lib/document-types';
+import { buildManualRecord, type NewManualInput } from '@/lib/manual-registration';
 import { createLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,8 @@ const MAX_PAGES = 5_000;
 
 interface IngestBody {
   document_id?: unknown;
+  /** v8.2: register a manual that is not in the catalogue, then ingest it. */
+  new_document?: unknown;
   page_count?: unknown;
   pages?: unknown;
 }
@@ -55,8 +58,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const documentId = typeof body.document_id === 'string' ? body.document_id.trim() : '';
-  if (!documentId) {
-    return NextResponse.json({ error: 'document_id is required.' }, { status: 400 });
+  const newDocument = typeof body.new_document === 'object' && body.new_document !== null
+    ? (body.new_document as NewManualInput)
+    : null;
+  if (!documentId && !newDocument) {
+    return NextResponse.json({ error: 'document_id or new_document is required.' }, { status: 400 });
+  }
+  const built = newDocument ? buildManualRecord(newDocument) : null;
+  if (built && 'error' in built) {
+    return NextResponse.json({ error: built.error }, { status: 400 });
   }
 
   const pages = parsePages(body.pages);
@@ -93,21 +103,39 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: invalid }, { status: 422 });
   }
 
-  const document = await fetchDocument(documentId);
+  // Rows are created only for an explicit new_document, and only after the
+  // extracted text has passed validation, so a failed upload leaves no empty row.
+  let document: DocumentRecord | null;
+  if (built && 'record' in built) {
+    try {
+      await new SupabaseDocumentStore().upsertDocuments([built.record]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const duplicateUrl = /idx_doc_url|duplicate key/i.test(message);
+      log.warn('ingest', `could not register manual ${built.record.id}: ${message}`);
+      return NextResponse.json(
+        { error: duplicateUrl ? 'A document with this link is already stored; upload it against that document instead.' : 'Could not register the manual.' },
+        { status: duplicateUrl ? 409 : 500 },
+      );
+    }
+    document = built.record;
+  } else {
+    document = await fetchDocument(documentId);
+  }
   if (!document) {
     return NextResponse.json(
-      { error: `No active document with id ${documentId}. Ingestion never creates rows.` },
+      { error: `No active document with id ${documentId}. Use "Add a manual" to register a new one.` },
       { status: 404 },
     );
   }
 
   try {
     const outcome = await ingestExtractedPages(document, extracted, new SupabaseDocumentStore());
-    log.info('ingest', `ingested ${outcome.chunks_written} chunk(s) for ${documentId}`);
-    return NextResponse.json({ ok: true, ...outcome, title: document.title });
+    log.info('ingest', `ingested ${outcome.chunks_written} chunk(s) for ${document.id}`);
+    return NextResponse.json({ ok: true, ...outcome, title: document.title, document_id: document.id });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    log.warn('ingest', `ingest failed for ${documentId}: ${message}`);
+    log.warn('ingest', `ingest failed for ${document.id}: ${message}`);
     return NextResponse.json({ error: message }, { status: 422 });
   }
 }

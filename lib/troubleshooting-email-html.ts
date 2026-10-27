@@ -4,6 +4,7 @@ import { hypothesisHeading } from './hypothesis-clustering';
 import { labelForSource, labelForGeneration, LABEL_COLOURS } from './evidence-labels';
 import { pctLabel } from './visual-report';
 import { buildQuickSummary, type ResponseFormat } from './quick-summary';
+import { referenceStatusNote } from './visual-query';
 
 // ── HTML entity escaping ────────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ function visualHtml(answer: RankedAnswerV2, options: TroubleshootingEmailOptions
     html += `<p style="margin:8px 0 2px;font-size:12px;font-weight:700;color:#475569;">LabPulse documents for this instrument</p><ul style="margin:0;padding-left:18px;">${f.internal_references.map(r => {
       const href = safeHref(r.url);
       const title = href ? `<a href="${href}" style="color:#0f766e;">${esc(r.title)}</a>` : esc(r.title);
-      return `<li style="${li}">${badge(r.label)} ${title}${r.content_read ? '' : ' <span style="color:#94a3b8;">(cited by title and link; content not read)</span>'}</li>`;
+      return `<li style="${li}">${badge(r.label)} ${title}${referenceStatusNote(r) ? ` <span style="color:#94a3b8;">(${esc(referenceStatusNote(r)!)})</span>` : ''}</li>`;
     }).join('')}</ul>`;
   }
   if (f.web_sources.length) {

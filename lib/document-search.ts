@@ -83,6 +83,11 @@ export async function searchDocuments(q: DocumentSearchQuery): Promise<DocumentH
 
   if (!toTsQuery(q.text)) return [];
 
+  // Ranked, any-term search (migration 030). Falls back to the older all-terms
+  // query only when the function is not deployed yet.
+  const ranked = await searchRanked(url, key, q);
+  if (ranked !== 'unavailable') return ranked === null ? null : rankHits(ranked, q);
+
   let rows: ChunkRow[];
   try {
     const res = await fetch(buildSearchEndpoint(url, q), {
@@ -102,7 +107,71 @@ export async function searchDocuments(q: DocumentSearchQuery): Promise<DocumentH
   return rankHits(rows, q);
 }
 
-/** Convert rows to hits, assign per-query tiers and order by authority. */
+/** A row of public.search_document_chunks (migration 030). */
+interface RankedRow {
+  document_id: string;
+  heading: string | null;
+  page_number: number | null;
+  text: string;
+  rank: number;
+  title: string;
+  vendor: string;
+  doc_type: DocType;
+  document_number: string | null;
+  url: string;
+  publication_date: string | null;
+  model: string | null;
+  techniques: string[];
+  authority_tier: number;
+  status: string;
+}
+
+/** The body for search_document_chunks. Exported so it can be tested without a network call. */
+export function buildRankedSearchBody(q: DocumentSearchQuery): Record<string, unknown> {
+  return {
+    p_terms: searchTerms(q.text),
+    p_technique: q.technique,
+    p_vendor: q.vendor ?? null,
+    p_limit: Math.max(1, Math.min(q.limit ?? DEFAULT_SEARCH_LIMIT, 25)),
+  };
+}
+
+/** Rows from the ranked search, null on failure, 'unavailable' when the function is missing. */
+async function searchRanked(baseUrl: string, key: string, q: DocumentSearchQuery): Promise<ChunkRow[] | null | 'unavailable'> {
+  try {
+    const res = await fetch(`${baseUrl.replace(/\/$/, '')}/rest/v1/rpc/search_document_chunks`, {
+      method: 'POST',
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildRankedSearchBody(q)),
+      next: { revalidate: 300 },
+    });
+    if (res.status === 404) return 'unavailable';
+    if (!res.ok) {
+      log.warn('search', `ranked document search failed: HTTP ${res.status}`);
+      return null;
+    }
+    const rows = (await res.json()) as RankedRow[];
+    return rows.map(r => ({
+      document_id: r.document_id,
+      heading: r.heading,
+      page_number: r.page_number,
+      text: r.text,
+      documents: {
+        title: r.title, vendor: r.vendor, doc_type: r.doc_type, document_number: r.document_number,
+        url: r.url, publication_date: r.publication_date, model: r.model, techniques: r.techniques,
+        authority_tier: r.authority_tier, status: r.status,
+      },
+    }));
+  } catch (err) {
+    log.warn('search', `ranked document search error: ${String(err)}`);
+    return null;
+  }
+}
+
+/**
+ * Convert rows to hits, assign per-query tiers and order by authority. Within a
+ * tier the incoming order is kept, which for the ranked search is relevance.
+ */
 export function rankHits(rows: ChunkRow[], q: DocumentSearchQuery): DocumentHit[] {
   const hits: DocumentHit[] = [];
 
@@ -127,7 +196,8 @@ export function rankHits(rows: ChunkRow[], q: DocumentSearchQuery): DocumentHit[
     });
   }
 
-  return hits.sort((a, b) => a.tier - b.tier || a.title.localeCompare(b.title));
+  // Array.prototype.sort is stable, so equal tiers keep their relevance order.
+  return hits.sort((a, b) => a.tier - b.tier);
 }
 
 /**
@@ -160,6 +230,12 @@ function vendorMatches(docVendor: string, queryVendor: string): boolean {
   const v = norm(queryVendor);
   if (!d || !v) return false;
   return d.includes(v) || v.includes(d);
+}
+
+/** Distinct search terms of a description: lower-case, no noise words, at most 8. */
+export function searchTerms(text: string): string[] {
+  const query = toTsQuery(text);
+  return query ? query.split(' & ') : [];
 }
 
 /** Build a websearch-style tsquery: drop noise words and join the rest with AND. */
