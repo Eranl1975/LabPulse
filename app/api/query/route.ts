@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { present }   from '@/agents/presentation/index';
 import { aiAnswerFallbackV2 } from '@/lib/ai-fallback';
 import { runTroubleshootingPipeline } from '@/lib/troubleshooting-pipeline';
+import { withDeadline } from '@/lib/visual-troubleshooting';
 import { getUser, getProfile } from '@/lib/auth';
 import { hasAppAccess } from '@/lib/auth-shared';
 import { checkQueryRateLimit } from '@/lib/rate-limit';
@@ -11,9 +12,12 @@ import type { Technique, SampleMatrixType } from '@/lib/types';
 
 const log = createLogger('api/query');
 
-// The AI call (Sonnet, optional Opus escalation, optional QC retry) can take well
-// over the default serverless timeout. Vercel Hobby allows up to 60 s.
-export const maxDuration = 60;
+// The Sonnet 5.5 refinement (~35 s measured, plus an optional QC retry) is
+// bounded by AI_DEADLINE_MS below. Vercel Hobby with Fluid compute allows up to 300 s.
+export const maxDuration = 180;
+
+/** Every AI call of one request must have finished by then, with room to answer. */
+const AI_DEADLINE_MS = 160_000;
 
 const VALID_TECHNIQUES = new Set<Technique>(['LCMS', 'HPLC', 'GC', 'GCMS', 'UHPLC', 'IC', 'CE', 'SFC', 'TGA', 'DSC', 'FPLC', 'SPPS', 'XRD', 'DLS', 'Titration', 'KF', 'KFO', 'CD', 'SEM', 'Sputter', 'BET', 'SECMALS', 'TEM', 'Raman', 'ssNMR', 'NMR', 'PrepLC']);
 
@@ -126,9 +130,10 @@ export async function POST(req: NextRequest) {
   // Knowledge base → AI fallback → QC gate → content guarantee.
   // AI failures are never silent: they are returned as ai_status/ai_reason and
   // shown to the user as a notice inside the answer.
+  const started = Date.now();
   const { answer, generation } = await runTroubleshootingPipeline(query, {
     hasAIKey: !!process.env.ANTHROPIC_API_KEY,
-    aiFallback: aiAnswerFallbackV2,
+    aiFallback: withDeadline(aiAnswerFallbackV2, started + AI_DEADLINE_MS, Date.now, 'AI analysis'),
   });
 
   if (generation.ai_status === 'error') {

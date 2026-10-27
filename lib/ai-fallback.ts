@@ -18,10 +18,11 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 export const REFINEMENT_MODEL = 'claude-sonnet-5-5';
 
 /**
- * Per-call budget. The whole request must finish inside Vercel Hobby's 60 s, after
- * the knowledge-base ranking and document search, so one retry at most.
+ * Per-call budget. Measured 2026-10-27: ~35 s at medium effort, and the old
+ * 40 s cap timed out twice in a row. Each route also wraps the call in its own
+ * deadline (app/api/query, lib/visual-troubleshooting), which bounds the retry.
  */
-const REFINEMENT_TIMEOUT_MS = 40_000;
+const REFINEMENT_TIMEOUT_MS = 75_000;
 
 const SYSTEM_PROMPT = `You are an expert analytical chemistry and materials characterisation instrument troubleshooter with deep knowledge across:
 
@@ -432,7 +433,7 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
 
     return {
       parsed: {
-        likely_causes: hypothesesRaw.map((h: Record<string, unknown>) => typeof h.cause === 'string' ? h.cause : ''),
+        likely_causes: hypothesesRaw.map((h: Record<string, unknown>) => causeText(h.cause)),
         checks: arr(input.checks),
         corrective_actions: arr(input.corrective_actions),
         stop_conditions: arr(input.stop_conditions),
@@ -442,7 +443,7 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
         reported_observations: arr(input.reported_observations),
         safety_warnings: arr(input.safety_warnings),
         hypotheses: hypothesesRaw.map((h: Record<string, unknown>) => ({
-          cause: typeof h.cause === 'string' ? h.cause : '',
+          cause: causeText(h.cause),
           probability: (['high', 'medium', 'low'].includes(h.probability as string) ? h.probability : 'medium') as 'high' | 'medium' | 'low',
           supporting_evidence: arr(h.supporting_evidence),
           contradicting_evidence: arr(h.contradicting_evidence),
@@ -494,6 +495,14 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
     },
     modelUsed: model,
   };
+}
+
+/**
+ * A cause as text, without a leading "Suspected:" / "Possible:" label: Sonnet 5.5
+ * often prefixes every cause, which repeats the status the report already shows.
+ */
+export function causeText(v: unknown): string {
+  return typeof v === 'string' ? v.replace(/^\s*(suspected|possible|probable|likely|confirmed)\s*[:\-–—]\s*/i, '').trim() : '';
 }
 
 function arr(v: unknown): string[] {

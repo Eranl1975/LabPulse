@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { Messages as BetaMessages } from '@anthropic-ai/sdk/resources/beta/messages/messages';
-import { aiAnswerFallbackV2, knowledgeBaseSection, REFINEMENT_MODEL, AIRefusalError } from '@/lib/ai-fallback';
+import { aiAnswerFallbackV2, knowledgeBaseSection, REFINEMENT_MODEL, AIRefusalError, causeText } from '@/lib/ai-fallback';
 import { classifyAIError } from '@/lib/ai-errors';
 import { runTroubleshootingPipeline, AI_REFINE_BELOW } from '@/lib/troubleshooting-pipeline';
 import type { RankingQueryV2 } from '@/agents/ranking/types';
@@ -84,7 +84,9 @@ describe('Sonnet 5.5 request', () => {
     expect(body.betas).toEqual(['server-side-fallback-2026-07-01']);
     expect(body).not.toHaveProperty('temperature');
     expect(body).not.toHaveProperty('thinking');
-    expect(options.timeout).toBeLessThanOrEqual(45_000);
+    // Measured ~35 s; the old 40 s cap timed out in production (2026-10-27).
+    expect(options.timeout).toBeGreaterThanOrEqual(60_000);
+    expect(options.timeout).toBeLessThanOrEqual(90_000);
 
     const user = ((body.messages as Array<{ content: string }>)[0]).content;
     expect(user.indexOf('Passage about septum leaks')).toBeLessThan(user.indexOf('PRIMARY EVIDENCE TO REFINE'));
@@ -140,5 +142,14 @@ describe('knowledge-base section of the prompt', () => {
     expect(text).toContain(kb.corrective_actions[0]);
     expect(text).toContain('Safety warnings:');
     expect(text).toMatch(/Knowledge-base sources: /);
+  });
+});
+
+describe('cause text', () => {
+  it('drops a leading status label the model adds (seen live with Sonnet 5.5)', () => {
+    expect(causeText('Suspected: the license service is stopped')).toBe('the license service is stopped');
+    expect(causeText('Possible – network or DNS failure')).toBe('network or DNS failure');
+    expect(causeText('Suspected septum leak')).toBe('Suspected septum leak'); // no label, unchanged
+    expect(causeText(42)).toBe('');
   });
 });

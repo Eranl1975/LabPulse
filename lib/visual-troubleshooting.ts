@@ -1,5 +1,6 @@
-// Orchestrates one Visual Troubleshooting submission inside the 60 s Vercel
-// Hobby limit: vision → (existing pipeline ∥ web research) → report.
+// Orchestrates one Visual Troubleshooting submission inside the route's 180 s
+// limit (Vercel Hobby with Fluid compute allows up to 300 s):
+// vision → (existing pipeline ∥ web research) → report.
 // Every stage degrades instead of failing: with no AI at all, the report still
 // carries the user's text, the KB/document matches and the generic procedures.
 
@@ -20,10 +21,16 @@ import type { VisualPayload } from './visual-payload';
 
 const log = createLogger('visual-troubleshooting');
 
-/** Milliseconds from the start of the request. The function is killed at 60 s. */
+/**
+ * Milliseconds from the start of the request; the route's maxDuration is 180 s.
+ * Measured 2026-10-27 with real calls: vision ~22 s, Sonnet 5.5 refinement
+ * ~35 s (failed twice at the old 40 s cap), web research ~61 s. The old
+ * 26 s / 50 s budget cut all three off, so every report fell back to "AI
+ * unavailable". These leave each stage about twice its measured time.
+ */
 export const TIME_BUDGET = {
-  visionBy: 26_000,
-  finishBy: 50_000,
+  visionBy: 45_000,
+  finishBy: 150_000,
 };
 
 export type VisualStage = 'reading_image' | 'searching_labpulse' | 'searching_web' | 'building_report';
@@ -51,7 +58,7 @@ function timeoutError(what: string): Error {
 }
 
 /** Run `fn` but reject once the shared deadline passes. */
-function withDeadline<A extends unknown[], R>(fn: (...a: A) => Promise<R>, deadline: number, now: () => number, what: string) {
+export function withDeadline<A extends unknown[], R>(fn: (...a: A) => Promise<R>, deadline: number, now: () => number, what: string) {
   return async (...args: A): Promise<R> => {
     const remaining = deadline - now();
     if (remaining < 5_000) throw timeoutError(what);

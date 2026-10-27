@@ -15,8 +15,9 @@ import { createLogger } from '@/lib/logger';
 
 const log = createLogger('api/troubleshooting/visual');
 
-// Vision + pipeline + web research must all fit in Vercel Hobby's 60 s.
-export const maxDuration = 60;
+// Vision + pipeline + web research (lib/visual-troubleshooting.ts TIME_BUDGET
+// finishes by 150 s). Vercel Hobby with Fluid compute allows up to 300 s.
+export const maxDuration = 180;
 
 const FREE_TIER_DAILY_LIMIT = 5;          // shared with /api/query: a visual run uses the same daily quota
 const VISUAL_HOURLY_LIMIT = 10;           // every role: a run makes up to three paid AI calls
