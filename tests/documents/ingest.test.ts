@@ -4,7 +4,7 @@ import path from 'path';
 import { extractPdfText } from '@/agents/acquisition/extract/pdf-text';
 import { MockDocumentStore } from '@/agents/acquisition/pipeline/document-persist';
 import {
-  ingestExtractedPages, validateExtraction, contentHashOf, NO_TEXT_REASON,
+  ingestExtractedPages, validateExtraction, contentHashOf, NO_TEXT_REASON, cleanPageText,
 } from '@/lib/document-ingest';
 import { summarizeSearchability } from '@/lib/document-chunk-counts';
 import type { DocumentRecord } from '@/lib/document-types';
@@ -167,5 +167,22 @@ describe('summarizeSearchability', () => {
     const summary = summarizeSearchability(['a', 'b'], new Map([['a', 3], ['b', 4]]));
     expect(summary.banner).toBeNull();
     expect(summary.metadataOnly).toBe(0);
+  });
+});
+
+describe('control characters in extracted text (2026-10-27)', () => {
+  // The Thermo UltiMate 3000 pump manual's text layer contains NUL characters,
+  // which Postgres text rejects (22P05), so the whole manual failed to store.
+  it('removes NUL and other control characters but keeps line structure', () => {
+    expect(cleanPageText('Purge\u0000 the pump\u0007 now\nnext\tline\r\n')).toBe('Purge  the pump  now\nnext\tline\r\n');
+  });
+
+  it('never writes a chunk containing a NUL', async () => {
+    const store = new MockDocumentStore();
+    const text = 'Piston seal replacement\u0000 procedure. '.repeat(60);
+    await ingestExtractedPages(DOC, { pages: [{ page: 1, text }], pageCount: 1 }, store);
+    const chunks = store.chunks.get(DOC.id) ?? [];
+    expect(chunks.length).toBeGreaterThan(0);
+    expect(chunks.some(c => c.text.includes('\u0000'))).toBe(false);
   });
 });

@@ -147,9 +147,12 @@ describe('knowledge-base section of the prompt', () => {
 
 describe('cause text', () => {
   it('drops a leading status label the model adds (seen live with Sonnet 5.5)', () => {
-    expect(causeText('Suspected: the license service is stopped')).toBe('the license service is stopped');
-    expect(causeText('Possible – network or DNS failure')).toBe('network or DNS failure');
-    expect(causeText('Suspected septum leak')).toBe('Suspected septum leak'); // no label, unchanged
+    expect(causeText('Suspected: the license service is stopped')).toBe('The license service is stopped');
+    expect(causeText('Possible – network or DNS failure')).toBe('Network or DNS failure');
+    // Seen live 2026-10-27 without a colon.
+    expect(causeText('Suspected air bubbles in the gel or separation buffer')).toBe('Air bubbles in the gel or separation buffer');
+    expect(causeText('Septum leak at the inlet')).toBe('Septum leak at the inlet'); // no label, unchanged
+    expect(causeText('Suspected')).toBe('Suspected'); // nothing left: keep as written
     expect(causeText(42)).toBe('');
   });
 });

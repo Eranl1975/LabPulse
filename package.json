@@ -1,6 +1,6 @@
 {
   "name": "labpulse",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,7 @@
     "test": "vitest",
     "seed:documents": "tsx --env-file-if-exists=.env.local scripts/seed-documents.ts",
     "ingest:pdfs": "tsx --env-file-if-exists=.env.local scripts/ingest-pdfs.ts",
+    "ingest:web-manuals": "tsx --env-file-if-exists=.env.local scripts/ingest-web-manuals.ts",
     "import:columns": "tsx scripts/import-column-catalog.ts",
     "seed:columns": "tsx --env-file-if-exists=.env.local scripts/seed-column-catalog.ts"
   },

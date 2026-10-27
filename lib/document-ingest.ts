@@ -38,6 +38,16 @@ export function validateExtraction(extracted: ExtractedDocument): string | null 
   return null;
 }
 
+/**
+ * Remove control characters a PDF's text layer can carry. Postgres text cannot
+ * hold NUL (\u0000) at all: one NUL made the whole insert fail with 22P05 for the
+ * Thermo UltiMate 3000 pump manual. Tab, newline and carriage return are kept.
+ */
+export function cleanPageText(text: string): string {
+  // eslint-disable-next-line no-control-regex
+  return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ');
+}
+
 /** Stable hash of the extracted text, so a later crawl can tell the content apart. */
 export function contentHashOf(pages: PdfPage[]): string {
   return sha256(pages.map(p => `${p.page}:${p.text}`).join('\n\n'));
@@ -60,7 +70,9 @@ export async function ingestExtractedPages(
   const invalid = validateExtraction(extracted);
   if (invalid) throw new Error(invalid);
 
-  const pages = extracted.pages.filter(p => p.text.trim().length > 0);
+  const pages = extracted.pages
+    .map(p => ({ ...p, text: cleanPageText(p.text) }))
+    .filter(p => p.text.trim().length > 0);
   const chunks = chunkPdfPages(document.id, pages);
   if (chunks.length === 0) throw new Error(NO_CHUNKS_REASON);
 

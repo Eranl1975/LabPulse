@@ -1,0 +1,341 @@
+{
+  "_comment": "Official manuals the manufacturers publish openly on their own domains, ingested by `npm run ingest:web-manuals`. Only vendor-hosted PDFs: no university mirrors or manual-sharing sites. Agilent and Restek block automated clients and Malvern Panalytical, Bruker, Wyatt, JASCO, Rigaku, Renishaw, Denton, CEM and Mettler Toledo keep manuals behind customer logins, so those must be uploaded by an admin (Admin -> Documents). Every entry was checked against the host's robots.txt on 2026-10-27: hosts that forbid bots (knauer.ninoxdb.com) or refuse them (documents./tools.thermofisher.com) are not used; Thermo manuals come from knowledge1/assets.thermofisher.com, which permit it. waters.com and tainstruments.com time out from some networks; re-run from another one if they fail. Researched 2026-10-27.",
+  "manuals": [
+    {
+      "techniques": [
+        "HPLC"
+      ],
+      "vendor": "Waters",
+      "model": "Alliance 2695",
+      "doc_type": "user_guide",
+      "document_number": "71500269502",
+      "title": "Waters 2695 Separations Module Operator's Guide",
+      "url": "https://www.waters.com/webassets/cms/support/docs/71500269502rb.pdf"
+    },
+    {
+      "techniques": [
+        "HPLC",
+        "UHPLC"
+      ],
+      "vendor": "Thermo Fisher",
+      "model": "UltiMate 3000",
+      "doc_type": "user_guide",
+      "document_number": "4820.4001",
+      "title": "Thermo Scientific Dionex UltiMate 3000 Series SD, RS, BM and BX Pumps Operating Instructions",
+      "url": "https://knowledge1.thermofisher.com/@api/deki/files/5368/4820.4001_-_Rev_1.7_-_UltiMate_3000_2G_Pumps_-_Operating_Instructions.PDF?revision=1"
+    },
+    {
+      "techniques": [
+        "HPLC",
+        "UHPLC",
+        "PrepLC"
+      ],
+      "vendor": "KNAUER",
+      "model": "AZURA AS 6.1L",
+      "doc_type": "user_guide",
+      "document_number": "V6821",
+      "title": "KNAUER AZURA Autosampler AS 6.1L Instructions",
+      "url": "https://www.knauer.net/Dokumente/autosamplers/AZURA/V6821_Autosampler_AS_6.1L_User-Manual_EN.pdf"
+    },
+    {
+      "techniques": [
+        "HPLC",
+        "UHPLC"
+      ],
+      "vendor": "Shimadzu",
+      "model": "LC-40D",
+      "doc_type": "user_guide",
+      "document_number": "228-97197",
+      "title": "Shimadzu LC-40D X3 CL / LC-40D XR CL Solvent Delivery Unit Instruction Manual",
+      "url": "https://www.shimadzu.com/an/ivd/L/228-97197.pdf"
+    },
+    {
+      "techniques": [
+        "UHPLC"
+      ],
+      "vendor": "Waters",
+      "model": "ACQUITY UPLC H-Class",
+      "doc_type": "user_guide",
+      "document_number": "715005049",
+      "title": "ACQUITY UPLC H-Class System Guide (Revision C)",
+      "url": "https://help.waters.com/content/dam/waters/en/support/usermanuals/2016/715005049/715005049rc.pdf"
+    },
+    {
+      "techniques": [
+        "UHPLC"
+      ],
+      "vendor": "Waters",
+      "model": "ACQUITY UPLC",
+      "doc_type": "user_guide",
+      "document_number": "71500082502",
+      "title": "ACQUITY UPLC System Operator's Guide (Revision C)",
+      "url": "https://www.waters.com/webassets/cms/support/docs/71500082502rc.pdf"
+    },
+    {
+      "techniques": [
+        "LCMS"
+      ],
+      "vendor": "Waters",
+      "model": "QDa Mass Detector",
+      "doc_type": "maintenance_guide",
+      "document_number": "715003956",
+      "title": "ACQUITY QDa Detector Overview and Maintenance Guide (Version 06)",
+      "url": "https://help.waters.com/content/dam/waters/en/support/usermanuals/2021/715003956/715003956v06.pdf"
+    },
+    {
+      "techniques": [
+        "LCMS"
+      ],
+      "vendor": "SCIEX",
+      "model": "QTRAP 6500+",
+      "doc_type": "user_guide",
+      "document_number": "RUO-IDV-05-10767-D",
+      "title": "SCIEX 6500+ Systems System User Guide",
+      "url": "https://sciex.com/content/dam/SCIEX/pdf/customer-docs/user-guide/6500-plus-system-user-guide-en.pdf"
+    },
+    {
+      "techniques": [
+        "LCMS"
+      ],
+      "vendor": "SCIEX",
+      "model": null,
+      "doc_type": "user_guide",
+      "document_number": "RUO-IDV-05-6146-D",
+      "title": "SCIEX IonDrive Turbo V Ion Source Operator Guide",
+      "url": "https://sciex.com/content/dam/SCIEX/pdf/customer-docs/operator-guide/iondrive-turbo-v-operator-guide-en.pdf"
+    },
+    {
+      "techniques": [
+        "GC"
+      ],
+      "vendor": "Thermo Fisher",
+      "model": "Trace 1310 GC",
+      "doc_type": "user_guide",
+      "document_number": "31715003",
+      "title": "Thermo Scientific TRACE 1300 and TRACE 1310 Gas Chromatographs User Guide",
+      "url": "https://knowledge1.thermofisher.com/@api/deki/files/176/31715003_-_Rev_F_-_TRACE_1300_and_TRACE_1310_Gas_Chromatographs_User_Guide.pdf?revision=4"
+    },
+    {
+      "techniques": [
+        "GC"
+      ],
+      "vendor": "Shimadzu",
+      "model": null,
+      "doc_type": "troubleshooting_guide",
+      "document_number": null,
+      "title": "Shimadzu Gas Chromatography Troubleshooting Guide",
+      "url": "https://www.ssi.shimadzu.com/sites/ssi.shimadzu.com/files/pim/pim_document_file/ssi/others/25272/gc-troubleshooting-guide.pdf"
+    },
+    {
+      "techniques": [
+        "GC"
+      ],
+      "vendor": "PerkinElmer",
+      "model": null,
+      "doc_type": "service_manual",
+      "document_number": "09936591E",
+      "title": "PerkinElmer Clarus 500/580 GC Customer Hardware and Service Guide",
+      "url": "https://dealerweb.perkinelmer.com/CHROM/tstree.nsf/e75d7b5cde711679852567f3005428e8/001400f1e59836ce85257720003f2cc7/$FILE/Clarus%20500-580%20GC%20Customer%20Hardware%20and%20Service%20Guide%20-%2009936591E.pdf"
+    },
+    {
+      "techniques": [
+        "GCMS"
+      ],
+      "vendor": "Shimadzu",
+      "model": null,
+      "doc_type": "troubleshooting_guide",
+      "document_number": null,
+      "title": "Shimadzu Gas Chromatography Mass Spectrometry Troubleshooting Guide",
+      "url": "https://www.ssi.shimadzu.com/sites/ssi.shimadzu.com/files/pim/pim_document_file/ssi/others/25274/gcms-troubleshooting-guide.pdf"
+    },
+    {
+      "techniques": [
+        "GCMS"
+      ],
+      "vendor": "Thermo Fisher",
+      "model": null,
+      "doc_type": "service_manual",
+      "document_number": "1R120555-0002",
+      "title": "Thermo Scientific ISQ Series Mass Spectrometers Hardware Manual",
+      "url": "https://knowledge1.thermofisher.com/@api/deki/files/6332/1R120555-0002_-_Rev_F_-_ISQ_Series_Mass_Spectrometers_-_Hardware_Manual.PDF?revision=3"
+    },
+    {
+      "techniques": [
+        "IC"
+      ],
+      "vendor": "Thermo Fisher Dionex",
+      "model": "ICS-6000",
+      "doc_type": "user_guide",
+      "document_number": "22181-97002",
+      "title": "Thermo Scientific Dionex ICS-6000 Ion Chromatography System Operator's Manual",
+      "url": "https://assets.thermofisher.com/TFS-Assets/CMD/manuals/man-22181-97002-ics-6000-man2218197002-en.pdf"
+    },
+    {
+      "techniques": [
+        "IC"
+      ],
+      "vendor": "Thermo Fisher Dionex",
+      "model": null,
+      "doc_type": "troubleshooting_guide",
+      "document_number": "BR73203",
+      "title": "Thermo Scientific Ion Chromatography Troubleshooting Guide",
+      "url": "https://assets.thermofisher.com/TFS-Assets/CMD/brochures/br-73203-ic-troubleshooting-guide-br73203-en.pdf"
+    },
+    {
+      "techniques": [
+        "FPLC"
+      ],
+      "vendor": "Bio-Rad",
+      "model": "NGC Chromatography System",
+      "doc_type": "user_guide",
+      "document_number": "10000049092",
+      "title": "Bio-Rad NGC Chromatography Systems and ChromLab Software User Guide (Version 6.1)",
+      "url": "https://commerce.bio-rad.com/sites/default/files/webroot/web/pdf/lsr/literature/10000049092.pdf",
+      "max_mb": 400
+    },
+    {
+      "techniques": [
+        "CE"
+      ],
+      "vendor": "SCIEX Beckman Coulter",
+      "model": "PA 800 Plus",
+      "doc_type": "maintenance_guide",
+      "document_number": "RUO-IDV-05-5519-D",
+      "title": "SCIEX PA 800 Plus Pharmaceutical Analysis System Maintenance Guide",
+      "url": "https://sciex.com/content/dam/SCIEX/pdf/customer-docs/user-guide/pa-800-plus-system-maintenance-guide-en.pdf"
+    },
+    {
+      "techniques": [
+        "CE"
+      ],
+      "vendor": "SCIEX Beckman Coulter",
+      "model": "PA 800 Plus",
+      "doc_type": "maintenance_guide",
+      "document_number": null,
+      "title": "SCIEX BioPhase 8800 and PA 800 Plus Capillary Cartridge Handling Guide",
+      "url": "https://sciex.com/content/dam/SCIEX/pdf/customer-docs/user-guide/ce-cartridge-handling-guide-en.pdf"
+    },
+    {
+      "techniques": [
+        "SFC"
+      ],
+      "vendor": "Waters",
+      "model": "ACQUITY UPC²",
+      "doc_type": "user_guide",
+      "document_number": "715004521",
+      "title": "ACQUITY UPC2 System Guide (Revision C)",
+      "url": "https://help.waters.com/content/dam/waters/en/support/usermanuals/2016/715004521/715004521rc.pdf"
+    },
+    {
+      "techniques": [
+        "Titration"
+      ],
+      "vendor": "Metrohm",
+      "model": "905 Titrando",
+      "doc_type": "user_guide",
+      "document_number": "8.905.8003EN",
+      "title": "Metrohm 905 Titrando Manual",
+      "url": "https://www.metrohm.com/content/dam/metrohm/shared/documents/manuals/89/89058003EN.pdf"
+    },
+    {
+      "techniques": [
+        "KF"
+      ],
+      "vendor": "Metrohm",
+      "model": "899 Coulometer",
+      "doc_type": "user_guide",
+      "document_number": "8.899.8001EN",
+      "title": "Metrohm 899 Coulometer Manual",
+      "url": "https://www.metrohm.com/content/dam/metrohm/shared/documents/manuals/88/88998001EN.pdf"
+    },
+    {
+      "techniques": [
+        "KFO",
+        "KF"
+      ],
+      "vendor": "Metrohm",
+      "model": "874 Oven Sample Processor",
+      "doc_type": "user_guide",
+      "document_number": "8.874.8002EN",
+      "title": "Metrohm 874 Oven Sample Processor Manual",
+      "url": "https://www.metrohm.com/content/dam/metrohm/shared/documents/manuals/88/88748002EN.pdf"
+    },
+    {
+      "techniques": [
+        "BET"
+      ],
+      "vendor": "Micromeritics",
+      "model": "TriStar II Plus",
+      "doc_type": "user_guide",
+      "document_number": "302-42800-01",
+      "title": "Micromeritics TriStar II Plus 3030 Operator Manual (Rev M)",
+      "url": "https://downloads.micromeritics.com/Guides/TriStar-II-Plus-Operator-Manual-Rev-M-Sep-2023.pdf"
+    },
+    {
+      "techniques": [
+        "BET"
+      ],
+      "vendor": "Micromeritics",
+      "model": "TriStar II Plus",
+      "doc_type": "troubleshooting_guide",
+      "document_number": null,
+      "title": "Micromeritics TriStar II Plus Error Messages",
+      "url": "https://downloads.micromeritics.com/Errors/Error-Messages-TriStar-II-Plus-May-2023.pdf"
+    },
+    {
+      "techniques": [
+        "DSC"
+      ],
+      "vendor": "TA Instruments",
+      "model": null,
+      "doc_type": "tech_note",
+      "document_number": null,
+      "title": "TA Instruments Discovery DSC Practical Course Part 2: Maintenance, Calibration and Troubleshooting",
+      "url": "https://www.tainstruments.com/wp-content/uploads/Discovery_DSC_practical_2020_part_2.pdf"
+    },
+    {
+      "techniques": [
+        "TGA"
+      ],
+      "vendor": "TA Instruments",
+      "model": null,
+      "doc_type": "tech_note",
+      "document_number": null,
+      "title": "TA Instruments TGA & SDT Theory and Applications Course Part 1",
+      "url": "https://www.tainstruments.com/wp-content/uploads/2020-TGA-Online-Training-Part-1.pdf"
+    },
+    {
+      "techniques": [
+        "SPPS"
+      ],
+      "vendor": "Biotage",
+      "model": "Syro I",
+      "doc_type": "user_guide",
+      "document_number": "355757",
+      "title": "Biotage Syro Installation and Safety",
+      "url": "https://selekt.biotage.com/hubfs/ORGANIC/User%20Manuals%20and%20Service/Syro/355757-b_syro_installation_and_safety.pdf"
+    },
+    {
+      "techniques": [
+        "SPPS"
+      ],
+      "vendor": "Biotage",
+      "model": null,
+      "doc_type": "user_guide",
+      "document_number": "356230",
+      "title": "Biotage Initiator+ Alstra Getting Started Guide for Peptide Synthesis",
+      "url": "https://selekt.biotage.com/hubfs/ORGANIC/User%20Manuals%20and%20Service/Alstra/356230-j_initiator_alstra_getting_started_guide.pdf"
+    },
+    {
+      "techniques": [
+        "Raman"
+      ],
+      "vendor": "Thermo Fisher",
+      "model": "DXR3 Raman",
+      "doc_type": "user_guide",
+      "document_number": "269-215102",
+      "title": "Thermo Scientific DXR3 Getting Started Guide",
+      "url": "https://knowledge1.thermofisher.com/@api/deki/files/36869/269-215102_A_Getting_Started.pdf?revision=1"
+    }
+  ]
+}

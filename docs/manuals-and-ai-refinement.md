@@ -70,3 +70,34 @@ unchanged. EXECUTE is granted to `service_role` only. If the function is missing
 Other Claude calls are unchanged: image analysis (`lib/visual-analysis.ts`), web research and
 AI cleaning procedures still use Sonnet 4.6, and the legacy V1 fallback still uses Sonnet 4.6 /
 Opus 4.6.
+
+## Manuals added from the web (v8.3)
+
+`data/web-manuals.json` lists official manuals that manufacturers publish openly on their own
+domains; `npm run ingest:web-manuals` downloads them and stores their passages through the same
+path as an admin upload (`--dry-run` to check without writing, `--only=<text>` for a subset).
+Re-running replaces a manual's passages rather than duplicating them.
+
+Fetching uses `PoliteFetcher`: an honest user agent, robots.txt obeyed (an unreadable robots.txt
+counts as "no"), and per-host throttling. Every download must start with `%PDF-`.
+
+Stored on 2026-10-27: **22 manuals, 9,519 passages, 15 techniques**: HPLC, UHPLC, PrepLC, LCMS,
+GC, GCMS, IC, FPLC, CE, Titration, KF, KFO, BET, SPPS and Raman, from Thermo Fisher, SCIEX, KNAUER,
+Shimadzu, PerkinElmer, Bio-Rad, Metrohm, Micromeritics and Biotage.
+
+Not stored, with the reason:
+
+| Source | Reason |
+|---|---|
+| Agilent, Restek | Firewall refuses automated clients |
+| documents. / tools.thermofisher.com (incl. the ICS-6000 manual) | 403 to bots; Thermo manuals come from knowledge1 / assets.thermofisher.com instead |
+| knauer.ninoxdb.com (AZURA pump manuals) | robots.txt: `Disallow: /` |
+| waters.com, help.waters.com, tainstruments.com | Time out from the network the import was run on; run the script again from another network |
+| Malvern Panalytical, Bruker, Wyatt, JASCO, Rigaku, Renishaw, Denton, CEM, Mettler Toledo, Phenom | Manuals are behind a customer login |
+
+No openly published manual was found for SFC (Waters only), TGA, DSC, XRD, DLS, CD, SEM, Sputter,
+SEC-MALS, TEM, NMR or ssNMR. Those manuals have to be uploaded by an admin (Admin → Documents →
+"Add a manual for any instrument"). Upload any PDF your lab is entitled to use.
+
+`lib/document-ingest.ts` now strips control characters before storing: Postgres cannot hold NUL,
+and one NUL in the Thermo UltiMate 3000 manual made the whole insert fail.

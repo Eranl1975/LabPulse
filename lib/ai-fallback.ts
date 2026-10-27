@@ -502,7 +502,10 @@ async function callModelV2(model: string, userMessage: string): Promise<{ parsed
  * often prefixes every cause, which repeats the status the report already shows.
  */
 export function causeText(v: unknown): string {
-  return typeof v === 'string' ? v.replace(/^\s*(suspected|possible|probable|likely|confirmed)\s*[:\-–—]\s*/i, '').trim() : '';
+  if (typeof v !== 'string') return '';
+  // "Suspected: X", "Suspected – X" and "Suspected X" all lose the label, as long as text remains.
+  const stripped = v.replace(/^\s*(suspected|possible|probable|likely|confirmed)\b\s*[:\-–—]?\s*/i, '').trim();
+  return stripped ? stripped.charAt(0).toUpperCase() + stripped.slice(1) : v.trim();
 }
 
 function arr(v: unknown): string[] {
